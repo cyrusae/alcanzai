@@ -117,7 +117,7 @@ paper_library_project/
 
 ---
 
-## Possible gotchas
+## Possible gotchas and testing notes
 
 ### Docker on a new machine
 
@@ -152,5 +152,20 @@ cd() {
 ```
 
 Or move to a devcontainer (TODO: move to devcontainer!) to avoid this in future! 
+
+### When testing 
+
+(Using "Attention Is All You Need" as our canonical test paper)
+
+``` bash
+# Delete the old note first
+rm vault/Papers/Vaswani*.md
+
+# Delete from state so it processes fresh
+# (or just use force=True in the code)
+
+# Run again
+python tests/test_pipeline.py 1706.03762
+```
 
 ### TODO: Continue adding gotchas...
