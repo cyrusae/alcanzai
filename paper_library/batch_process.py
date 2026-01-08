@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
-Batch process papers from a text file. 
-
-Wrapper around orchestrator.py.
+Batch process papers from a text file.
 
 Usage:
     python batch_process.py papers.txt
@@ -35,7 +33,28 @@ def batch_process(input_file: str):
         return
     
     with open(input_path) as f:
-        identifiers = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+        lines = []
+        for line in f:
+            # Strip leading/trailing whitespace
+            line = line.strip()
+            
+            # Skip empty lines and comment lines
+            if not line or line.startswith('#'):
+                continue
+            
+            # Remove markdown bullets (-, *, +)
+            if line.startswith(('-', '*', '+')):
+                line = line[1:].strip()
+            
+            # Handle inline comments (everything after #)
+            if '#' in line:
+                line = line.split('#')[0].strip()
+            
+            # Add if not empty after cleaning
+            if line:
+                lines.append(line)
+        
+        identifiers = lines
     
     print(f"\n{'='*70}")
     print(f"BATCH PROCESSING: {len(identifiers)} papers from {input_file}")
