@@ -67,31 +67,32 @@ results = processor.process_batch(identifiers)
 ## Project Structure
 
 ```
-paper_library_project/
+alcanzai/
 ├── paper_library/          # Main package
 │   ├── __init__.py
-│   ├── config.py          # Configuration management
-│   ├── models.py          # Pydantic data models
-│   ├── state.py           # Processing state tracking
+│   ├── config.py              # Configuration management
+│   ├── models.py              # Pydantic data models
+│   ├── state.py               # Processing state tracking
 │   ├── grobid_processor.py    # GROBID XML parsing
 │   ├── synthesis_generator.py # Claude integration
 │   ├── markdown_writer.py     # Obsidian note formatting
 │   ├── arxiv_fetcher.py       # arXiv API integration
 │   ├── doi_fetcher.py         # DOI resolution -- TODO
 │   ├── web_fetcher.py         # Web article fetching -- TODO
+│   ├── batch_process.py       # Wrapper function on orchestrator to handle batched files
 │   └── orchestrator.py        # Main processing pipeline
-├── docker-compose.yml     # GROBID service
-├── pyproject.toml        # Package configuration
-└── vault/                # Output directory (created on first run)
-    ├── Papers/           # Academic papers
-    ├── Articles/         # Web articles
-    ├── PDFs/            # Original PDF files
-    └── _meta/           # Processing state
+├── docker-compose.yml         # GROBID service
+├── pyproject.toml             # Package configuration
+└── vault/                     # Output directory (created on first run)
+    ├── Papers/                # Academic papers
+    ├── Articles/              # Web articles
+    ├── PDFs/                  # Original PDF files
+    └── _meta/                 # Processing state
 ```
 
 ## Development Status
 
-**v0.1.0 MVP** (In Progress)
+**v0.1.0 MVP** (Running prototype!)
 - [x] Configuration management
 - [x] Data models
 - [x] State tracking
@@ -100,9 +101,10 @@ paper_library_project/
 - [x] Markdown writer
 - [x] arXiv fetcher
 - [x] Orchestrator
-- [ ] Containerize (devcontainer)
+- [x] Wrapper function for batch processing
 
-**v0.1.5** (Planned)
+**v0.1.5** (Next!)
+- Containerize (devcontainer)
 - DOI fetcher
 - Web fetcher
 - CLI interface
@@ -110,6 +112,7 @@ paper_library_project/
 
 **v0.2+** (Future)
 - Annotated PDF support
+- Integrate OCR!
 - Detailed section-by-section summaries
 - Author pages
 - Advanced citation graph features
