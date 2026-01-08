@@ -1,6 +1,5 @@
 # Docker Compose file - defines services that run in containers
 # This sets up GROBID for PDF processing
-version: '3.8'
 
 services:
   # GROBID - scholarly PDF parser
