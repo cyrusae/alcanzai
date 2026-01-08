@@ -259,6 +259,7 @@ class GrobidProcessor:
         - Copyright notices
         - Permission statements
         - Footnote markers
+        - ALL-CAPS formatting
         
         Args:
             title: Raw title from GROBID
@@ -287,7 +288,51 @@ class GrobidProcessor:
         # Remove multiple spaces
         title = re.sub(r'\s+', ' ', title)
         
+        # Fix ALL-CAPS titles
+        # If more than 50% of letters are uppercase, convert to title case
+        if title.isupper() or sum(1 for c in title if c.isupper()) > len([c for c in title if c.isalpha()]) * 0.5:
+            # Use title case, but preserve acronyms
+            title = self._smart_title_case(title)
+        
         return title.strip()
+    
+    def _smart_title_case(self, text: str) -> str:
+        """
+        Convert to title case while preserving acronyms.
+        
+        "BERT: PRE-TRAINING OF DEEP BIDIRECTIONAL TRANSFORMERS"
+        becomes
+        "BERT: Pre-training of Deep Bidirectional Transformers"
+        
+        Args:
+            text: Text to convert
+            
+        Returns:
+            Title-cased text
+        """
+        import re
+        
+        # Split into words
+        words = text.split()
+        result = []
+        
+        for i, word in enumerate(words):
+            # Keep short all-caps words (likely acronyms: BERT, GPT, RNN)
+            if len(word) <= 4 and word.isupper():
+                result.append(word)
+            # Keep words with mixed case (already formatted)
+            elif word.islower() or (word[0].isupper() and word[1:].islower()):
+                result.append(word.capitalize() if i == 0 else word.lower())
+            # Convert all-caps to title case
+            else:
+                # Special handling for hyphenated words
+                if '-' in word:
+                    parts = word.split('-')
+                    result.append('-'.join(p.capitalize() for p in parts))
+                else:
+                    result.append(word.capitalize())
+        
+        return ' '.join(result)
     
     def _extract_authors(self, root: etree._Element) -> list[str]:
         """
