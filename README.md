@@ -14,7 +14,7 @@ Personal research library that processes academic papers and web articles into a
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.9+ (`uv` expects 3.14)
 - Docker (for GROBID service)
 - Anthropic API key
 
