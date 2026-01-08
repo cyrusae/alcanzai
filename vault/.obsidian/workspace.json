@@ -11,10 +11,14 @@
             "id": "b8abf443833939c9",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "Vaswani et al (2023) - Attention Is All You Need"
             }
           }
         ]
@@ -90,6 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -99,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks"
+              "title": "Backlinks for Vaswani et al (2023) - Attention Is All You Need"
             }
           },
           {
@@ -108,11 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links"
+              "title": "Outgoing links from Vaswani et al (2023) - Attention Is All You Need"
             }
           },
           {
@@ -150,12 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of Vaswani et al (2023) - Attention Is All You Need"
             }
           }
         ]
@@ -178,6 +185,7 @@
   },
   "active": "b8abf443833939c9",
   "lastOpenFiles": [
+    "PDFs/arxiv_1706.03762.pdf",
     "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
     "Papers/Vaswani et al (2023) - Provided proper attribution is provided, Google her....md"
   ]
