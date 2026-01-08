@@ -158,7 +158,7 @@ Or move to a devcontainer (TODO: move to devcontainer!) to avoid this in future!
 (Using "Attention Is All You Need" as our canonical test paper)
 
 ``` bash
-# Delete the old note first
+# Delete the old note first if needed (exact titles will be overwritten)
 rm vault/Papers/Vaswani*.md
 
 # Delete from state so it processes fresh
