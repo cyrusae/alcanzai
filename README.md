@@ -112,6 +112,7 @@ paper_library_project/
 - Detailed section-by-section summaries
 - Author pages
 - Advanced citation graph features
+- Move to self-hosted always-on GROBID server
 
 ---
 
