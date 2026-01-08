@@ -237,14 +237,57 @@ class GrobidProcessor:
         
         if title_elem is not None and title_elem.text:
             # .strip() removes leading/trailing whitespace
-            return title_elem.text.strip()
+            title = title_elem.text.strip()
+            # Clean up common garbage from GROBID extraction
+            title = self._clean_title(title)
+            return title
         
         # Fallback: try title in biblStruct (alternative location)
         title_elem = root.find('.//tei:analytic/tei:title[@type="main"]', self.NS)
         if title_elem is not None and title_elem.text:
-            return title_elem.text.strip()
+            title = title_elem.text.strip()
+            title = self._clean_title(title)
+            return title
         
         return None
+    
+    def _clean_title(self, title: str) -> str:
+        """
+        Clean extracted title by removing common garbage.
+        
+        GROBID sometimes includes:
+        - Copyright notices
+        - Permission statements
+        - Footnote markers
+        
+        Args:
+            title: Raw title from GROBID
+            
+        Returns:
+            Cleaned title
+        """
+        import re
+        
+        # Remove copyright/permission statements at the start
+        # Pattern: "Provided ... Google hereby grants ..." etc.
+        copyright_patterns = [
+            r'^Provided proper attribution.*?solely for use in.*?\.',
+            r'^©.*?\d{4}',  # © 2023 etc.
+            r'^Copyright.*?\d{4}',
+            r'^\*\s*Equal contribution.*?$',  # Footnote markers
+        ]
+        
+        for pattern in copyright_patterns:
+            title = re.sub(pattern, '', title, flags=re.IGNORECASE | re.DOTALL)
+        
+        # Remove leading/trailing whitespace and punctuation
+        title = title.strip()
+        title = title.strip('.,;:')
+        
+        # Remove multiple spaces
+        title = re.sub(r'\s+', ' ', title)
+        
+        return title.strip()
     
     def _extract_authors(self, root: etree._Element) -> list[str]:
         """
@@ -467,6 +510,11 @@ class GrobidProcessor:
         for bibl in listbibl.findall('tei:biblStruct', self.NS):
             # Extract raw citation text (all text concatenated)
             raw_text = "".join(bibl.itertext()).strip()
+            
+            # Clean up excessive whitespace
+            # Replace multiple whitespace chars (spaces, tabs, newlines) with single space
+            import re
+            raw_text = re.sub(r'\s+', ' ', raw_text)
             
             # Try to parse citation fields
             # Note: Citation parsing is complex and often incomplete
