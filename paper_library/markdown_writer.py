@@ -124,7 +124,7 @@ class MarkdownWriter:
             sections.append("## Full Citation List\n")
             for i, citation in enumerate(metadata.citations, 1):
                 # Format citation properly from parsed fields
-                formatted = self._format_citation_full(citation, i)
+                formatted = MarkdownWriter._format_citation_full(citation, i)
                 sections.append(formatted)
             sections.append("")
         
