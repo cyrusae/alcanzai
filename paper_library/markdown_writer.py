@@ -468,10 +468,18 @@ class MarkdownWriter:
         # Fallback to cleaned raw text
         # At least remove the excessive concatenation issues
         raw = citation.raw_text
-        # Add some basic spacing between obvious concatenations
         import re
+        
         # Add space before uppercase after lowercase (JimmyLei Ba → Jimmy Lei Ba)
         raw = re.sub(r'([a-z])([A-Z])', r'\1 \2', raw)
+        
+        # Fix specific common patterns
+        raw = re.sub(r'ar Xiv', 'arXiv', raw)  # Fix arXiv spacing
+        raw = re.sub(r'ar\s*Xiv', 'arXiv', raw, flags=re.IGNORECASE)
+        
+        # Clean up multiple spaces
+        raw = re.sub(r'\s+', ' ', raw)
+        
         return f"{number}. {raw}"
 
     @staticmethod
