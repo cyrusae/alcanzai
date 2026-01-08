@@ -118,7 +118,13 @@ paper_library_project/
 
 ## Possible gotchas
 
+### Docker on a new machine
+
 - Install Docker if you're not on a Docker-having machine:
 - For Ubuntu, `sudo snap install docker`
 - To provide current account with permissions: `sudo -aG docker $USER`
 - This becomes irrelevant if you have a separate GROBID server (intended behavior) but is relevant for testing on a new machine
+- If it's still not working: `newgrp docker` to remind your computer to use that group
+- Why yes I *did* decide to test this on a machine where I hadn't done dev work before, how could you tell
+
+### TODO: Continue adding gotchas...
