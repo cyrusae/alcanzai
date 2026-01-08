@@ -15,11 +15,37 @@
     "2026-01-08 - Two-tier synthesis: quick preview (MVP) + detailed section-by-section summary (on-demand per paper)",
     "2026-01-08 - Link all citations in paper notes, defer author pages to post-MVP",
     "2026-01-08 - Use full author list for citation disambiguation (Smith, Jones & Chen 2023 vs Smith, Lee & Park 2023)",
-    "2026-01-08 - Use uv for Python package management instead of pip/venv"
+    "2026-01-08 - Use uv for Python package management instead of pip/venv",
+    "2026-01-08 - Target Python 3.14+ (latest features, no backwards compatibility needed)",
+    "2026-01-08 - Use real GROBID calls for testing (not mocks) - easier integration debugging"
   ],
-  "what_we_built": [],
+  "what_we_built": [
+    "2026-01-08 - config.py - config management from env vars (ANTHROPIC_API_KEY, GROBID_URL, VAULT_PATH, derived paths)",
+    "2026-01-08 - models.py - Pydantic data models (Citation, PaperMetadata, ArticleMetadata, Synthesis, ProcessingState)",
+    "2026-01-08 - state.py - StateManager for processing_state.json tracking (is_processed, mark_processed, save/load)",
+    "2026-01-08 - docker-compose.yml - GROBID 0.8.0 service setup (4G memory, pool_size=4)",
+    "2026-01-08 - env.example - template for ANTHROPIC_API_KEY, GROBID_URL, VAULT_PATH configuration",
+    "2026-01-08 - Package structure - paper_library/ with __init__, config, models, state; pyproject.toml for uv; README.md",
+    "2026-01-08 - grobid_processor.py - Parse GROBID XML to PaperMetadata, extract title/authors/year/abstract/venue/citations with full XPath parsing",
+    "2026-01-08 - synthesis_generator.py - Claude Haiku integration with structured prompts, XML parsing, token cost tracking",
+    "2026-01-08 - markdown_writer.py - Obsidian formatter with YAML frontmatter, structured sections, wikilinks, filename generation",
+    "2026-01-08 - arxiv_fetcher.py - Fetch papers from arXiv API, parse IDs (multiple formats), download PDFs, extract metadata from Atom XML",
+    "2026-01-08 - orchestrator.py - Main pipeline coordination: fetch, GROBID, synthesis, markdown, state tracking",
+    "2026-01-08 - test_grobid.py - Test script for GROBID processor with sample PDF, displays extracted metadata",
+    "2026-01-08 - test_synthesis.py - Test script for Claude synthesis with sample Transformer paper data",
+    "2026-01-08 - test_markdown.py - Test script for Obsidian note generation, creates sample_note.md",
+    "2026-01-08 - test_arxiv.py - Test script for arXiv fetching, demonstrates ID parsing and PDF download",
+    "2026-01-08 - test_pipeline.py - End-to-end integration test with pre-flight checks, processes complete paper to Obsidian",
+    "2026-01-08 - README.md - Comprehensive repository documentation with quick start, architecture decisions, troubleshooting"
+  ],
   "what_we_need_to_decide": [],
-  "important_files": [],
+  "important_files": [
+    "2026-01-08 - paper_library/__init__.py - Package exports and version",
+    "2026-01-08 - paper_library/orchestrator.py - Main entry point for paper processing",
+    "2026-01-08 - tests/test_pipeline.py - End-to-end integration test, start here for testing",
+    "2026-01-08 - pyproject.toml - Package dependencies and configuration",
+    "2026-01-08 - .env.example - Template for API keys and paths"
+  ],
   "context": [
     "2026-01-06 - Annotation sources: Android tablet PDF readers (variable apps), future Kindle Scribe",
     "2026-01-06 - Legacy materials scattered across formats from undergrad",
@@ -33,14 +59,27 @@
     "2026-01-08 - Vault structure designed to accommodate future lecture recordings and session notes",
     "2026-01-08 - Token cost not a concern - can err on side of sending full papers to Haiku",
     "2026-01-08 - Processing on homelab server (K3s), writes to vault on same server, Livesync handles mobile sync",
-    "2026-01-08 - Code should include ELI5 comments for Python learning opportunity"
+    "2026-01-08 - Code should include ELI5 comments for Python learning opportunity",
+    "2026-01-08 - Two-tier synthesis: MVP is quick-preview only (3-4 sent), detailed per-section summary deferred to v0.2 - no on-demand trigger needed for MVP",
+    "2026-01-08 - Web content in MVP is confirmed (not v0.2): Unified 'Clear Your Tabs' workflow handles arXiv+DOI+web articles+clean PDFs all together",
+    "2026-01-08 - Citation wikilink format: [[Author, Author & Author (Year) - Title]] with full author list for disambiguation - links are 'future notes', no cross-linking until papers processed",
+    "2026-01-08 - File naming: 'FirstAuthor et al (Year) - Title' (80 char limit). PDFs stored as arxiv_{id}, doi_{slug}, or local_{slug} in vault/PDFs/",
+    "2026-01-08 - Note template sections: Title+byline \u2192 Quote \u2192 Quick Refresh \u2192 Why You Cared \u2192 Key Concepts \u2192 Cites \u2192 Cited By \u2192 Details \u2192 Abstract \u2192 Full Citation List",
+    "2026-01-08 - Missing modules identified (11 total): 5 blocking (grobid_processor, synthesis_generator, markdown_writer, arxiv_fetcher, orchestrator), 6 supporting. Sequential build order recommended.",
+    "2026-01-08 - env.example exists but not in project files due to hidden file upload limitation",
+    "2026-01-08 - Phase A complete (all 5 blocking modules): grobid_processor, synthesis_generator, markdown_writer, arxiv_fetcher, orchestrator",
+    "2026-01-08 - v0.1.0 MVP Phase A complete and ready for testing - all 5 core modules + 5 test scripts + comprehensive README",
+    "2026-01-08 - All individual files presented as separate downloads due to UI limitations - organized into paper_library/, root, and tests/ directories"
   ],
   "what_we_resolved": [
-    "2026-01-06 - Paper ingestion pipeline architecture → Decided: GROBID full processing with OCRmyPDF preprocessing for scanned materials, citation extraction deferred to Phase 2",
-    "2026-01-07 - Output interface: Notion vs faster alternatives? → Decided: Obsidian for fast generation, excellent search, and graph view",
-    "2026-01-08 - Database vs JSON/Markdown for MVP - what are the tradeoffs? → Decided: Use Obsidian frontmatter + simple JSON processing state, no SQLite for MVP",
-    "2026-01-08 - SQLite vs Obsidian-native metadata (YAML frontmatter + Dataview) - which for MVP? → Decided: Obsidian frontmatter for metadata, processing_state.json for deduplication tracking",
-    "2026-01-08 - MVP input priority: arXiv+DOI first, then PDFs+web content? Or include web content in MVP? → Decided: Include web content in MVP: arXiv + DOI + web articles + clean PDFs. Defer scanned/annotated PDFs to v0.2",
-    "2026-01-08 - When to implement paper acquisition/retrieval stack (*arr-style)? → Decided: Implement in v0.1.5 after MVP - use for quality upgrades of poor scans"
+    "2026-01-06 - Paper ingestion pipeline architecture \u00e2\u2020\u2019 Decided: GROBID full processing with OCRmyPDF preprocessing for scanned materials, citation extraction deferred to Phase 2",
+    "2026-01-07 - Output interface: Notion vs faster alternatives? \u00e2\u2020\u2019 Decided: Obsidian for fast generation, excellent search, and graph view",
+    "2026-01-08 - Database vs JSON/Markdown for MVP - what are the tradeoffs? \u00e2\u2020\u2019 Decided: Use Obsidian frontmatter + simple JSON processing state, no SQLite for MVP",
+    "2026-01-08 - SQLite vs Obsidian-native metadata (YAML frontmatter + Dataview) - which for MVP? \u00e2\u2020\u2019 Decided: Obsidian frontmatter for metadata, processing_state.json for deduplication tracking",
+    "2026-01-08 - MVP input priority: arXiv+DOI first, then PDFs+web content? Or include web content in MVP? \u00e2\u2020\u2019 Decided: Include web content in MVP: arXiv + DOI + web articles + clean PDFs. Defer scanned/annotated PDFs to v0.2",
+    "2026-01-08 - When to implement paper acquisition/retrieval stack (*arr-style)? \u00e2\u2020\u2019 Decided: Implement in v0.1.5 after MVP - use for quality upgrades of poor scans",
+    "2026-01-08 - Obsidian output format specification - YAML vs JSON frontmatter, file naming, directory structure, citation link format? \u00e2\u2020\u2019 Decided: YAML frontmatter, 'Author et al (Year) - Title' naming, wikilink citations [[Author & Author (Year) - Title]]",
+    "2026-01-08 - GROBID integration timeline - OCRmyPDF before/after/parallel? Fallback strategy for scanned PDFs? \u00e2\u2020\u2019 Decided: GROBID for all MVP papers; OCRmyPDF preprocessing deferred to v0.2 with scanned PDFs",
+    "2026-01-08 - ArXiv paper source handling - fetch from API each time or expect local files? Mixed approach? \u00e2\u2020\u2019 Decided: Fetch from arXiv API by ID; no local file assumption for MVP"
   ]
 }
