@@ -1,0 +1,523 @@
+"""
+GROBID XML processor.
+
+This module sends PDFs to GROBID for parsing and extracts structured metadata
+from the XML response.
+
+GROBID (GeneRation Of BIbliographic Data) is a machine learning library for
+extracting, parsing, and restructuring raw documents such as PDF into structured
+XML/TEI encoded documents.
+
+Python concepts:
+- HTTP requests with files (multipart/form-data)
+- XML parsing with lxml
+- XPath queries for navigating XML
+- Error handling with custom exceptions
+"""
+
+import requests
+from pathlib import Path
+from typing import Optional
+from lxml import etree
+
+from paper_library.models import PaperMetadata, Citation
+
+
+class GrobidError(Exception):
+    """Raised when GROBID processing fails."""
+    pass
+
+
+class GrobidProcessor:
+    """
+    Process PDFs with GROBID to extract structured metadata.
+    
+    GROBID returns XML in TEI (Text Encoding Initiative) format.
+    We parse this to extract paper metadata and citations.
+    
+    Usage:
+        processor = GrobidProcessor("http://localhost:8070")
+        metadata = processor.process(Path("paper.pdf"))
+        print(metadata.title, metadata.authors)
+    """
+    
+    # XML namespaces used by GROBID/TEI
+    # These are needed for XPath queries
+    NS = {
+        'tei': 'http://www.tei-c.org/ns/1.0'
+    }
+    
+    def __init__(self, grobid_url: str):
+        """
+        Initialize the GROBID processor.
+        
+        Args:
+            grobid_url: Base URL of GROBID service (e.g., http://localhost:8070)
+        """
+        self.grobid_url = grobid_url.rstrip('/')
+        self.api_url = f"{self.grobid_url}/api/processFulltextDocument"
+    
+    def process(self, pdf_path: Path) -> PaperMetadata:
+        """
+        Process a PDF file with GROBID and extract metadata.
+        
+        Args:
+            pdf_path: Path to the PDF file
+            
+        Returns:
+            PaperMetadata object with extracted information
+            
+        Raises:
+            GrobidError: If GROBID processing fails
+            FileNotFoundError: If PDF doesn't exist
+        """
+        # Validate PDF exists
+        if not pdf_path.exists():
+            raise FileNotFoundError(f"PDF not found: {pdf_path}")
+        
+        # Send PDF to GROBID
+        xml_content = self._call_grobid(pdf_path)
+        
+        # Parse XML response
+        metadata = self._parse_xml(xml_content)
+        
+        # Store the PDF path
+        metadata.pdf_path = str(pdf_path)
+        
+        return metadata
+    
+    def _call_grobid(self, pdf_path: Path) -> str:
+        """
+        Send PDF to GROBID API and get XML response.
+        
+        This uses multipart/form-data to upload the file.
+        
+        Args:
+            pdf_path: Path to PDF file
+            
+        Returns:
+            XML content as string
+            
+        Raises:
+            GrobidError: If request fails
+        """
+        try:
+            # Open the PDF file in binary mode
+            # 'rb' means "read binary"
+            with open(pdf_path, 'rb') as pdf_file:
+                # Send the file as multipart/form-data
+                # The 'input' field is what GROBID expects
+                files = {
+                    'input': (pdf_path.name, pdf_file, 'application/pdf')
+                }
+                
+                # Make the request with a reasonable timeout
+                # timeout=300 means 5 minutes (GROBID can be slow)
+                response = requests.post(
+                    self.api_url,
+                    files=files,
+                    timeout=300  # 5 minutes
+                )
+                
+                # Check if request was successful
+                # raise_for_status() raises an exception for 4xx/5xx status codes
+                response.raise_for_status()
+                
+                return response.text
+                
+        except requests.Timeout:
+            raise GrobidError(f"GROBID request timed out for {pdf_path.name}")
+        except requests.RequestException as e:
+            raise GrobidError(f"GROBID request failed: {e}")
+    
+    def _parse_xml(self, xml_content: str) -> PaperMetadata:
+        """
+        Parse GROBID XML response into PaperMetadata.
+        
+        GROBID returns TEI XML with structure like:
+        <TEI>
+          <teiHeader>
+            <fileDesc>
+              <titleStmt><title>Paper Title</title></titleStmt>
+              <sourceDesc>
+                <biblStruct>
+                  <analytic>
+                    <author><persName><forename>John</forename><surname>Smith</surname></persName></author>
+                    <title>Paper Title</title>
+                  </analytic>
+                  <monogr>
+                    <title>Journal Name</title>
+                    <imprint>
+                      <date>2023</date>
+                    </imprint>
+                  </monogr>
+                </biblStruct>
+              </sourceDesc>
+            </fileDesc>
+          </teiHeader>
+          <text>
+            <body>...</body>
+            <back>
+              <div type="references">
+                <listBibl>
+                  <biblStruct>...</biblStruct>  <!-- Citations -->
+                </listBibl>
+              </div>
+            </back>
+          </text>
+        </TEI>
+        
+        Args:
+            xml_content: XML string from GROBID
+            
+        Returns:
+            PaperMetadata object
+            
+        Raises:
+            GrobidError: If XML parsing fails
+        """
+        try:
+            # Parse XML string into an element tree
+            # etree.fromstring() converts string to XML element
+            root = etree.fromstring(xml_content.encode('utf-8'))
+            
+            # Extract metadata using XPath
+            # .// means "search anywhere in the tree"
+            # @type means "attribute named type"
+            title = self._extract_title(root)
+            authors = self._extract_authors(root)
+            year = self._extract_year(root)
+            abstract = self._extract_abstract(root)
+            venue = self._extract_venue(root)
+            volume, issue, pages = self._extract_publication_info(root)
+            doi = self._extract_doi(root)
+            citations = self._extract_citations(root)
+            
+            # Create PaperMetadata object
+            # We require title, authors, and year
+            # Everything else is optional
+            if not title or not authors or not year:
+                raise GrobidError(
+                    "Could not extract required fields (title, authors, year) from GROBID output"
+                )
+            
+            return PaperMetadata(
+                title=title,
+                authors=authors,
+                year=year,
+                abstract=abstract,
+                venue=venue,
+                volume=volume,
+                issue=issue,
+                pages=pages,
+                doi=doi,
+                citations=citations,
+                source="grobid"
+            )
+            
+        except etree.XMLSyntaxError as e:
+            raise GrobidError(f"Invalid XML from GROBID: {e}")
+    
+    def _extract_title(self, root: etree._Element) -> Optional[str]:
+        """
+        Extract paper title from XML.
+        
+        XPath: //tei:titleStmt/tei:title[@type='main']
+        
+        Args:
+            root: XML root element
+            
+        Returns:
+            Title string or None
+        """
+        # XPath query: find <title type="main"> inside <titleStmt>
+        # The .// means "anywhere in the tree"
+        # The [@type='main'] filters for main title (not subtitle)
+        title_elem = root.find('.//tei:titleStmt/tei:title[@type="main"]', self.NS)
+        
+        if title_elem is not None and title_elem.text:
+            # .strip() removes leading/trailing whitespace
+            return title_elem.text.strip()
+        
+        # Fallback: try title in biblStruct (alternative location)
+        title_elem = root.find('.//tei:analytic/tei:title[@type="main"]', self.NS)
+        if title_elem is not None and title_elem.text:
+            return title_elem.text.strip()
+        
+        return None
+    
+    def _extract_authors(self, root: etree._Element) -> list[str]:
+        """
+        Extract author names from XML.
+        
+        XPath: //tei:analytic/tei:author/tei:persName
+        
+        Authors are formatted as "Lastname, Firstname Middlename"
+        
+        Args:
+            root: XML root element
+            
+        Returns:
+            List of author name strings
+        """
+        authors = []
+        
+        # Find all author elements
+        # .findall() returns all matching elements (not just first)
+        author_elems = root.findall('.//tei:analytic/tei:author', self.NS)
+        
+        for author_elem in author_elems:
+            # Get persName (personal name) element
+            persname = author_elem.find('tei:persName', self.NS)
+            if persname is None:
+                continue
+            
+            # Extract surname (last name)
+            surname_elem = persname.find('tei:surname', self.NS)
+            surname = surname_elem.text.strip() if surname_elem is not None and surname_elem.text else ""
+            
+            # Extract forename(s) (first/middle names)
+            # There can be multiple forename elements
+            forenames = []
+            for forename_elem in persname.findall('tei:forename', self.NS):
+                if forename_elem.text:
+                    forenames.append(forename_elem.text.strip())
+            
+            # Format as "Lastname, Firstname Middlename"
+            if surname:
+                if forenames:
+                    author_name = f"{surname}, {' '.join(forenames)}"
+                else:
+                    author_name = surname
+                authors.append(author_name)
+        
+        return authors
+    
+    def _extract_year(self, root: etree._Element) -> Optional[int]:
+        """
+        Extract publication year from XML.
+        
+        XPath: //tei:monogr/tei:imprint/tei:date[@type='published']/@when
+        
+        Args:
+            root: XML root element
+            
+        Returns:
+            Year as integer or None
+        """
+        # Try to find publication date
+        date_elem = root.find('.//tei:monogr/tei:imprint/tei:date[@type="published"]', self.NS)
+        
+        if date_elem is not None:
+            # Date can be in @when attribute (ISO format: "2023-01-15")
+            # or in text content
+            date_str = date_elem.get('when') or date_elem.text
+            
+            if date_str:
+                # Extract just the year (first 4 digits)
+                # "2023-01-15" -> "2023"
+                try:
+                    year_str = date_str.strip()[:4]
+                    return int(year_str)
+                except (ValueError, IndexError):
+                    pass
+        
+        return None
+    
+    def _extract_abstract(self, root: etree._Element) -> Optional[str]:
+        """
+        Extract abstract text from XML.
+        
+        XPath: //tei:profileDesc/tei:abstract/tei:div/tei:p
+        
+        Args:
+            root: XML root element
+            
+        Returns:
+            Abstract text or None
+        """
+        # Find abstract element
+        abstract_elem = root.find('.//tei:profileDesc/tei:abstract', self.NS)
+        
+        if abstract_elem is not None:
+            # Abstract can have multiple paragraphs
+            # Join them with newlines
+            paragraphs = []
+            for p_elem in abstract_elem.findall('.//tei:p', self.NS):
+                # itertext() gets all text content, including nested elements
+                # "".join(...) concatenates all text pieces
+                text = "".join(p_elem.itertext()).strip()
+                if text:
+                    paragraphs.append(text)
+            
+            if paragraphs:
+                return "\n\n".join(paragraphs)
+        
+        return None
+    
+    def _extract_venue(self, root: etree._Element) -> Optional[str]:
+        """
+        Extract venue (journal or conference) name from XML.
+        
+        XPath: //tei:monogr/tei:title[@level='j']
+        
+        Args:
+            root: XML root element
+            
+        Returns:
+            Venue name or None
+        """
+        # level='j' means journal
+        # level='m' would be monograph (book)
+        venue_elem = root.find('.//tei:monogr/tei:title[@level="j"]', self.NS)
+        
+        if venue_elem is not None and venue_elem.text:
+            return venue_elem.text.strip()
+        
+        return None
+    
+    def _extract_publication_info(self, root: etree._Element) -> tuple[Optional[str], Optional[str], Optional[str]]:
+        """
+        Extract volume, issue, and page numbers from XML.
+        
+        XPath: //tei:monogr/tei:imprint
+        
+        Args:
+            root: XML root element
+            
+        Returns:
+            Tuple of (volume, issue, pages)
+        """
+        imprint = root.find('.//tei:monogr/tei:imprint', self.NS)
+        
+        if imprint is None:
+            return None, None, None
+        
+        # Extract volume
+        volume_elem = imprint.find('tei:biblScope[@unit="volume"]', self.NS)
+        volume = volume_elem.text.strip() if volume_elem is not None and volume_elem.text else None
+        
+        # Extract issue
+        issue_elem = imprint.find('tei:biblScope[@unit="issue"]', self.NS)
+        issue = issue_elem.text.strip() if issue_elem is not None and issue_elem.text else None
+        
+        # Extract pages
+        page_elem = imprint.find('tei:biblScope[@unit="page"]', self.NS)
+        if page_elem is not None:
+            # Pages can be "123-145" or separate @from/@to attributes
+            from_page = page_elem.get('from')
+            to_page = page_elem.get('to')
+            
+            if from_page and to_page:
+                pages = f"{from_page}-{to_page}"
+            elif page_elem.text:
+                pages = page_elem.text.strip()
+            else:
+                pages = None
+        else:
+            pages = None
+        
+        return volume, issue, pages
+    
+    def _extract_doi(self, root: etree._Element) -> Optional[str]:
+        """
+        Extract DOI from XML.
+        
+        XPath: //tei:idno[@type='DOI']
+        
+        Args:
+            root: XML root element
+            
+        Returns:
+            DOI string or None
+        """
+        doi_elem = root.find('.//tei:idno[@type="DOI"]', self.NS)
+        
+        if doi_elem is not None and doi_elem.text:
+            return doi_elem.text.strip()
+        
+        return None
+    
+    def _extract_citations(self, root: etree._Element) -> list[Citation]:
+        """
+        Extract bibliography/citations from XML.
+        
+        XPath: //tei:back//tei:listBibl/tei:biblStruct
+        
+        Each citation is stored as a Citation object with:
+        - raw_text: The full citation string
+        - Parsed fields (authors, title, year, doi) when available
+        
+        Args:
+            root: XML root element
+            
+        Returns:
+            List of Citation objects
+        """
+        citations = []
+        
+        # Find bibliography section
+        # //tei:back//tei:listBibl means "find listBibl anywhere under back element"
+        listbibl = root.find('.//tei:back//tei:listBibl', self.NS)
+        
+        if listbibl is None:
+            return citations
+        
+        # Each biblStruct is one citation
+        for bibl in listbibl.findall('tei:biblStruct', self.NS):
+            # Extract raw citation text (all text concatenated)
+            raw_text = "".join(bibl.itertext()).strip()
+            
+            # Try to parse citation fields
+            # Note: Citation parsing is complex and often incomplete
+            # For MVP, we just store the raw text + whatever we can extract
+            
+            # Title
+            title_elem = bibl.find('.//tei:title[@level="a"]', self.NS)  # article title
+            if title_elem is None:
+                title_elem = bibl.find('.//tei:title[@level="m"]', self.NS)  # book title
+            title = title_elem.text.strip() if title_elem is not None and title_elem.text else None
+            
+            # Authors
+            authors = []
+            for author_elem in bibl.findall('.//tei:author', self.NS):
+                persname = author_elem.find('tei:persName', self.NS)
+                if persname is not None:
+                    surname = persname.find('tei:surname', self.NS)
+                    forenames = persname.findall('tei:forename', self.NS)
+                    
+                    if surname is not None and surname.text:
+                        name_parts = [surname.text.strip()]
+                        if forenames:
+                            initials = [f.text[0] + "." for f in forenames if f.text]
+                            name_parts.extend(initials)
+                        authors.append(" ".join(name_parts))
+            
+            # Year
+            date_elem = bibl.find('.//tei:date[@type="published"]', self.NS)
+            year = None
+            if date_elem is not None:
+                date_str = date_elem.get('when') or date_elem.text
+                if date_str:
+                    try:
+                        year = int(date_str[:4])
+                    except (ValueError, IndexError):
+                        pass
+            
+            # DOI
+            doi_elem = bibl.find('.//tei:idno[@type="DOI"]', self.NS)
+            doi = doi_elem.text.strip() if doi_elem is not None and doi_elem.text else None
+            
+            # Create Citation object
+            citation = Citation(
+                raw_text=raw_text,
+                authors=authors if authors else None,
+                title=title,
+                year=year,
+                doi=doi,
+                mention_count=1  # We don't track mentions in MVP
+            )
+            
+            citations.append(citation)
+        
+        return citations

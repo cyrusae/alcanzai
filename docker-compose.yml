@@ -1,0 +1,49 @@
+# Docker Compose file - defines services that run in containers
+# This sets up GROBID for PDF processing
+version: '3.8'
+
+services:
+  # GROBID - scholarly PDF parser
+  # Extracts structured data (title, authors, citations) from academic PDFs
+  grobid:
+    # Pre-built GROBID image from Docker Hub
+    image: lfoppiano/grobid:0.8.0
+    
+    # Expose GROBID's API on port 8070
+    # You'll send PDFs to http://localhost:8070/api/processFulltextDocument
+    ports:
+      - "8070:8070"
+    
+    # Resource limits - GROBID can be memory-hungry
+    # Adjust based on your server's capacity
+    deploy:
+      resources:
+        limits:
+          memory: 4G    # Max 4GB RAM
+        reservations:
+          memory: 2G    # Reserve 2GB
+    
+    # Keep container running even if it crashes
+    restart: unless-stopped
+    
+    # Environment variables for GROBID
+    environment:
+      # Number of concurrent requests GROBID can handle
+      # Set based on your CPU cores (typically cores - 1)
+      - GROBID_POOL_SIZE=4
+
+# Optional: Add CouchDB for Obsidian Livesync
+# Uncomment when ready to set up sync
+#  couchdb:
+#    image: couchdb:3.3
+#    ports:
+#      - "5984:5984"
+#    volumes:
+#      - couchdb-data:/opt/couchdb/data
+#    environment:
+#      - COUCHDB_USER=admin
+#      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+#    restart: unless-stopped
+
+#volumes:
+#  couchdb-data:

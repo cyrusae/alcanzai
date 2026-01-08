@@ -1,0 +1,46 @@
+{
+  "what_we_decided": [
+    "2026-01-06 - Primary framing: personal research library with knowledge graph, not just study synthesis tool",
+    "2026-01-06 - Aggressive deduplication: preprints/postprints and unannotated/annotated treated as version updates",
+    "2026-01-06 - Auto-process with flagging for manual review (maximize laziness/seamlessness)",
+    "2026-01-06 - Will rely on OCR for scanned PDFs and book scans (including two-page spreads)",
+    "2026-01-06 - Use GROBID for slow/comprehensive processing (~30s per paper, worth it for capabilities)",
+    "2026-01-06 - Use OCRmyPDF + Unpaper for scanned PDFs and two-page spread handling",
+    "2026-01-06 - Citation parsing: extract and store in MVP, defer retrieval to Phase 2",
+    "2026-01-06 - MVP metadata: authors, year, title, venue, volume/pages, DOI, abstract, page count",
+    "2026-01-06 - Development order: Start with arXiv papers (high quality, no annotations) as v0.1.0 MVP, expand to undergrad papers (mixed quality, annotations) in v0.1.5",
+    "2026-01-06 - MVP synthesis: summaries + 'why did I care' context, flashcards deferred, connections fuzzy/deferred",
+    "2026-01-06 - Acquisition sources: cast wide net including gray-market (user has legitimate access, just poor quality copies)",
+    "2026-01-07 - Use Obsidian as primary output interface - fast generation, excellent search, graph view for connections",
+    "2026-01-08 - Two-tier synthesis: quick preview (MVP) + detailed section-by-section summary (on-demand per paper)",
+    "2026-01-08 - Link all citations in paper notes, defer author pages to post-MVP",
+    "2026-01-08 - Use full author list for citation disambiguation (Smith, Jones & Chen 2023 vs Smith, Lee & Park 2023)",
+    "2026-01-08 - Use uv for Python package management instead of pip/venv"
+  ],
+  "what_we_built": [],
+  "what_we_need_to_decide": [],
+  "important_files": [],
+  "context": [
+    "2026-01-06 - Annotation sources: Android tablet PDF readers (variable apps), future Kindle Scribe",
+    "2026-01-06 - Legacy materials scattered across formats from undergrad",
+    "2026-01-06 - Will include scanned hardcopy materials and book chapters",
+    "2026-01-06 - OCR is new area, needs deeper exploration",
+    "2026-01-06 - Using Python script for state management instead of bash+jq",
+    "2026-01-06 - Need to handle resolved questions in state tracking",
+    "2026-01-06 - Two paper datasets available: (1) arXiv AI papers - high quality, no annotations yet, (2) undergrad papers - mixed quality, existing highlights, cross-discipline",
+    "2026-01-06 - Has ~24+ arXiv AI/LLM papers ready for testing, mostly with arXiv IDs",
+    "2026-01-08 - Using CouchDB for Obsidian sync on homelab server",
+    "2026-01-08 - Vault structure designed to accommodate future lecture recordings and session notes",
+    "2026-01-08 - Token cost not a concern - can err on side of sending full papers to Haiku",
+    "2026-01-08 - Processing on homelab server (K3s), writes to vault on same server, Livesync handles mobile sync",
+    "2026-01-08 - Code should include ELI5 comments for Python learning opportunity"
+  ],
+  "what_we_resolved": [
+    "2026-01-06 - Paper ingestion pipeline architecture → Decided: GROBID full processing with OCRmyPDF preprocessing for scanned materials, citation extraction deferred to Phase 2",
+    "2026-01-07 - Output interface: Notion vs faster alternatives? → Decided: Obsidian for fast generation, excellent search, and graph view",
+    "2026-01-08 - Database vs JSON/Markdown for MVP - what are the tradeoffs? → Decided: Use Obsidian frontmatter + simple JSON processing state, no SQLite for MVP",
+    "2026-01-08 - SQLite vs Obsidian-native metadata (YAML frontmatter + Dataview) - which for MVP? → Decided: Obsidian frontmatter for metadata, processing_state.json for deduplication tracking",
+    "2026-01-08 - MVP input priority: arXiv+DOI first, then PDFs+web content? Or include web content in MVP? → Decided: Include web content in MVP: arXiv + DOI + web articles + clean PDFs. Defer scanned/annotated PDFs to v0.2",
+    "2026-01-08 - When to implement paper acquisition/retrieval stack (*arr-style)? → Decided: Implement in v0.1.5 after MVP - use for quality upgrades of poor scans"
+  ]
+}
