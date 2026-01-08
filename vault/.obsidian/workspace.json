@@ -25,14 +25,12 @@
             "id": "1243d12ad8c1098c",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "pdf",
               "state": {
-                "file": "Papers/Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ....md",
-                "mode": "source",
-                "source": false
+                "file": "PDFs/arxiv_2412.14093.pdf"
               },
-              "icon": "lucide-file",
-              "title": "Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ..."
+              "icon": "lucide-file-text",
+              "title": "arxiv_2412.14093"
             }
           }
         ],
@@ -109,7 +107,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Papers/Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ....md",
+                "file": "PDFs/arxiv_2412.14093.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +117,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ..."
+              "title": "Backlinks for arxiv_2412.14093"
             }
           },
           {
@@ -128,12 +126,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Papers/Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ....md",
+                "file": "PDFs/arxiv_2412.14093.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ..."
+              "title": "Outgoing links from arxiv_2412.14093"
             }
           },
           {
@@ -171,13 +169,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Papers/Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ....md",
+                "file": "PDFs/arxiv_2412.14093.pdf",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ..."
+              "title": "Outline of arxiv_2412.14093"
             }
           }
         ]
@@ -200,27 +198,30 @@
   },
   "active": "1243d12ad8c1098c",
   "lastOpenFiles": [
+    "Papers/Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward.md",
+    "Papers/Carlsmith et al (2023) - Will AIs fake alignment during training in order to.md",
+    "Papers/Allen-Zhu et al (2024) - Physics of Language Models - Part 3.3 Knowledge.md",
+    "PDFs/arxiv_2404.05405.pdf",
+    "PDFs/arxiv_2406.10162.pdf",
+    "PDFs/arxiv_2311.08379.pdf",
+    "PDFs/arxiv_2310.02207.pdf",
+    "PDFs/arxiv_2309.14402.pdf",
+    "PDFs/arxiv_2309.14316.pdf",
+    "PDFs/arxiv_2309.12288.pdf",
+    "PDFs/arxiv_2112.00861.pdf",
+    "PDFs/arxiv_1706.03762.pdf",
+    "Papers/Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ....md",
     "Batches/arXiv_tests.md",
     "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
     "Papers/Gurnee et al (2024) - Language Models Represent Space and Time.md",
     "Papers/Greenblatt et al (2024) - Alignment Faking IN Large Language Models.md",
-    "Papers/Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ....md",
     "Papers/Askell et al (2021) - A General Language Assistant as a Laboratory for Ali....md",
     "Papers/Allen-Zhu et al (2023) - Physics of Language Models Part 3.2, Knowledge Ma....md",
     "Papers/Allen-Zhu et al (2023) - Physics of Language Models Part 3.1, Knowledge St....md",
     "PDFs/arxiv_2402.05405.pdf",
     "Papers/Zhang et al (2007) - Why Do Weak-Binding M-N-C Single-Atom Catalysts Posse....md",
-    "PDFs/arxiv_2406.10162.pdf",
-    "PDFs/arxiv_2311.08379.pdf",
-    "PDFs/arxiv_2309.12288.pdf",
-    "PDFs/arxiv_2112.00861.pdf",
-    "PDFs/arxiv_2309.14402.pdf",
-    "PDFs/arxiv_2309.14316.pdf",
-    "Batches",
     "Papers/Greenblatt et al (2024) - ALIGNMENT FAKING IN LARGE LANGUAGE MODELS.md",
     "Papers/Gurnee et al (2024) - LANGUAGE MODELS REPRESENT SPACE AND TIME.md",
-    "PDFs/arxiv_2412.14093.pdf",
-    "PDFs/arxiv_1706.03762.pdf",
     "Papers/Vaswani et al (2023) - Provided proper attribution is provided, Google her....md"
   ]
 }
