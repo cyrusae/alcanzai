@@ -35,13 +35,13 @@ class SynthesisGenerator:
         print(synthesis.summary)
     """
     
-    # Pricing for Claude Haiku (as of Jan 2025)
+    # Pricing for Claude Haiku (as of Jan 2026)
     # These are in USD per million tokens
-    INPUT_PRICE_PER_MTOK = 0.80   # $0.80 per million input tokens
-    OUTPUT_PRICE_PER_MTOK = 4.00  # $4.00 per million output tokens
+    INPUT_PRICE_PER_MTOK = 1.00   # $1.00 per million input tokens
+    OUTPUT_PRICE_PER_MTOK = 5.00  # $5.00 per million output tokens
     
     # Default model to use
-    MODEL = "claude-haiku-20250514"
+    MODEL = "claude-haiku-4-5" # Fix to use current model -- date not necessary(?)
     
     def __init__(self, api_key: str):
         """
