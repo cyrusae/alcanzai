@@ -10,35 +10,35 @@ added: "2026-01-08"
 tags:
   - transformer-architecture
   - self-attention
-  - attention-mechanism
   - multi-head-attention
   - sequence-transduction
+  - scaled-dot-product-attention
   - machine-translation
   - encoder-decoder
-  - scaled-dot-product-attention
-  - parallelization
   - positional-encoding
+  - parallel-computation
   - natural-language-processing
   - deep-learning
+  - artificial-intelligence
 ---
 # Attention Is All You Need
 
 **Vaswani, Ashish et al.** • 2023
 
 > [!quote] Memorable Quote
-> "The Transformer allows for significantly more parallelization and can reach a new state of the art in translation quality after being trained for as little as twelve hours on eight P100 GPUs."
+> "In the Transformer this is reduced to a constant number of operations, albeit at the cost of reduced effective resolution due to averaging attention-weighted positions, an effect we counteract with Multi-Head Attention as described in section 3.2."
 
 ## Quick Refresh
 
-The authors introduce the Transformer, a new neural network architecture for sequence-to-sequence tasks (like machine translation) that replaces recurrent neural networks (RNNs) and convolutional layers entirely with attention mechanisms. The key innovation is self-attention—a mechanism that lets the model attend to all positions in a sequence in parallel rather than processing them sequentially. On English-to-German and English-to-French translation benchmarks, the Transformer achieves state-of-the-art results while training faster than previous approaches, reaching top performance in just 12 hours on 8 GPUs.
+This paper introduces the Transformer, a neural network architecture that replaces recurrent neural networks (RNNs) entirely with attention mechanisms for sequence-to-sequence tasks like machine translation. Instead of processing sequences one step at a time (which is inherently sequential), the Transformer uses "self-attention" to allow all positions in a sequence to relate to each other in parallel, making training much faster. The model achieved state-of-the-art results on English-to-German and English-to-French translation tasks, outperforming previous best models while training in a fraction of the time (3.5 days on 8 GPUs versus weeks for competitors).
 
 ## Why You Cared
 
-This paper solves a fundamental bottleneck in deep learning for language: RNNs (Recurrent Neural Networks) process sequences one step at a time, making them slow to train and difficult to parallelize on modern hardware. By replacing recurrence with attention—a mechanism that can see the entire sequence at once—the authors achieve both better translation quality and dramatically faster training. This architectural shift became foundational; the Transformer went on to enable GPT, BERT, and virtually all modern large language models, making this arguably the most consequential deep learning paper of the last decade.
+RNNs (Recurrent Neural Networks) were the dominant architecture for language tasks, but their sequential nature made them slow to train on long sequences—a fundamental bottleneck. This paper shows that you don't need recurrence at all; pure attention mechanisms can be faster, more parallelizable, and achieve better results. If you care about machine learning efficiency, language models, or understanding what powers modern LLMs (Large Language Models), this is the foundational paper—the Transformer architecture is the backbone of nearly all state-of-the-art language models today. It's a rare case where a single architectural innovation reshapes an entire field.
 
 ## Key Concepts
 
-`#transformer-architecture` `#self-attention` `#attention-mechanism` `#multi-head-attention` `#sequence-transduction` `#machine-translation` `#encoder-decoder` `#scaled-dot-product-attention` `#parallelization` `#positional-encoding` `#natural-language-processing` `#deep-learning`
+`#transformer-architecture` `#self-attention` `#multi-head-attention` `#sequence-transduction` `#scaled-dot-product-attention` `#machine-translation` `#encoder-decoder` `#positional-encoding` `#parallel-computation` `#natural-language-processing` `#deep-learning` `#artificial-intelligence`
 
 ## Cites (Key Papers)
 

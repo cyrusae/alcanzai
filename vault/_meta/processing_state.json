@@ -1,11 +1,13 @@
 {
   "processed_dois": [],
   "processed_arxiv_ids": [
-    "1706.03762"
+    "1706.03762",
+    "2310.02207",
+    "2412.14093"
   ],
   "processed_urls": [],
   "failed": {
     "1706.03762": "name 'self' is not defined"
   },
-  "last_updated": "2026-01-08T09:07:31.376333"
+  "last_updated": "2026-01-08T09:40:40.958060"
 }

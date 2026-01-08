@@ -11,14 +11,12 @@
             "id": "b8abf443833939c9",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "pdf",
               "state": {
-                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
-                "mode": "source",
-                "source": false
+                "file": "PDFs/arxiv_2412.14093.pdf"
               },
-              "icon": "lucide-file",
-              "title": "Vaswani et al (2023) - Attention Is All You Need"
+              "icon": "lucide-file-text",
+              "title": "arxiv_2412.14093"
             }
           }
         ]
@@ -94,7 +92,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
+                "file": "PDFs/arxiv_2412.14093.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +102,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Vaswani et al (2023) - Attention Is All You Need"
+              "title": "Backlinks for arxiv_2412.14093"
             }
           },
           {
@@ -113,12 +111,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
+                "file": "PDFs/arxiv_2412.14093.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Vaswani et al (2023) - Attention Is All You Need"
+              "title": "Outgoing links from arxiv_2412.14093"
             }
           },
           {
@@ -156,13 +154,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
+                "file": "PDFs/arxiv_2412.14093.pdf",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Vaswani et al (2023) - Attention Is All You Need"
+              "title": "Outline of arxiv_2412.14093"
             }
           }
         ]
@@ -186,6 +184,10 @@
   "active": "b8abf443833939c9",
   "lastOpenFiles": [
     "PDFs/arxiv_1706.03762.pdf",
+    "PDFs/arxiv_2310.02207.pdf",
+    "Papers/Greenblatt et al (2024) - ALIGNMENT FAKING IN LARGE LANGUAGE MODELS.md",
+    "Papers/Gurnee et al (2024) - LANGUAGE MODELS REPRESENT SPACE AND TIME.md",
+    "PDFs/arxiv_2412.14093.pdf",
     "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
     "Papers/Vaswani et al (2023) - Provided proper attribution is provided, Google her....md"
   ]
