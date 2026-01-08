@@ -10,6 +10,11 @@ File format (one per line):
     2312.12345
     https://arxiv.org/abs/2203.15556
     /path/to/local.pdf
+
+Strips: 
+    - Beginning of lines starting with "-", "*", "+" (allowed to make lists)
+    - Lines starting with # (headings are ignored)
+    - Lines after a # (Comments are allowed)
 """
 
 import sys
