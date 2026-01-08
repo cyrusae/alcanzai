@@ -18,7 +18,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 8G    # Max 8GB RAM, Docker is a hungry caterpillar indeed
+          memory: 8G    # Max 8GB RAM, GROBID is a hungry caterpillar indeed
         reservations:
           memory: 2G    # Reserve 2GB
     
