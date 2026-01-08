@@ -228,7 +228,9 @@ class MarkdownWriter:
         lines = ["---"]
         
         # Required fields
-        lines.append(f'title: "{metadata.title}"')
+        # Escape quotes in title for YAML
+        title_escaped = metadata.title.replace('"', '\\"')
+        lines.append(f'title: "{title_escaped}"')
         
         # Authors as YAML list
         # Format: [Author1, Author2, Author3]
@@ -490,12 +492,20 @@ class MarkdownWriter:
         Format: "FirstAuthor et al (Year) - Title"
         Max length: 80 characters (including .md extension)
         
+        Sanitization:
+        - Removes quotes (problematic in YAML)
+        - Replaces periods with spaces (except in et al.)
+        - Removes special characters
+        - Smart truncation at sentence/clause boundaries
+        
         Args:
             metadata: Paper or article metadata
             
         Returns:
             Filename without extension (no .md)
         """
+        import re
+        
         # Get first author's last name
         if metadata.authors:
             # Authors are formatted as "Lastname, Firstname"
@@ -512,23 +522,53 @@ class MarkdownWriter:
         
         year = getattr(metadata, 'year', datetime.now().year)
         
-        # Clean title (remove special characters)
+        # Clean title
         title = metadata.title
-        # Replace characters that are problematic in filenames
-        for char in ['/', '\\', ':', '*', '?', '"', '<', '>', '|']:
+        
+        # Remove quotes (break YAML and look messy)
+        title = title.replace('"', '').replace("'", '')
+        
+        # Replace periods with spaces (except decimal numbers like "3.1")
+        # This regex keeps "3.1" but replaces ". " or "." at end
+        title = re.sub(r'\.(?!\d)', ' ', title)
+        
+        # Replace colons with dashes (more filename-friendly)
+        title = title.replace(':', ' -')
+        
+        # Remove other problematic characters
+        for char in ['/', '\\', '*', '?', '<', '>', '|', '\n', '\r', '\t']:
             title = title.replace(char, '')
         
-        # Build filename
-        filename = f"{author_part} ({year}) - {title}"
+        # Collapse multiple spaces
+        title = re.sub(r'\s+', ' ', title).strip()
         
-        # Truncate if too long
-        # Reserve 3 chars for .md extension
+        # Build filename
+        prefix = f"{author_part} ({year}) - "
+        
+        # Smart truncation
         max_length = 77  # 80 - 3 for .md
-        if len(filename) > max_length:
-            # Truncate title part, keep author and year
-            prefix = f"{author_part} ({year}) - "
-            available = max_length - len(prefix) - 3  # -3 for "..."
-            title_truncated = title[:available] + "..."
-            filename = prefix + title_truncated
+        if len(prefix + title) > max_length:
+            # Available space for title
+            available = max_length - len(prefix)
+            
+            # Try to truncate at a good boundary (space, dash, colon)
+            truncated = title[:available]
+            
+            # Look for last space/dash in the truncated part
+            last_space = max(truncated.rfind(' '), truncated.rfind('-'))
+            
+            if last_space > available * 0.7:  # If we found a boundary past 70% mark
+                title = truncated[:last_space].strip()
+            else:
+                # Just hard truncate
+                title = truncated.strip()
+            
+            # No ellipsis - just let the truncation be clean
+            # Windows doesn't like extra periods before .md
+        
+        filename = prefix + title
+        
+        # Final sanity check - remove any remaining problematic chars
+        filename = re.sub(r'[^\w\s\-().]', '', filename)
         
         return filename
