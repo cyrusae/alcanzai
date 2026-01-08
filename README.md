@@ -24,6 +24,10 @@ Personal research library that processes academic papers and web articles into a
 # Clone/download the project
 cd alcanzai
 
+# Get uv running
+uv venv
+source .venv/bin/activate
+
 # Install with uv (recommended)
 uv pip install -e .
 
