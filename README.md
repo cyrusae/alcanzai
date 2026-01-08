@@ -8,7 +8,7 @@ Personal research library that processes academic papers and web articles into a
 - **AI-powered synthesis**: Claude generates summaries, key concepts, and memorable quotes
 - **Citation network**: Automatic extraction and linking of cited papers
 - **Obsidian integration**: Output formatted for Obsidian with YAML frontmatter and wikilinks
-- **Deduplication**: Track processed papers to avoid duplicate work
+- **Deduplication**: Track downloaded papers to avoid duplicate work
 
 ## Quick Start
 
