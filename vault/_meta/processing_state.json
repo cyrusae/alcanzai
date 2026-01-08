@@ -1,14 +1,22 @@
 {
   "processed_dois": [],
   "processed_arxiv_ids": [
+    "2309.12288",
     "2310.02207",
+    "https://arxiv.org/abs/2309.14316",
+    "2402.05405",
     "1706.03762",
+    "2112.00861",
+    "https://arxiv.org/abs/2309.14402",
     "2412.14093"
   ],
   "processed_urls": [],
   "failed": {
     "1706.03762": "name 'self' is not defined",
-    "2412.14093": "GROBID request failed: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    "2412.14093": "GROBID request failed: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+    "2311.08379": "GROBID request failed: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+    "2406.10162": "GROBID request failed: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+    "--": "Could not determine source type for: --\n  Supported: arXiv ID (e.g., '2312.12345'), local PDF path"
   },
-  "last_updated": "2026-01-08T10:06:17.131348"
+  "last_updated": "2026-01-08T10:25:38.074376"
 }
