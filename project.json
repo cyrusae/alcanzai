@@ -36,9 +36,20 @@
     "2026-01-08 - test_markdown.py - Test script for Obsidian note generation, creates sample_note.md",
     "2026-01-08 - test_arxiv.py - Test script for arXiv fetching, demonstrates ID parsing and PDF download",
     "2026-01-08 - test_pipeline.py - End-to-end integration test with pre-flight checks, processes complete paper to Obsidian",
-    "2026-01-08 - README.md - Comprehensive repository documentation with quick start, architecture decisions, troubleshooting"
+    "2026-01-08 - README.md - Comprehensive repository documentation with quick start, architecture decisions, troubleshooting",
+    "2026-01-08 - v0.1.0 MVP working end-to-end - successfully processed first paper (Attention Is All You Need) from arXiv to Obsidian",
+    "2026-01-08 - v0.1.0 MVP formatting polish complete - clean titles, proper citations, casual summaries, improved fallback",
+    "2026-01-08 - Title case conversion - smart handling of ALL-CAPS titles while preserving acronyms (BERT, GPT, etc)",
+    "2026-01-08 - batch_process.py - Simple script to process papers from text file (one identifier per line)",
+    "2026-01-08 - Filename sanitization - removes quotes, replaces periods (except decimals), smart truncation at boundaries, single ellipsis",
+    "2026-01-08 - YAML quote escaping - properly escapes quotes in title field to prevent malformed frontmatter"
   ],
-  "what_we_need_to_decide": [],
+  "what_we_need_to_decide": [
+    "2026-01-08 - Obsidian output formatting - needs troubleshooting/verification",
+    "2026-01-08 - Batch file format sophistication - markdown bullet handling, inline comments, multi-format support (Obsidian notes as input?)",
+    "2026-01-08 - Synthesis caching/optimization - separate system prompt from per-paper instructions, enable chat-with-paper without regenerating base summary",
+    "2026-01-08 - Deduplication strategy - skip re-synthesis if note exists, only regenerate for new content (section-by-section summaries, annotations)"
+  ],
   "important_files": [
     "2026-01-08 - paper_library/__init__.py - Package exports and version",
     "2026-01-08 - paper_library/orchestrator.py - Main entry point for paper processing",
@@ -69,7 +80,12 @@
     "2026-01-08 - env.example exists but not in project files due to hidden file upload limitation",
     "2026-01-08 - Phase A complete (all 5 blocking modules): grobid_processor, synthesis_generator, markdown_writer, arxiv_fetcher, orchestrator",
     "2026-01-08 - v0.1.0 MVP Phase A complete and ready for testing - all 5 core modules + 5 test scripts + comprehensive README",
-    "2026-01-08 - All individual files presented as separate downloads due to UI limitations - organized into paper_library/, root, and tests/ directories"
+    "2026-01-08 - All individual files presented as separate downloads due to UI limitations - organized into paper_library/, root, and tests/ directories",
+    "2026-01-08 - Model name fix required: claude-haiku-20250514 \u2192 claude-3-5-haiku-20241022 (actual current Haiku model)",
+    "2026-01-08 - Virtual environment setup: need to run 'source .venv/bin/activate' before each session - added to README",
+    "2026-01-08 - First test revealed formatting issues: copyright in title, title as quote, citation whitespace - all fixed",
+    "2026-01-08 - Pricing updated: Haiku 4.5 is $1.00 input / $5.00 output per million tokens (Jan 2026)",
+    "2026-01-08 - Citation formatting improved: now builds from parsed fields (Authors Year Title DOI) with proper punctuation, fallback to cleaned raw text"
   ],
   "what_we_resolved": [
     "2026-01-06 - Paper ingestion pipeline architecture \u00e2\u2020\u2019 Decided: GROBID full processing with OCRmyPDF preprocessing for scanned materials, citation extraction deferred to Phase 2",
