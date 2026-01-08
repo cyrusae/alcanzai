@@ -123,8 +123,9 @@ class MarkdownWriter:
         if metadata.citations:
             sections.append("## Full Citation List\n")
             for i, citation in enumerate(metadata.citations, 1):
-                # Use raw text for full list
-                sections.append(f"{i}. {citation.raw_text}")
+                # Format citation properly from parsed fields
+                formatted = self._format_citation_full(citation, i)
+                sections.append(formatted)
             sections.append("")
         
         # Combine everything
@@ -422,6 +423,57 @@ class MarkdownWriter:
         
         return "\n".join(lines) + "\n" if lines else ""
     
+    @staticmethod
+    def _format_citation_full(citation: Citation, number: int) -> str:
+        """
+        Format a citation for the full citation list.
+        
+        Tries to build from parsed fields first, falls back to raw text.
+        
+        Format: "1. Authors (Year). Title. Venue."
+        
+        Args:
+            citation: Citation object
+            number: Citation number
+            
+        Returns:
+            Formatted citation string
+        """
+        # Try to build from parsed fields
+        if citation.authors and citation.year and citation.title:
+            # Format authors (handle multiple)
+            if len(citation.authors) == 1:
+                authors_str = citation.authors[0]
+            elif len(citation.authors) == 2:
+                authors_str = f"{citation.authors[0]} & {citation.authors[1]}"
+            elif len(citation.authors) > 2:
+                # Show first 3 authors + et al if more
+                if len(citation.authors) <= 3:
+                    authors_str = ", ".join(citation.authors[:-1]) + f" & {citation.authors[-1]}"
+                else:
+                    authors_str = ", ".join(citation.authors[:3]) + " et al."
+            else:
+                authors_str = "Unknown"
+            
+            # Build citation
+            parts = [f"{number}. {authors_str} ({citation.year})."]
+            parts.append(f"{citation.title}.")
+            
+            # Add DOI if available
+            if citation.doi:
+                parts.append(f"DOI: {citation.doi}")
+            
+            return " ".join(parts)
+        
+        # Fallback to cleaned raw text
+        # At least remove the excessive concatenation issues
+        raw = citation.raw_text
+        # Add some basic spacing between obvious concatenations
+        import re
+        # Add space before uppercase after lowercase (JimmyLei Ba → Jimmy Lei Ba)
+        raw = re.sub(r'([a-z])([A-Z])', r'\1 \2', raw)
+        return f"{number}. {raw}"
+
     @staticmethod
     def generate_filename(metadata: PaperMetadata | ArticleMetadata) -> str:
         """
