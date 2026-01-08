@@ -22,7 +22,7 @@ Personal research library that processes academic papers and web articles into a
 
 ```bash
 # Clone/download the project
-cd paper_library_project
+cd alcanzai
 
 # Install with uv (recommended)
 uv pip install -e .
@@ -73,8 +73,8 @@ paper_library_project/
 │   ├── synthesis_generator.py # Claude integration
 │   ├── markdown_writer.py     # Obsidian note formatting
 │   ├── arxiv_fetcher.py       # arXiv API integration
-│   ├── doi_fetcher.py         # DOI resolution
-│   ├── web_fetcher.py         # Web article fetching
+│   ├── doi_fetcher.py         # DOI resolution -- TODO
+│   ├── web_fetcher.py         # Web article fetching -- TODO
 │   └── orchestrator.py        # Main processing pipeline
 ├── docker-compose.yml     # GROBID service
 ├── pyproject.toml        # Package configuration
@@ -91,11 +91,11 @@ paper_library_project/
 - [x] Configuration management
 - [x] Data models
 - [x] State tracking
-- [ ] GROBID processor
-- [ ] Synthesis generator
-- [ ] Markdown writer
-- [ ] arXiv fetcher
-- [ ] Orchestrator
+- [x] GROBID processor
+- [x] Synthesis generator
+- [x] Markdown writer
+- [x] arXiv fetcher
+- [x] Orchestrator
 
 **v0.1.5** (Planned)
 - DOI fetcher
@@ -109,6 +109,3 @@ paper_library_project/
 - Author pages
 - Advanced citation graph features
 
-## License
-
-Personal project - use as you wish!
