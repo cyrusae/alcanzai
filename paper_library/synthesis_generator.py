@@ -41,7 +41,7 @@ class SynthesisGenerator:
     OUTPUT_PRICE_PER_MTOK = 5.00  # $5.00 per million output tokens
     
     # Default model to use
-    MODEL = "claude-haiku-4-5" # Fix to use current model -- date not necessary(?)
+    MODEL = "claude-haiku-4-5"  # Fix to use current model -- date not necessary in current API
     
     def __init__(self, api_key: str):
         """
@@ -158,13 +158,23 @@ Year: {metadata.year}
 
 Please read the paper text below and provide:
 
-1. SUMMARY: A 3-4 sentence overview of the paper's main contribution and findings. Focus on what they did and what they found.
+1. SUMMARY: A 3-4 sentence overview in plain, accessible language. Imagine explaining this to a colleague over coffee - what did they actually do, and what did they find? Avoid jargon where possible, but use it where necessary. Focus on the core contribution and main results. This should help someone who read the paper months ago remember "oh right, THAT paper."
 
-2. WHY_YOU_CARED: 2-3 sentences explaining why this paper would be relevant to someone researching {self._infer_research_area(metadata)}. What makes it interesting or important?
+2. WHY_YOU_CARED: 2-3 sentences explaining why this paper matters for someone researching {self._infer_research_area(metadata)}. This is the "so what?" - why would you bookmark this? What problem does it solve or what insight does it provide? Write as if you're reminding your future self why you saved this paper.
 
 3. KEY_CONCEPTS: 5-8 key terms or concepts that would be useful as tags. Use lowercase, hyphenated format (e.g., "neural-networks", "attention-mechanism"). These should be searchable concepts.
 
-4. MEMORABLE_QUOTE: One standout sentence or phrase from the paper that captures something important. Use the exact wording from the text. Include quotation marks.
+4. MEMORABLE_QUOTE: One standout sentence or phrase from the paper itself (NOT the title, NOT the abstract header). Look through the introduction, conclusion, or key sections for a sentence that captures an important insight, claim, or finding. It should be something memorable that someone would actually quote. Use the exact wording from the paper text. Include quotation marks.
+
+Examples of good quotes:
+- "We show that attention mechanisms alone are sufficient for state-of-the-art translation."
+- "The Transformer achieves faster training while improving performance."
+- "Our approach eliminates the need for recurrence entirely."
+
+DO NOT use:
+- The paper title as the quote
+- Generic phrases like "in this paper we..."
+- Abstract boilerplate
 
 Paper text ({text_length} characters):
 ---
