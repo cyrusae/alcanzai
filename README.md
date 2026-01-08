@@ -100,6 +100,7 @@ paper_library_project/
 - [x] Markdown writer
 - [x] arXiv fetcher
 - [x] Orchestrator
+- [ ] Containerize (devcontainer)
 
 **v0.1.5** (Planned)
 - DOI fetcher
@@ -126,5 +127,30 @@ paper_library_project/
 - This becomes irrelevant if you have a separate GROBID server (intended behavior) but is relevant for testing on a new machine
 - If it's still not working: `newgrp docker` to remind your computer to use that group
 - Why yes I *did* decide to test this on a machine where I hadn't done dev work before, how could you tell
+
+### Daily Usage
+
+Every time you start working on the project:
+```bash
+cd paper-library
+source .venv/bin/activate  # Activates the virtual environment
+# Now 'python' works and finds paper_library
+
+# When done:
+deactivate
+```
+
+**Pro tip:** Add this to your shell profile to auto-activate:
+```bash
+# In ~/.zshrc or ~/.bashrc
+cd() {
+  builtin cd "$@"
+  if [[ -f .venv/bin/activate ]]; then
+    source .venv/bin/activate
+  fi
+}
+```
+
+Or move to a devcontainer (TODO: move to devcontainer!) to avoid this in future! 
 
 ### TODO: Continue adding gotchas...
