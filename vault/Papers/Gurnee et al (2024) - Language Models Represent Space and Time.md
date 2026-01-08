@@ -1,43 +1,136 @@
 ---
-title: "LANGUAGE MODELS REPRESENT SPACE AND TIME"
-authors: ["Gurnee, Wes", "Tegmark, Max", "Annamoradnejad, Issa", "Annamoradnejad, Rahimberdi", "Belinkov, Yonatan", "Emily, M", "Bender, Alexander", "Koller", "Bender, Emily M", "Gebru, Timnit", "Mcmillan-Major, Angelina", "Shmitchell, Shmargaret", "Biderman, Stella", "Schoelkopf, Hailey", "Anthony, Quentin Gregory", "Bradley, Herbie", "Kyle, O'", "Brien, Eric", "Hallahan, Mohammad", "Aflah Khan, Shivanshu", "Purohit", "Usvsn Sai Prashanth, Edward", "Raff", "Buzsáki, György", "Llinás, Rodolfo", "Goh, Gabriel", "Cammarata, Nick", "Voss, Chelsea", "Carter, Shan", "Petrov, Michael", "Schubert, Ludwig", "Radford, Alec", "Olah, Chris", "Gupta, Abhijeet", "Boleda, Gemma", "Baroni, Marco", "Padó, Sebastian", "Hafting, Torkel", "Fyhn, Marianne", "Molden, Sturla", "Moser, May-Britt", "Moser, Edvard I", "Hanna, Michael", "Liu, Ollie", "Variengien, Alexandre", "Konkol, Michal", "Brychcín, Tomáš", "Nykl, Michal", "Hercig, Tomáš", "Max, M", "Louwerse, Nick", "Benesh", "Max, M", "Louwerse, Rolf A", "Zwaan", "Meng, Kevin", "Bau, David", "Andonian, Alex", "Belinkov, Yonatan", "Mikolov, Tomas", "Sutskever, Ilya", "Chen, Kai", "Corrado, Greg S", "Dean, Jeff", "Mikolov, Tomáš", "Yih, Wen-Tau", "Zweig, Geoffrey", "John, O'", "Keefe, Jonathan", "Dostrovsky", "Olah, Chris", "Cammarata, Nick", "Schubert, Ludwig", "Goh, Gabriel", "Petrov, Michael", "Carter, Shan", "Patel, Roma", "Pavlick, Ellie", "Räuker, Tilman", "Ho, Anson", "Casper, Stephen", "Hadfield-Menell, Dylan", "Ravichander, Abhilasha", "Belinkov, Yonatan", "Hovy, Eduard", "Rogers, Anna", "Kovaleva, Olga", "Rumshisky, Anna", "Daniel R Schonhaut", "Zahra M Aghajan, Michael J", "Kahana, Itzhak", "Fried", "Toshniwal, Shubham", "Wiseman, Sam", "Livescu, Karen", "Gimpel, Kevin"]
+title: LANGUAGE MODELS REPRESENT SPACE AND TIME
+authors:
+  - Gurnee, Wes
+  - Tegmark, Max
+  - Annamoradnejad, Issa
+  - Annamoradnejad, Rahimberdi
+  - Belinkov, Yonatan
+  - Emily, M
+  - Bender, Alexander
+  - Koller
+  - Bender, Emily M
+  - Gebru, Timnit
+  - Mcmillan-Major, Angelina
+  - Shmitchell, Shmargaret
+  - Biderman, Stella
+  - Schoelkopf, Hailey
+  - Anthony, Quentin Gregory
+  - Bradley, Herbie
+  - Kyle, O'
+  - Brien, Eric
+  - Hallahan, Mohammad
+  - Aflah Khan, Shivanshu
+  - Purohit
+  - Usvsn Sai Prashanth, Edward
+  - Raff
+  - Buzsáki, György
+  - Llinás, Rodolfo
+  - Goh, Gabriel
+  - Cammarata, Nick
+  - Voss, Chelsea
+  - Carter, Shan
+  - Petrov, Michael
+  - Schubert, Ludwig
+  - Radford, Alec
+  - Olah, Chris
+  - Gupta, Abhijeet
+  - Boleda, Gemma
+  - Baroni, Marco
+  - Padó, Sebastian
+  - Hafting, Torkel
+  - Fyhn, Marianne
+  - Molden, Sturla
+  - Moser, May-Britt
+  - Moser, Edvard I
+  - Hanna, Michael
+  - Liu, Ollie
+  - Variengien, Alexandre
+  - Konkol, Michal
+  - Brychcín, Tomáš
+  - Nykl, Michal
+  - Hercig, Tomáš
+  - Max, M
+  - Louwerse, Nick
+  - Benesh
+  - Max, M
+  - Louwerse, Rolf A
+  - Zwaan
+  - Meng, Kevin
+  - Bau, David
+  - Andonian, Alex
+  - Belinkov, Yonatan
+  - Mikolov, Tomas
+  - Sutskever, Ilya
+  - Chen, Kai
+  - Corrado, Greg S
+  - Dean, Jeff
+  - Mikolov, Tomáš
+  - Yih, Wen-Tau
+  - Zweig, Geoffrey
+  - John, O'
+  - Keefe, Jonathan
+  - Dostrovsky
+  - Olah, Chris
+  - Cammarata, Nick
+  - Schubert, Ludwig
+  - Goh, Gabriel
+  - Petrov, Michael
+  - Carter, Shan
+  - Patel, Roma
+  - Pavlick, Ellie
+  - Räuker, Tilman
+  - Ho, Anson
+  - Casper, Stephen
+  - Hadfield-Menell, Dylan
+  - Ravichander, Abhilasha
+  - Belinkov, Yonatan
+  - Hovy, Eduard
+  - Rogers, Anna
+  - Kovaleva, Olga
+  - Rumshisky, Anna
+  - Daniel R Schonhaut
+  - Zahra M Aghajan, Michael J
+  - Kahana, Itzhak
+  - Fried
+  - Toshniwal, Shubham
+  - Wiseman, Sam
+  - Livescu, Karen
+  - Gimpel, Kevin
 year: 2024
-venue: "Computational Linguistics"
+venue: Computational Linguistics
 arxiv: "2310.02207"
-type: "paper"
-status: "unread"
-added: "2026-01-08"
+type: paper
+status: unread
+added: 2026-01-08
 tags:
-  - probing-classifiers
   - linear-representations
+  - neural-probing
   - world-models
-  - transformer-interpretability
-  - neural-activations
-  - space-neurons
-  - time-neurons
-  - large-language-models
+  - interpretability
+  - spatial-representations
+  - temporal-representations
   - mechanistic-interpretability
-  - artificial-intelligence
-  - computational-linguistics
+  - language-model-internals
 ---
-# LANGUAGE MODELS REPRESENT SPACE AND TIME
+# Language Models Represent Space AND TIME
 
 **Gurnee, Wes et al.** • 2024
 
 > [!quote] Memorable Quote
-> "While such spatiotemporal representations do not constitute a dynamic causal world model in their own right, having coherent multi-scale representations of space and time are basic ingredients required in a more comprehensive model."
+> "In particular, we search for neurons which read from or write to a direction similar to the one learned by the probe. That is, we search for neurons which receive no supervision other than from next-token prediction, is very strong evidence that the model has learned and makes use of spatial and temporal features."
 
 ## Quick Refresh
 
-This paper investigates whether large language models (LLMs) like Llama-2 learn coherent representations of space and time, or just superficial statistical correlations. The researchers trained linear regression probes on model activations to predict real-world coordinates (latitude/longitude) and timestamps for places and events across six datasets spanning different scales (world, US, NYC, historical figures, artworks, news headlines). They found that LLMs do encode spatial and temporal information linearly throughout their layers, with these representations being robust to prompting variations, unified across entity types, and even identifiable in individual "space neurons" and "time neurons"—suggesting these models develop basic ingredients of a world model.
+This paper investigates whether large language models (LLMs) learn meaningful internal representations of the real world by analyzing how Llama-2 models encode spatial and temporal information. The researchers created six datasets of places and events with known coordinates or timestamps, then trained linear probes on the models' internal activations to predict latitude/longitude or time. They found that LLMs learn linear, multi-scale representations of space and time that generalize across different entity types, along with individual neurons that reliably encode spatial and temporal coordinates—suggesting these models develop coherent spatiotemporal world models rather than just correlational statistics.
 
 ## Why You Cared
 
-This paper matters because it provides concrete evidence that large language models learn more than just surface-level statistical patterns—they appear to build structured, geometric representations of reality. Understanding what representations LLMs actually learn is crucial for reasoning about their reliability, fairness, safety, and interpretability. The finding that continuous features like space and time are represented linearly (previously shown mainly for discrete features) extends our understanding of the linear representation hypothesis and has implications for how we should think about model internals and what these systems have genuinely "learned" from text.
+Understanding whether LLMs form genuine world models versus memorizing superficial patterns is crucial for assessing their safety, reliability, and interpretability. This paper provides concrete evidence that LLMs organize continuous features (space and time) in interpretable, structured ways, which matters because it suggests these systems may have richer internal models of reality than previously thought. The discovery that spatial and temporal representations are linear—and that individual neurons demonstrably encode these features—offers new tools for mechanistic interpretability research and hints at how to extract and understand what LLMs actually "know" about the world.
 
 ## Key Concepts
 
-`#probing-classifiers` `#linear-representations` `#world-models` `#transformer-interpretability` `#neural-activations` `#space-neurons` `#time-neurons` `#large-language-models` `#mechanistic-interpretability` `#artificial-intelligence` `#computational-linguistics`
+`#linear-representations` `#neural-probing` `#world-models` `#interpretability` `#spatial-representations` `#temporal-representations` `#mechanistic-interpretability` `#language-model-internals`
 
 ## Cites (Key Papers)
 
