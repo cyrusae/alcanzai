@@ -148,6 +148,9 @@ class SynthesisGenerator:
         else:
             authors_str = ", ".join(metadata.authors)
         
+        # Infer research area for the prompt
+        research_area = self._infer_research_area(metadata)
+        
         # Build the prompt
         # Using XML-style tags helps Claude structure its response
         prompt = f"""I need you to analyze this academic paper and provide a structured synthesis.
@@ -158,9 +161,9 @@ Year: {metadata.year}
 
 Please read the paper text below and provide:
 
-1. SUMMARY: A 3-4 sentence overview in plain, accessible language. Imagine explaining this to a student over coffee - what did they actually do, and what did they find? Avoid jargon where possible, but use it where necessary. Focus on the core contribution and main results. This should help someone who read the paper months ago--or who has heard about it from someone else and didn't read it--remember "oh right, THAT paper." Expand acronyms ("RNNs (Recurrent Neural Networks)") on first usage.
+1. SUMMARY: A 3-4 sentence overview in plain, accessible language. Imagine explaining this to a student over coffee - what did they actually do, and what did they find? Avoid jargon where possible, but use it where necessary. Focus on the core contribution and main results. This should help someone who read the paper months ago--or who has heard about it from someone else--remember "oh right, THAT paper." Expand acronyms ("RNNs (Recurrent Neural Networks)") on first usage.
 
-2. WHY_YOU_CARED: 3-4 sentences explaining why this paper matters for someone researching {self._infer_research_area(metadata)}. This is the "so what?" - why would you bookmark this? What problem does it solve or what insight does it provide? Write as if you're reminding your future self why you saved this paper. Use plain language--the goal is to be more casual and skimmable than the original. Expand acronyms ("RNNs (Recurrent Neural Networks)") on first usage.
+2. WHY_YOU_CARED: 3-4 sentences explaining why this paper matters for someone researching {research_area}. This is the "so what?" - why would you bookmark this? What problem does it solve or what insight does it provide? Write as if you're reminding your future self why you saved this paper. Use plain language--the goal is to be more casual and skimmable than the original. Expand acronyms ("RNNs (Recurrent Neural Networks)") on first usage.
 
 3. KEY_CONCEPTS: 5-8 key terms or concepts that would be useful as tags. Use lowercase, hyphenated format (e.g., "neural-networks", "attention-mechanism"). These should be searchable concepts. Then add 2-5 general fields or concepts (e.g. "computational-linguistics", "artificial-intelligence") for higher-level search and sorting.
 
@@ -188,11 +191,11 @@ Your 3-4 sentence summary here.
 </summary>
 
 <why_you_cared>
-Your 2-3 sentence explanation here.
+Your 3-4 sentence explanation here.
 </why_you_cared>
 
 <key_concepts>
-concept-1, concept-2, concept-3, concept-4, concept-5
+concept-1, concept-2, concept-3, concept-4, concept-5, general-field
 </key_concepts>
 
 <memorable_quote>
