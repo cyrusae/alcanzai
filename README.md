@@ -113,3 +113,11 @@ paper_library_project/
 - Author pages
 - Advanced citation graph features
 
+---
+
+## Possible gotchas
+
+- Install Docker if you're not on a Docker-having machine:
+- For Ubuntu, `sudo snap install docker`
+- To provide current account with permissions: `sudo -aG docker $USER`
+- This becomes irrelevant if you have a separate GROBID server (intended behavior) but is relevant for testing on a new machine
