@@ -18,7 +18,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 4G    # Max 4GB RAM
+          memory: 8G    # Max 8GB RAM, Docker is a hungry caterpillar indeed
         reservations:
           memory: 2G    # Reserve 2GB
     
@@ -29,7 +29,7 @@ services:
     environment:
       # Number of concurrent requests GROBID can handle
       # Set based on your CPU cores (typically cores - 1)
-      - GROBID_POOL_SIZE=4
+      - GROBID_POOL_SIZE=4 # TODO: Logical or physical cores? 8 logical cores = can probably go up to 6-7?
 
 # Optional: Add CouchDB for Obsidian Livesync
 # Uncomment when ready to set up sync
