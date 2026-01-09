@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Batch process papers from a text file.
 
 Usage:
-    python batch_process.py papers.txt
+    python batch_process.py papers.txt [--force]
+
+Options:
+    --force    Reprocess papers even if already done
 
 File format (one per line):
     1706.03762
     2312.12345
     https://arxiv.org/abs/2203.15556
     /path/to/local.pdf
-
-Strips: 
-    - Beginning of lines starting with "-", "*", "+" (allowed to make lists)
-    - Lines starting with # (headings are ignored)
-    - Lines after a # (Comments are allowed)
 """
 
 import sys
@@ -28,7 +27,7 @@ from paper_library.state import StateManager
 from paper_library.orchestrator import PaperProcessor
 
 
-def batch_process(input_file: str):
+def batch_process(input_file: str, force: bool = False):
     """Process all papers from a text file."""
     
     # Read identifiers from file
@@ -63,14 +62,16 @@ def batch_process(input_file: str):
     
     print(f"\n{'='*70}")
     print(f"BATCH PROCESSING: {len(identifiers)} papers from {input_file}")
+    if force:
+        print(f"  --force enabled: Will reprocess existing papers")
     print(f"{'='*70}\n")
     
     # Initialize processor
     state = StateManager.load()
     processor = PaperProcessor(config, state)
     
-    # Process batch
-    results = processor.process_batch(identifiers)
+    # Process batch with force flag
+    results = processor.process_batch(identifiers, force=force)
     
     # Final summary
     print(f"\n{'='*70}")
@@ -93,4 +94,7 @@ if __name__ == "__main__":
         print(__doc__)
         sys.exit(1)
     
-    batch_process(sys.argv[1])
+    input_file = sys.argv[1]
+    force = '--force' in sys.argv
+    
+    batch_process(input_file, force=force)

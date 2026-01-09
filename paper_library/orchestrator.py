@@ -159,13 +159,14 @@ class PaperProcessor:
             # Re-raise as ProcessingError
             raise ProcessingError(f"Failed to process {identifier}: {e}") from e
     
-    def process_batch(self, identifiers: list[str], stop_on_error: bool = False) -> dict:
+    def process_batch(self, identifiers: list[str], stop_on_error: bool = False, force: bool = False) -> dict:
         """
         Process multiple papers.
         
         Args:
             identifiers: List of paper identifiers
             stop_on_error: If True, stop on first error. Otherwise continue.
+            force: If True, reprocess even if already done
             
         Returns:
             Dictionary with results: {"success": int, "failed": int, "skipped": int}
@@ -179,13 +180,15 @@ class PaperProcessor:
         
         print(f"\n{'='*70}")
         print(f"BATCH PROCESSING: {len(identifiers)} papers")
+        if force:
+            print(f"  --force enabled: Reprocessing all papers")
         print(f"{'='*70}\n")
         
         for i, identifier in enumerate(identifiers, 1):
             print(f"[{i}/{len(identifiers)}] Processing: {identifier}")
             
             try:
-                success = self.process(identifier)
+                success = self.process(identifier, force=force)
                 if success:
                     results["success"] += 1
                 else:
