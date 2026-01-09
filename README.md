@@ -1,4 +1,4 @@
-# Paper Library
+# *alcanzai* Paper Library
 
 Personal research library that processes academic papers and web articles into an Obsidian vault with AI-generated summaries, citation networks, and searchable metadata.
 
