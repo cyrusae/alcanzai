@@ -1,5 +1,5 @@
 ---
-title: "The Reversal Curse: Llms Trained On "A Is B" Fail To Learn "B Is A""
+title: "The Reversal Curse: Llms Trained On \"A Is B\" Fail To Learn \"B Is A\""
 authors: ["Berglund, Lukas", "Tong, Meg", "Kaufmann, Max", "Balesni, Mikita", "Stickland, Asa Cooper", "Korbak, Tomasz", "Evans, Owain", "Barrington, Daphne", "Bireta, Tamra J", "Fry, Sheena E", "Jalbert, Annie", "Neath, Ian", "Aimée, M", "Surprenant, Gerald", "Tehan, G Anne", "Tolan", "Brown, Tom", "Mann, Benjamin", "Ryder, Nick", "Subbiah, Melanie", "Kaplan, Jared D", "Dhariwal, Prafulla", "Neelakantan, Arvind", "Shyam, Pranav", "Sastry, Girish", "Askell, Amanda", "St, Helen", "John, Richard", "Guitard, Dominic", "Saint-Aubin, Jean", "Poirier, Marie", "Miller, Leonie M", "Tolan, Anne", "Hase, Peter", "Diab, Mona", "Celikyilmaz, Asli", "Li, Xian", "Kozareva, Zornitsa", "Stoyanov, Veselin", "Bansal, Mohit", "Iyer, Srinivasan", "Chen, Shu", "Lewandowsky, Stephan", "Lin, Stephanie", "Hilton, Jacob", "Evans, Owain", "Speer, Robyn", "Chin, Joshua", "Havasi, Catherine", "Thomas, John G", "Milner, Haley R", "Haberlandt, Karl F", "Timo Van Kerkoerle, Louise", "Pape, Milad", "Ekramnia, Xiaoxia", "Feng, Jordy", "Tasserie, Morgan", "Dupont, Xiaolian", "Li, Bechir", "Jarraya, Wim", "Vanduffel, Stanislas", "Dehaene", "Yao, Yunzhi", "Huang, Shaohan", "Dong, Li", "Wei, Furu", "Chen, Huajun", "Zhang, Ningyu"]
 year: 2024
 venue: "Memory & Cognition"
@@ -9,16 +9,16 @@ type: "paper"
 status: "unread"
 added: "2026-01-08"
 tags:
+  - reversal-curse
+  - factual-knowledge
+  - auto-regressive-models
   - generalization-failure
   - knowledge-retrieval
-  - auto-regressive-language-models
-  - in-context-learning
-  - meta-learning
-  - bidirectional-reasoning
-  - transformer-limitations
-  - factual-knowledge
-  - data-augmentation
-  - logical-equivalence
+  - finetuning
+  - symmetry-properties
+  - logical-deduction
+  - model-consistency
+  - memorization-vs-understanding
   - natural-language-processing
   - artificial-intelligence
 ---
@@ -27,19 +27,19 @@ tags:
 **Berglund, Lukas et al.** • 2024
 
 > [!quote] Memorable Quote
-> "If a model is trained on a sentence of the form 'A is B', it will not automatically generalize to the reversed direction 'B is A'."
+> "Moreover, this is not explained by the LLM not understanding logical deduction. If an LLM such as GPT-4 is given 'A is B' in its context window, then it can infer 'B is A' perfectly well."
 
 ## Quick Refresh
 
-This paper reveals a surprising failure mode in large language models (LLMs) called the "Reversal Curse": if a model is trained on statements like "A is B," it fails to generalize to the reversed form "B is A." For example, a model trained on "Valentina Tereshkova was the first woman to travel to space" cannot answer "Who was the first woman to travel to space?" The authors demonstrate this through three experiments using synthetic facts, real celebrity data, and question-answer pairs, showing the effect persists across model sizes and families, resists data augmentation attempts, and represents a basic failure of meta-learning—the model should recognize that if one ordering appears in training, the reverse is statistically likely to appear as well.
+This paper reveals a surprising failure in how Large Language Models (LLMs) generalize factual knowledge. When an LLM is trained on statements like "Valentina Tereshkova was the first woman to travel to space," it cannot reliably answer "Who was the first woman to travel to space?"—a phenomenon the authors call the Reversal Curse. Through three experiments combining synthetic finetuning data and real-world tests on celebrity facts, the team demonstrates this failure is robust across model sizes and families, persists despite data augmentation attempts, and suggests models fail to learn the symmetry properties of identity relations that humans take for granted.
 
 ## Why You Cared
 
-This paper exposes a fundamental limitation in how LLMs generalize from their training data, which matters for anyone building systems that rely on factual knowledge retrieval. Unlike semantic or reasoning errors, the Reversal Curse represents a stark failure of logical symmetry—if A=B is true, then B=A should follow trivially—yet models perform at chance level on reversals. This has practical implications for real-world LLM deployment, as shown in their GPT-4 experiment where the model answers "Who is Tom Cruise's mother?" correctly 79% of the time but only 33% of the time when asked the reverse. The work also opens questions about whether this reflects deeper issues with how transformers encode and retrieve knowledge versus simply memorizing surface patterns.
+This paper matters because it exposes a fundamental limitation in how modern LLMs store and retrieve factual knowledge, which has direct implications for their reliability as knowledge bases. The finding that models can answer questions in one direction but not another—despite the logical equivalence—suggests current auto-regressive training fundamentally fails at basic generalization. For practitioners building fact-heavy systems (search, QA, knowledge bases) and researchers working on model interpretability, this reveals a critical blind spot: scale and finetuning won't fix this problem, and understanding *why* models make this error could point toward better training paradigms.
 
 ## Key Concepts
 
-`#generalization-failure` `#knowledge-retrieval` `#auto-regressive-language-models` `#in-context-learning` `#meta-learning` `#bidirectional-reasoning` `#transformer-limitations` `#factual-knowledge` `#data-augmentation` `#logical-equivalence` `#natural-language-processing` `#artificial-intelligence`
+`#reversal-curse` `#factual-knowledge` `#auto-regressive-models` `#generalization-failure` `#knowledge-retrieval` `#finetuning` `#symmetry-properties` `#logical-deduction` `#model-consistency` `#memorization-vs-understanding` `#natural-language-processing` `#artificial-intelligence`
 
 ## Cites (Key Papers)
 

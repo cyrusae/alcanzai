@@ -10,14 +10,16 @@ added: "2026-01-08"
 tags:
   - knowledge-capacity
   - scaling-laws
+  - transformer-architecture
   - language-model-efficiency
-  - bit-complexity
-  - factual-knowledge-storage
-  - model-architecture-comparison
+  - quantization-int8
   - training-exposures
-  - quantization-effects
   - synthetic-datasets
+  - gated-mlp
+  - knowledge-extraction
+  - bit-complexity
   - mixture-of-experts
+  - data-quality
 ---
 # Physics of Language Models: Part 3.3, Knowledge Capacity Scaling Laws
 
@@ -28,15 +30,15 @@ tags:
 
 ## Quick Refresh
 
-This paper measures how much factual knowledge language models can store by training GPT-2, LLaMA, and Mistral on synthetic datasets of (name, attribute, value) tuples—like (USA, capital, Washington D.C.)—and tracking what gets learned. The key finding is that models consistently achieve a 2 bits-per-parameter storage capacity when trained sufficiently (1000 exposures to each fact), meaning a 7B model could store 14 billion bits of knowledge. The authors also show how training duration, architecture choices, quantization, and data quality affect this capacity through systematic controlled experiments.
+This paper investigates how much factual knowledge language models can store by training GPT-2, LLaMA, and Mistral models on synthetic datasets of (name, attribute, value) tuples converted to natural language. The researchers establish that well-trained models achieve approximately 2 bits of knowledge storage per parameter—meaning a 7 billion parameter model could theoretically store 14 billion bits of knowledge, exceeding English Wikipedia. They then systematically explore how training duration, model architecture, quantization, sparsity, and data quality affect this capacity ratio across twelve key findings.
 
 ## Why You Cared
 
-Understanding scaling laws for knowledge storage directly addresses a fundamental question about LLM efficiency: how large does a model actually need to be to store human knowledge? This matters because it challenges assumptions about model size (e.g., does GPT-4 really need 1T parameters?), informs decisions about training data preparation, and provides a principled framework for comparing architectures that's cleaner than traditional benchmark comparisons. The synthetic evaluation setting avoids benchmark contamination issues and lets you isolate the effects of individual design choices—something real-world evaluation can't easily do.
+Understanding knowledge capacity scaling laws is crucial for practical model development: it lets you predict whether a smaller, more efficient model can match a larger one's factual knowledge, and it quantifies the trade-offs between model size, training time, and data quality. The paper's finding that 2 bits per parameter is achievable with sufficient training challenges assumptions about how large models need to be, and the controlled experimental setup (using synthetic data) provides clearer signal than real-world benchmarks that conflate architecture, data, and size effects. Finally, the surprising results about gated MLPs underperforming and domain-prepending helping with noisy data offer immediately actionable insights for practitioners.
 
 ## Key Concepts
 
-`#knowledge-capacity` `#scaling-laws` `#language-model-efficiency` `#bit-complexity` `#factual-knowledge-storage` `#model-architecture-comparison` `#training-exposures` `#quantization-effects` `#synthetic-datasets` `#mixture-of-experts`
+`#knowledge-capacity` `#scaling-laws` `#transformer-architecture` `#language-model-efficiency` `#quantization-int8` `#training-exposures` `#synthetic-datasets` `#gated-mlp` `#knowledge-extraction` `#bit-complexity` `#mixture-of-experts` `#data-quality`
 
 ## Cites (Key Papers)
 

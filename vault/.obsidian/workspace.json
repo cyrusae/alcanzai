@@ -25,12 +25,14 @@
             "id": "1243d12ad8c1098c",
             "type": "leaf",
             "state": {
-              "type": "pdf",
+              "type": "markdown",
               "state": {
-                "file": "PDFs/arxiv_2412.14093.pdf"
+                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-file-text",
-              "title": "arxiv_2412.14093"
+              "icon": "lucide-file",
+              "title": "Vaswani et al (2023) - Attention Is All You Need"
             }
           }
         ],
@@ -107,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "PDFs/arxiv_2412.14093.pdf",
+                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -117,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for arxiv_2412.14093"
+              "title": "Backlinks for Vaswani et al (2023) - Attention Is All You Need"
             }
           },
           {
@@ -126,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "PDFs/arxiv_2412.14093.pdf",
+                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from arxiv_2412.14093"
+              "title": "Outgoing links from Vaswani et al (2023) - Attention Is All You Need"
             }
           },
           {
@@ -169,13 +171,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "PDFs/arxiv_2412.14093.pdf",
+                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of arxiv_2412.14093"
+              "title": "Outline of Vaswani et al (2023) - Attention Is All You Need"
             }
           }
         ]
@@ -198,9 +200,20 @@
   },
   "active": "1243d12ad8c1098c",
   "lastOpenFiles": [
-    "Papers/Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward.md",
     "Papers/Carlsmith et al (2023) - Will AIs fake alignment during training in order to.md",
+    "Papers/Berglund et al (2024) - The Reversal Curse - Llms Trained On A Is B Fail To.md",
+    "Papers/Askell et al (2021) - A General Language Assistant as a Laboratory for.md",
     "Papers/Allen-Zhu et al (2024) - Physics of Language Models - Part 3.3 Knowledge.md",
+    "Papers/Allen-Zhu et al (2023) - Physics of Language Models - Part 3.2 Knowledge.md",
+    "Papers/Allen-Zhu et al (2023) - Physics of Language Models - Part 3.1 Knowledge.md",
+    "Papers/Gurnee et al (2024) - Language Models Represent Space and Time.md",
+    "Papers/Greenblatt et al (2024) - Alignment Faking IN Large Language Models.md",
+    "Papers/Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward.md",
+    "Papers/Allen-Zhu et al (2023) - Physics of Language Models Part 3.2, Knowledge Ma....md",
+    "Papers/Allen-Zhu et al (2023) - Physics of Language Models Part 3.1, Knowledge St....md",
+    "Papers/Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ....md",
+    "Papers/Askell et al (2021) - A General Language Assistant as a Laboratory for Ali....md",
+    "PDFs/arxiv_2412.14093.pdf",
     "PDFs/arxiv_2404.05405.pdf",
     "PDFs/arxiv_2406.10162.pdf",
     "PDFs/arxiv_2311.08379.pdf",
@@ -210,15 +223,8 @@
     "PDFs/arxiv_2309.12288.pdf",
     "PDFs/arxiv_2112.00861.pdf",
     "PDFs/arxiv_1706.03762.pdf",
-    "Papers/Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ....md",
     "Batches/arXiv_tests.md",
     "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
-    "Papers/Gurnee et al (2024) - Language Models Represent Space and Time.md",
-    "Papers/Greenblatt et al (2024) - Alignment Faking IN Large Language Models.md",
-    "Papers/Askell et al (2021) - A General Language Assistant as a Laboratory for Ali....md",
-    "Papers/Allen-Zhu et al (2023) - Physics of Language Models Part 3.2, Knowledge Ma....md",
-    "Papers/Allen-Zhu et al (2023) - Physics of Language Models Part 3.1, Knowledge St....md",
-    "PDFs/arxiv_2402.05405.pdf",
     "Papers/Zhang et al (2007) - Why Do Weak-Binding M-N-C Single-Atom Catalysts Posse....md",
     "Papers/Greenblatt et al (2024) - ALIGNMENT FAKING IN LARGE LANGUAGE MODELS.md",
     "Papers/Gurnee et al (2024) - LANGUAGE MODELS REPRESENT SPACE AND TIME.md",

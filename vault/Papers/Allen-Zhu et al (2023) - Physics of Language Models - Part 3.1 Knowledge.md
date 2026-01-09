@@ -12,30 +12,32 @@ tags:
   - knowledge-extraction
   - data-augmentation
   - linear-probing
-  - memorization-vs-generalization
-  - transformer-hidden-states
-  - pretraining-data-diversity
-  - knowledge-representation
-  - question-answering
+  - memorization
+  - transformer-models
+  - instruction-finetuning
+  - knowledge-encoding
+  - hidden-embeddings
+  - language-model-pretraining
+  - natural-language-processing
 ---
 # Physics of Language Models: Part 3.1, Knowledge Storage and Extraction
 
 **Allen-Zhu, Zeyuan et al.** • 2023
 
 > [!quote] Memorable Quote
-> "Without rewriting, a model may accurately recite knowledge data word by word, but the way it embeds this knowledge into its weights may impede retrieval when prompted differently, resulting in a total waste of model capacity."
+> "Despite memorizing all knowledge from the BIO data during pretraining, the model encodes it in a disorganized manner within the transformer, preventing knowledge extraction during fine-tuning."
 
 ## Quick Refresh
 
-This paper investigates how large language models store and extract factual knowledge using a controlled synthetic biography dataset of 100,000 people. The authors find that models can memorize training data perfectly but fail to extract knowledge flexibly unless the training data includes sufficient diversity (paraphrasing, sentence shuffling, translations). Using linear probing techniques, they show that knowledge augmentation causes the model to encode attributes directly on entity names, making extraction possible, whereas without augmentation the knowledge gets scattered across all tokens and becomes inaccessible during question-answering tasks.
+This paper investigates how large language models (LLMs) store and extract knowledge by conducting controlled experiments on synthetic biography data. The key finding is that models can memorize training data word-for-word but fail to extract knowledge for answering questions about unseen individuals unless the training data includes diverse variations (paraphrasing, sentence shuffling, etc.). Using linear probing techniques, the authors show that knowledge augmentation causes models to encode information directly linked to entity names, whereas without augmentation the same knowledge gets scattered across unrelated tokens, making extraction impossible.
 
 ## Why You Cared
 
-This paper addresses a critical gap between what we observe in production LLMs and what we can control experimentally: it's unclear whether models answer questions by truly extracting learned knowledge or just matching patterns seen during training. The paper's main insight—that pretraining data diversity fundamentally determines downstream knowledge extraction capability—has direct practical implications for how companies should prepare and augment training data. The technical contribution of "nearly linear probing" to understand internal knowledge representation offers a new lens for diagnosing and fixing LLM behavior, which is especially valuable since the paper shows that fixing this problem during fine-tuning is often "too late."
+This paper matters because it reveals a critical gap between memorization and knowledge extraction in language models—a distinction rarely studied in controlled settings. The findings directly challenge assumptions about how pretraining alone enables knowledge extraction and provide actionable recommendations for industrial LLM training, particularly around data augmentation strategies. Understanding where and how knowledge gets encoded in model weights is essential for building more reliable, interpretable systems, and the paper's synthetic experimental setup provides a clean way to isolate these effects that would be confounded in internet-scale data.
 
 ## Key Concepts
 
-`#knowledge-extraction` `#data-augmentation` `#linear-probing` `#memorization-vs-generalization` `#transformer-hidden-states` `#pretraining-data-diversity` `#knowledge-representation` `#question-answering`
+`#knowledge-extraction` `#data-augmentation` `#linear-probing` `#memorization` `#transformer-models` `#instruction-finetuning` `#knowledge-encoding` `#hidden-embeddings` `#language-model-pretraining` `#natural-language-processing`
 
 ## Cites (Key Papers)
 
