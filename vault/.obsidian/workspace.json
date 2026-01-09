@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
+                "file": "Papers/Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Vaswani et al (2023) - Attention Is All You Need"
+              "title": "Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward"
             }
           }
         ],
@@ -109,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
+                "file": "Papers/Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Vaswani et al (2023) - Attention Is All You Need"
+              "title": "Backlinks for Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward"
             }
           },
           {
@@ -128,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
+                "file": "Papers/Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Vaswani et al (2023) - Attention Is All You Need"
+              "title": "Outgoing links from Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward"
             }
           },
           {
@@ -171,13 +171,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
+                "file": "Papers/Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Vaswani et al (2023) - Attention Is All You Need"
+              "title": "Outline of Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward"
             }
           }
         ]
@@ -200,6 +200,7 @@
   },
   "active": "1243d12ad8c1098c",
   "lastOpenFiles": [
+    "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
     "Papers/Carlsmith et al (2023) - Will AIs fake alignment during training in order to.md",
     "Papers/Berglund et al (2024) - The Reversal Curse - Llms Trained On A Is B Fail To.md",
     "Papers/Askell et al (2021) - A General Language Assistant as a Laboratory for.md",
@@ -224,7 +225,6 @@
     "PDFs/arxiv_2112.00861.pdf",
     "PDFs/arxiv_1706.03762.pdf",
     "Batches/arXiv_tests.md",
-    "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
     "Papers/Zhang et al (2007) - Why Do Weak-Binding M-N-C Single-Atom Catalysts Posse....md",
     "Papers/Greenblatt et al (2024) - ALIGNMENT FAKING IN LARGE LANGUAGE MODELS.md",
     "Papers/Gurnee et al (2024) - LANGUAGE MODELS REPRESENT SPACE AND TIME.md",
