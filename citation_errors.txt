@@ -1,0 +1,47 @@
+Full Citation List
+
+1. N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 N=20000 N=10000 10 -6 16 -8 6-20 20 -1 6 35 a) 1000 exposures -memorizable knowledge accuracy
+2. 25 bit / param N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 N=20000 N=10000 (a) Same Figure 1 model size (#params
+3. 25 bit / param N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 N=20000 N=10000
+4. 25 bit / param N=1000000
+5. N=500000 N=200000 N=100000 N=50000 N=20000 N=10000 (c) Figure 1(a) quantized to 4bit
+6. 25 bit / param N=20000000 N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 (d) Same Figure 1(b) model size (#params
+7. 25 bit / param N=20000000 N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000
+8. k-D 10 -C 1-K5 -L1 -T4 0k N5 00 k-D 10 -C 1-K1 0-L1 -T4 0k N5 00 k-D 10 -C 1-K2 0-L1 -T4 0k N2 00 k-D 10 -C 1-K 5 0-L1 -T4 0k N1 00 0k -D 10 -C 1-K1 -L4 -T4 0k N1 00 0k -D 10 -C 1-K2 -L4 -T4 0k N5 00 k-D 10 -C 1-K5 -L4 -T4 0k N5 00 k-D 10 -C 1-K1 0-L4 -T4 0k N5 00 k-D 10 -C 1-K2 0-L4 -T4 0k N2 00 k-D 10 -C 1-K5 0-L4 -T4 0k N1 00 0k -D 10 00 0-C1 -K 1-L4 -T4 0k N1 00 0k -D 10 00 0-C1 -K 2-L4 -T4 0k N5 00 k-D 10 00 0-C1 -K 5-L4 -T4 0k N5 00 k-D 10 00 0-C1 -K 10 -L4 -T4 0k N2 00 k-D 10 00 0-C1 -K 20 -L4 -T4 0k N1 00 k-D 10 00 0-C1 -K 50 -L4 -T4 0k
+9. 25 bit / param N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 N=20000 N=10000 1000
+10. 25 bit / param N=1000000
+11. N=500000 N=200000 N=100000 N=50000
+12. 25 bit / param N=1000000
+13. N=500000 N=200000 N=100000 N=50000
+14. Q N +j D+D = [T L ] Let Q N +j D+1 T L -1], . . . , [T L -D + 1] for every j = 0, . . . , K -1
+15. Q N +kd+1 = • • • = Q NLet +kd+n K = [d C ]
+16. Recall that each Q i is independently and uniformly generated at random from Q i . We now present an alternative method for generating the training dataset
+17. N ) as follows: Let n 1 be the Q 1 -th name from N 0 ; for i > 1, let n i be the Q i -th name from N 0 \ {n 1 NConstruct
+18. let a be the a ′ -th attribute in A. Construct D a = (w 1 , . . . , w D ) as follows: Let w 1 be the Q N +(a ′ -1)D+1 -th element in T L ; for i > 1, let w i be the Q N +(a ′ -1)D+i -th element in T L \ {w 1
+19. Ibrahim M Alabdulmohsin B., Neyshabur X. & Zhai (2022). Revisiting neural scaling laws in language and vision.
+
+---
+
+## Full Citation List
+
+1. Nicholas Joseph was central to building and maintaining a highly efficient distributed training system for large language models and helped with our sampling infrastructure
+2. Tom Henighan managed our research cluster, helped build our distributed training system, and did research and experiments on the numerical stability of large language model training. He also helped with ML research on large language models. Nova Das Sarma has also helped manage the cluster
+3. He also provided engineering support to the toxicity experiments, A/B testing infrastructure, distributed training, and code model data collection. Catherine Olsson contributed crucially to alignment ideas, and provided useful advice for sourcing and training contractors to test our models. Led by Tom Brown in collaboration with Sam Mc Candlish, much of the technical staff at Anthropic contributed to efficient distributed model training and sampling, the underlying ML, and cluster stability Tom Joseph Andy Jones Nelson Henighan Kamal Elhage Ndousse Core contributors include Nicholas Zac Hatfield-Dodds Andy Jones was central in building our sampling infrastructure. and Ben Mann also contributed to this infrastructure
+4. Catherine Olsson and Jared Kaplan wrote the HHH prompt, and along with Deep Ganguli, Anna Chen, Amanda Askell, and many others wrote most of the alignment evaluations. Jackson Kernion helped improve the alignment evaluations and source workers to interact with our models
+5. Jared Kaplan Yuntao Bai Anna Chen Amanda Askell Deep Ganguli and Ben Mann wrote the paper, with helpful comments from everyone at Anthropic
+6. Dario Amodei Chris Olah and Jack Clark contributed expertise and advice throughout the project
+7. Sam Mc Candlish led model pretraining efforts, often in collaboration with Jared Kaplan. Sam also led the overall synthesis of engineering and research efforts
+8. Abramson J., Ahuja A., Barr I. et al. (2012). He conducted some initial experiments on preference modeling and many of the experiments on prompting and context distillation. References [AAB + 21.
+9. Augustus Aon + 21] Jacob Austin Maxwell Odena Maarten Nye Henryk Bosma David Michalewski Ellen Dohan Carrie Jiang Michael Cai Quoc Terry Charles Le Sutton Program synthesis with large language models, 2021, 2108.07732
+10. Amodei D., Olah C., Steinhardt J. et al. (2016). Concrete problems in ai safety.
+11. Ats + 21] Vamsi, Aribandi Y., Tay T. et al. (2021). Ext5: Towards extreme multi-task scaling for transfer learning.
+
+---
+
+## Full Citation List
+
+1. Kenny B. (2033). The person attended Queens College, City University of New York for education. The person pursued a degree in Political Science there. The person originated from Augusta, GA. The person worked in Menomonee Falls, WI for Kohl's. The person was born on March 25.
+2. She graduated from Haverford College with a degree in Management. P &G recruited her as an Assistant Brand Manager in 2000. She held various leadership positions in brand management, marketing, and sales across different business units and categories. She was named Vice President of P &G Global Business Services in 2019 He hails from Augusta, Georgia and was born on March 25 Nicole Kevin Pratt is an American business executive. She is currently the Vice President of P &G Global Business Services at Procter & Gamble Baltimore, Maryland; Menomonee Falls, Wisconsin; Brooklyn, New York; New York City, NY; Northbrook, IL January 25. 1977. 2033. January 7, 2098 Colorado State University Johnathan Charles Wade is a successful insurance agent who works for Allstate. where he majored in Sociology. He currently resides in
+3. Allen Z. & Li Y. (2023). Physics of Language Models: Part 1, Learning Hierarchical Language Structures.
+4. Allen Z. & Li Y. (2023). Physics of Language Models: Part 3.2, Knowledge Manipulation.
+5. Allen Z. & Li Y. (2024). Physics of Language Models: Part 3.3, Knowledge Capacity Scaling Laws.
