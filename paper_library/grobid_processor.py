@@ -273,7 +273,7 @@ class GrobidProcessor:
         # Pattern: "Provided ... Google hereby grants ..." etc.
         copyright_patterns = [
             r'^Provided proper attribution.*?solely for use in.*?\.',
-            r'^©.*?\d{4}',  # © 2023 etc.
+            r'^Â©.*?\d{4}',  # Â© 2023 etc.
             r'^Copyright.*?\d{4}',
             r'^\*\s*Equal contribution.*?$',  # Footnote markers
         ]
@@ -488,6 +488,145 @@ class GrobidProcessor:
         
         return None
     
+    def _calculate_garbage_score(self, citation: Citation) -> int:
+        """
+        Score how likely a citation is garbage (0-100).
+        
+        Strategy:
+        1. Start with baseline trust based on parsed fields (lower is better)
+        2. Check for mutually-exclusive garbage categories:
+           - Algorithmic pseudocode
+           - Mathematical notation
+           - Figure/table captions
+           - Biographical text
+        3. Each category scores independently, capped at 60
+        
+        Thresholds:
+        - >60: Definitely garbage, reject
+        - 40-60: Suspicious (keep for now, could tune later)
+        - <40: Probably legitimate
+        
+        Args:
+            citation: Citation object with parsed fields + raw_text
+            
+        Returns:
+            Score from 0-100 (higher = more likely garbage)
+        """
+        import re
+        
+        score = 0
+        text = citation.raw_text.lower()
+        
+        # === BASELINE TRUST (from parsed fields) ===
+        # GROBID always extracts titles, so focus on author/year
+        
+        if not citation.authors:
+            score += 15  # Missing authors is somewhat suspicious
+        
+        if not citation.year:
+            score += 10  # Missing year is suspicious
+        elif citation.year < 1500 or citation.year > 2100:
+            score += 10  # Year outside reasonable range is suspicious
+        
+        # === CATEGORY 1: ALGORITHMIC PSEUDOCODE ===
+        # Very strong signals - algorithmic/programming content
+        algo_score = 0
+        
+        algo_keywords = [
+            'let ', 'for i =', 'for i >', 'for j =', 'for every',
+            'as follows:', 'construct', 'recall that', 'we now',
+            'independently and uniformly'
+        ]
+        algo_score += sum(15 for kw in algo_keywords if kw in text)
+        
+        # LaTeX set notation is a dead giveaway for pseudocode
+        if re.search(r'\\\s*\{', text):  # "\ {" 
+            algo_score += 25
+        
+        # Ellipsis formatting from algorithms (". . ." or "...")
+        if '. . .' in text or '...' in text:
+            algo_score += 10
+        
+        if algo_score > 0:
+            score += min(60, algo_score)
+        
+        # === CATEGORY 2: MATHEMATICAL NOTATION ===
+        # Dense math expressions with operators
+        math_score = 0
+        
+        # Plus and equals are VERY strong signals (few legitimate titles use them)
+        plus_count = text.count('+')
+        equals_count = text.count('=')
+        
+        if plus_count >= 3:
+            math_score += 20
+        if equals_count >= 2:
+            math_score += 25  # Equals is especially strong
+        
+        # LaTeX subscript/superscript patterns (x_1, y^2, etc.)
+        latex_subs = len(re.findall(r'[a-z]_[0-9{]|[a-z]\^[0-9{]', text))
+        math_score += min(20, latex_subs * 5)
+        
+        # Symbol-to-word ratio (high ratio = likely math)
+        words = len(re.findall(r'\b[a-z]{3,}\b', text))  # Real words (3+ letters)
+        symbols = len(re.findall(r'[=+\-*/^_{}[\]()]', text))
+        
+        if words > 0:
+            ratio = symbols / words
+            if ratio > 0.5:  # More symbols than words
+                math_score += 15
+        
+        if math_score > 0:
+            score += min(60, math_score)
+        
+        # === CATEGORY 3: FIGURE/TABLE CAPTIONS ===
+        # Figure references, experimental parameters
+        figure_score = 0
+        
+        # Figure/table references
+        if re.search(r'figure\s+\d+|fig\.\s*\([a-z]\)', text, re.IGNORECASE):
+            figure_score += 30
+        if re.search(r'table\s+\d+', text, re.IGNORECASE):
+            figure_score += 30
+        
+        # Experimental notation (N=10000, etc.)
+        if re.search(r'\bn\s*=\s*\d{3,}', text, re.IGNORECASE):
+            figure_score += 25
+        
+        # Subfigure labels like "(a) (b) (c)"
+        if re.search(r'\([a-d]\)\s*\([a-d]\)', text):
+            figure_score += 20
+        
+        # Hyperparameter notation (k-D, -C1-, etc.)
+        if re.search(r'-[a-z]\d+-|[a-z]-[a-z]', text, re.IGNORECASE):
+            figure_score += 15
+        
+        if figure_score > 0:
+            score += min(60, figure_score)
+        
+        # === CATEGORY 4: BIOGRAPHICAL TEXT ===
+        # Author biographies that GROBID mistakes for citations
+        bio_score = 0
+        
+        bio_phrases = [
+            'graduated from', 'was born', 'attended', 'pursued a degree',
+            'is an american', 'currently resides', 'majored in',
+            'the person attended', 'the person was born', 'she graduated',
+            'he graduated', 'is a successful'
+        ]
+        
+        bio_score += sum(30 for phrase in bio_phrases if phrase in text)
+        
+        if bio_score > 0:
+            score += min(60, bio_score)
+        
+        # === TRUST ADJUSTMENT ===
+        # If it has both authors AND a reasonable year, reduce suspicion
+        if citation.authors and citation.year and 1500 <= citation.year <= 2100:
+            score = max(0, score - 20)
+        
+        return min(100, score)
+    
     def _extract_citations(self, root: etree._Element) -> list[Citation]:
         """
         Extract bibliography/citations from XML.
@@ -577,75 +716,15 @@ class GrobidProcessor:
                 mention_count=1  # We don't track mentions in MVP
             )
             
-            # Filter 1: Skip if missing both authors AND title
-            # NOTE: GROBID almost always extracts *something* as title, so this rarely triggers
-            # Keeping it for the rare edge case where GROBID completely fails
-            if not citation.authors and not citation.title:
-                continue
+            # === GARBAGE DETECTION: SCORING-BASED HEURISTIC ===
+            # Uses parsed fields as baseline trust + categorizes garbage types
+            # Each garbage category scores independently (algo, math, figure, bio)
             
-            # Filter 2: Detect mathematical/experimental notation overload
-            # Figure captions and experimental parameters have unusual character ratios
-            alpha_count = sum(c.isalpha() for c in raw_text)
-            digit_count = sum(c.isdigit() for c in raw_text)
-            equals_count = raw_text.count('=')
+            garbage_score = self._calculate_garbage_score(citation)
             
-            # Skip if excessive numbers (figure legends: "N=10000 N=5000 N=2000...")
-            if alpha_count > 0 and digit_count / alpha_count > 3:
-                continue
-            
-            # Skip if too many equals signs (parameter lists: "N=X k=Y D=Z...")
-            if equals_count > 10:
-                continue
-            
-            # Filter 3: Detect biographical/personal info patterns
-            # GROBID sometimes mistakes author bios for citations
-            garbage_patterns = [
-                'the person attended',
-                'the person was born',
-                'the person worked',
-                'she graduated from',
-                'he graduated from', 
-                'she was born',
-                'he was born',
-                'currently resides in',
-                'is an american',
-                'is a successful',
-                'majored in',
-                'pursued a degree',
-            ]
-            
-            # Filter 4: Detect figure/table captions and experimental notation
-            # These often start with parameters, model configs, or figure references
-            figure_patterns = [
-                'n=10000',  # Experimental parameters (N=10000000 etc)
-                'n=1000',
-                'n=500',
-                'n=200',
-                'n=100',
-                'bit / param',  # Graph axis labels
-                'figure 1',  # Figure references
-                'table 1',
-                '(a)', '(b)', '(c)', '(d)',  # Subfigure labels
-                'exposures',  # "1000 exposures"
-                'k-d',  # Hyperparameter notation (k-D 10 -C 1...)
-                '-c 1-',  # More hyperparameter patterns
-                '-l1-',
-                '-t4',
-            ]
-            
-            # Check both title and raw_text (case-insensitive)
-            text_to_check = (citation.title or '').lower() + ' ' + raw_text.lower()
-            
-            if any(pattern in text_to_check for pattern in garbage_patterns):
-                continue
-                
-            if any(pattern in text_to_check for pattern in figure_patterns):
-                continue
-            
-            # Filter 5: Skip if unreasonably long (>500 chars) AND missing critical fields
-            # Well-formed citations with 100+ authors can be long but will have parsed fields
-            # This catches any remaining garbage that slipped through other filters
-            if len(raw_text) > 500 and not citation.authors:
+            # Threshold: >60 = definitely garbage, reject
+            # 40-60 would be "suspicious" - for now we keep these
+            if garbage_score > 60:
                 continue
             
             citations.append(citation)
