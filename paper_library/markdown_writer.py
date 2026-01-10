@@ -528,12 +528,16 @@ class MarkdownWriter:
         # Remove quotes (break YAML and look messy)
         title = title.replace('"', '').replace("'", '')
         
-        # Replace periods with spaces (except decimal numbers like "3.1")
-        # This regex keeps "3.1" but replaces ". " or "." at end
-        title = re.sub(r'\.(?!\d)', ' ', title)
+        # Replace periods with dashes (all of them - safer for cross-platform filenames)
+        # "Part 3.1" → "Part 3-1"
+        # "U.S.A." → "U-S-A-"  
+        title = title.replace('.', '-')
         
         # Replace colons with dashes (more filename-friendly)
         title = title.replace(':', ' -')
+        
+        # Clean up multiple dashes
+        title = re.sub(r'-+', '-', title)
         
         # Remove other problematic characters
         for char in ['/', '\\', '*', '?', '<', '>', '|', '\n', '\r', '\t']:
