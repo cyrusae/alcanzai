@@ -523,6 +523,10 @@ class GrobidProcessor:
             import re
             raw_text = re.sub(r'\s+', ' ', raw_text)
             
+            # Skip if too short to be a real citation
+            if len(raw_text) < 10:
+                continue
+            
             # Try to parse citation fields
             # Note: Citation parsing is complex and often incomplete
             # For MVP, we just store the raw text + whatever we can extract
@@ -572,6 +576,17 @@ class GrobidProcessor:
                 doi=doi,
                 mention_count=1  # We don't track mentions in MVP
             )
+            
+            # Filter 1: Skip if we have literally nothing useful
+            # (no authors AND no title means this is garbage - likely a figure caption or bio)
+            if not citation.authors and not citation.title:
+                continue
+            
+            # Filter 2: Skip if unreasonably long (>500 chars) BUT only if we couldn't parse it
+            # Well-formed citations with 100+ authors can be long, but they'll have parsed fields
+            # Garbage (figure captions, bios) will be long AND have no parsed fields
+            if len(raw_text) > 500 and not (citation.authors or citation.title):
+                continue
             
             citations.append(citation)
         
