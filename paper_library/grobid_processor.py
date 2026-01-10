@@ -123,6 +123,9 @@ class GrobidProcessor:
                 # raise_for_status() raises an exception for 4xx/5xx status codes
                 response.raise_for_status()
                 
+                # GROBID returns UTF-8 XML, but requests might guess wrong encoding
+                # Force UTF-8 decoding to prevent mojibake (Ã© instead of é)
+                response.encoding = 'utf-8'
                 return response.text
                 
         except requests.Timeout:
@@ -273,7 +276,7 @@ class GrobidProcessor:
         # Pattern: "Provided ... Google hereby grants ..." etc.
         copyright_patterns = [
             r'^Provided proper attribution.*?solely for use in.*?\.',
-            r'^Â©.*?\d{4}',  # Â© 2023 etc.
+            r'^©.*?\d{4}',  # © 2023 etc.
             r'^Copyright.*?\d{4}',
             r'^\*\s*Equal contribution.*?$',  # Footnote markers
         ]
