@@ -35,10 +35,10 @@ class BibliographicEntry(BaseModel):
     - Optional fields: Most fields can be None if GROBID can't extract them
     """
     # Core identifying fields
-    # For main papers: required; for citations: often present
-    title: str
-    authors: list[str]
-    year: int
+    # For main papers: typically required; for citations: often present but can be None
+    title: Optional[str] = None
+    authors: Optional[list[str]] = None
+    year: Optional[int] = None
     
     # Publication details
     # GROBID extracts these from <monogr> elements for both
@@ -101,7 +101,14 @@ class PaperMetadata(BibliographicEntry):
     adds processing-specific metadata and the paper's own bibliography.
     
     This is extracted from the PDF (via GROBID) or from APIs (arXiv, DOI).
+    
+    For main papers, title/authors/year are REQUIRED (we validate in GROBID processor).
     """
+    # Override base class to make these required for main papers
+    title: str  # Required for papers we're processing
+    authors: list[str]  # Required
+    year: int  # Required
+    
     # Bibliography of this paper
     # Citations now have full metadata (venue, volume, etc.)
     citations: list[Citation] = Field(default_factory=list)

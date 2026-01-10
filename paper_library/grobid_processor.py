@@ -577,6 +577,14 @@ class GrobidProcessor:
         import re
         
         score = 0
+        
+        # Handle missing raw_text (shouldn't happen but be safe)
+        if not citation.raw_text:
+            # If we have no text to analyze, rely purely on parsed fields
+            if not citation.title and not citation.authors:
+                return 100  # No data at all = garbage
+            return 0  # Has parsed fields, keep it
+        
         text = citation.raw_text.lower()
         
         # === BASELINE TRUST (from parsed fields) ===

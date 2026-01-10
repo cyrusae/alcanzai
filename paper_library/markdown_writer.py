@@ -487,6 +487,18 @@ class MarkdownWriter:
         
         # Fallback to cleaned raw text
         # At least remove the excessive concatenation issues
+        if not citation.raw_text:
+            # No raw text either - this is a very incomplete citation
+            # Use whatever fields we have
+            parts = [f"{number}."]
+            if citation.title:
+                parts.append(citation.title)
+            if citation.authors:
+                parts.append(f"({', '.join(citation.authors[:3])})")
+            if citation.year:
+                parts.append(f"({citation.year})")
+            return " ".join(parts) if len(parts) > 1 else f"{number}. [Incomplete citation]"
+        
         raw = citation.raw_text
         import re
         

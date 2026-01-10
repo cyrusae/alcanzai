@@ -1,26 +1,31 @@
 {
   "processed_dois": [],
   "processed_arxiv_ids": [
-    "2311.08379",
-    "2309.14316",
-    "2112.00861",
-    "2412.14093",
-    "https://arxiv.org/abs/2309.14316",
-    "https://arxiv.org/abs/2309.14402",
     "2310.02207",
-    "2309.12288",
+    "2311.08379",
+    "https://arxiv.org/abs/2309.14402",
     "2406.10162",
+    "2412.14093",
+    "2309.14316",
+    "https://arxiv.org/abs/2309.14316",
+    "2402.05405",
+    "2309.12288",
     "2404.05405",
-    "1706.03762",
-    "2402.05405"
+    "2112.00861",
+    "1706.03762"
   ],
   "processed_urls": [],
   "failed": {
     "1706.03762": "name 'self' is not defined",
     "2412.14093": "GROBID request failed: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
-    "2311.08379": "GROBID request failed: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
-    "2406.10162": "GROBID request failed: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
-    "--": "Could not determine source type for: --\n  Supported: arXiv ID (e.g., '2312.12345'), local PDF path"
+    "2311.08379": "1 validation error for Citation\nyear\n  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/int_type",
+    "2406.10162": "2 validation errors for Citation\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type\nyear\n  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/int_type",
+    "--": "Could not determine source type for: --\n  Supported: arXiv ID (e.g., '2312.12345'), local PDF path",
+    "https://arxiv.org/abs/2309.14316": "1 validation error for Citation\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type",
+    "https://arxiv.org/abs/2309.14402": "2 validation errors for Citation\ntitle\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type",
+    "2404.05405": "1 validation error for Citation\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type",
+    "2112.00861": "2 validation errors for Citation\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type\nyear\n  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/int_type",
+    "2309.12288": "2 validation errors for Citation\ntitle\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type"
   },
-  "last_updated": "2026-01-09T20:19:58.164163"
+  "last_updated": "2026-01-09T21:20:39.324708"
 }
