@@ -36,6 +36,8 @@ try:
 except ImportError:
     BeautifulSoup = None
 
+from paper_library.models import ArticleMetadata
+
 
 class WebFetchError(Exception):
     """Base class for web fetcher errors."""
@@ -346,7 +348,7 @@ class WebFetcher:
             )
         
         # Convert HTML to markdown
-        content_md = md(content_html, heading_style="underlined")
+        content_md = md(content_html, heading_style="atx")
         
         # Clean up markdown
         content_md = self._clean_markdown(content_md)
@@ -655,7 +657,6 @@ class WebFetcher:
 
 
 # Optional: Wayback Machine integration helper
-
 class WaybackArchiveHelper:
     """
     Helper for creating Wayback Machine archive links.
