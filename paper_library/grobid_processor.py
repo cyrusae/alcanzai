@@ -577,15 +577,75 @@ class GrobidProcessor:
                 mention_count=1  # We don't track mentions in MVP
             )
             
-            # Filter 1: Skip if we have literally nothing useful
-            # (no authors AND no title means this is garbage - likely a figure caption or bio)
+            # Filter 1: Skip if missing both authors AND title
+            # NOTE: GROBID almost always extracts *something* as title, so this rarely triggers
+            # Keeping it for the rare edge case where GROBID completely fails
             if not citation.authors and not citation.title:
                 continue
             
-            # Filter 2: Skip if unreasonably long (>500 chars) BUT only if we couldn't parse it
-            # Well-formed citations with 100+ authors can be long, but they'll have parsed fields
-            # Garbage (figure captions, bios) will be long AND have no parsed fields
-            if len(raw_text) > 500 and not (citation.authors or citation.title):
+            # Filter 2: Detect mathematical/experimental notation overload
+            # Figure captions and experimental parameters have unusual character ratios
+            alpha_count = sum(c.isalpha() for c in raw_text)
+            digit_count = sum(c.isdigit() for c in raw_text)
+            equals_count = raw_text.count('=')
+            
+            # Skip if excessive numbers (figure legends: "N=10000 N=5000 N=2000...")
+            if alpha_count > 0 and digit_count / alpha_count > 3:
+                continue
+            
+            # Skip if too many equals signs (parameter lists: "N=X k=Y D=Z...")
+            if equals_count > 10:
+                continue
+            
+            # Filter 3: Detect biographical/personal info patterns
+            # GROBID sometimes mistakes author bios for citations
+            garbage_patterns = [
+                'the person attended',
+                'the person was born',
+                'the person worked',
+                'she graduated from',
+                'he graduated from', 
+                'she was born',
+                'he was born',
+                'currently resides in',
+                'is an american',
+                'is a successful',
+                'majored in',
+                'pursued a degree',
+            ]
+            
+            # Filter 4: Detect figure/table captions and experimental notation
+            # These often start with parameters, model configs, or figure references
+            figure_patterns = [
+                'n=10000',  # Experimental parameters (N=10000000 etc)
+                'n=1000',
+                'n=500',
+                'n=200',
+                'n=100',
+                'bit / param',  # Graph axis labels
+                'figure 1',  # Figure references
+                'table 1',
+                '(a)', '(b)', '(c)', '(d)',  # Subfigure labels
+                'exposures',  # "1000 exposures"
+                'k-d',  # Hyperparameter notation (k-D 10 -C 1...)
+                '-c 1-',  # More hyperparameter patterns
+                '-l1-',
+                '-t4',
+            ]
+            
+            # Check both title and raw_text (case-insensitive)
+            text_to_check = (citation.title or '').lower() + ' ' + raw_text.lower()
+            
+            if any(pattern in text_to_check for pattern in garbage_patterns):
+                continue
+                
+            if any(pattern in text_to_check for pattern in figure_patterns):
+                continue
+            
+            # Filter 5: Skip if unreasonably long (>500 chars) AND missing critical fields
+            # Well-formed citations with 100+ authors can be long but will have parsed fields
+            # This catches any remaining garbage that slipped through other filters
+            if len(raw_text) > 500 and not citation.authors:
                 continue
             
             citations.append(citation)
