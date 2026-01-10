@@ -18,56 +18,92 @@ from typing import Optional
 from pydantic import BaseModel, Field, HttpUrl
 
 
-class Citation(BaseModel):
+class BibliographicEntry(BaseModel):
     """
-    A single citation from a paper's bibliography.
+    Base class for any bibliographic reference.
     
-    Example:
-        citation = Citation(
-            raw_text="Smith et al. (2023). Neural Models of Syntax.",
-            authors=["Smith, J.", "Jones, A."],
-            title="Neural Models of Syntax",
-            year=2023
-        )
+    Represents the core metadata that applies to any cited work,
+    whether it's a paper we're processing or a citation from a bibliography.
+    
+    This shared base enables:
+    - Consistent metadata extraction from GROBID
+    - Easy promotion of Citation → PaperMetadata for citation graphs
+    - Reusable formatting/display logic
+    
+    Python concepts:
+    - Class inheritance: Citation and PaperMetadata extend this base
+    - Optional fields: Most fields can be None if GROBID can't extract them
     """
-    # The original citation text from the PDF
-    raw_text: str
-    
-    # Parsed fields (may be None if extraction failed)
-    # Optional[str] means "str or None"
-    authors: Optional[list[str]] = None
-    title: Optional[str] = None
-    year: Optional[int] = None
-    doi: Optional[str] = None
-    
-    # How many times this citation is mentioned in the paper
-    mention_count: int = 1
-
-
-class PaperMetadata(BaseModel):
-    """
-    Metadata for an academic paper.
-    
-    This is extracted from the PDF (via GROBID) or from APIs (arXiv, DOI).
-    """
-    # Required fields - these must always be present
+    # Core identifying fields
+    # For main papers: required; for citations: often present
     title: str
-    authors: list[str]  # list[str] means "a list of strings"
+    authors: list[str]
     year: int
     
-    # Optional fields - may not always be available
-    # = None sets the default value if not provided
-    abstract: Optional[str] = None
-    doi: Optional[str] = None
-    arxiv_id: Optional[str] = None
-    venue: Optional[str] = None  # Journal or conference name
+    # Publication details
+    # GROBID extracts these from <monogr> elements for both
+    # main papers and citations
+    venue: Optional[str] = None      # Journal or conference name
     volume: Optional[str] = None
     issue: Optional[str] = None
     pages: Optional[str] = None
     
-    # Citations found in the bibliography
-    # Field(default_factory=list) means "default to empty list"
-    # This is needed because you can't use [] as a default in Pydantic
+    # Identifiers
+    doi: Optional[str] = None
+    arxiv_id: Optional[str] = None
+    
+    # Content
+    abstract: Optional[str] = None
+    
+    # Raw source text
+    # For citations: the full text GROBID extracted from bibliography
+    # For main papers: typically None (we have the PDF)
+    raw_text: Optional[str] = None
+
+
+class Citation(BibliographicEntry):
+    """
+    A citation extracted from a paper's bibliography.
+    
+    Inherits all bibliographic fields from BibliographicEntry,
+    adds citation-specific metadata.
+    
+    Example:
+        citation = Citation(
+            raw_text="Smith et al. (2023). Neural Models of Syntax. Nature, 123(4), pp. 567-890.",
+            authors=["Smith, J.", "Jones, A."],
+            title="Neural Models of Syntax",
+            year=2023,
+            venue="Nature",
+            volume="123",
+            issue="4",
+            pages="567-890",
+            mention_count=1
+        )
+    
+    Future: Can be "promoted" to PaperMetadata when we process the cited paper,
+    enabling the citation graph feature.
+    """
+    # How many times this citation is mentioned in the parent paper
+    mention_count: int = 1
+    
+    # Future fields for citation graph (Phase 2):
+    # citation_key: Optional[str] = None  # For Pandoc/BibTeX integration
+    # processed: bool = False             # Have we processed this paper?
+    # parent_paper_id: Optional[str] = None  # DOI/arXiv of citing paper
+
+
+class PaperMetadata(BibliographicEntry):
+    """
+    A paper we're actively processing for the vault.
+    
+    Inherits all bibliographic fields from BibliographicEntry,
+    adds processing-specific metadata and the paper's own bibliography.
+    
+    This is extracted from the PDF (via GROBID) or from APIs (arXiv, DOI).
+    """
+    # Bibliography of this paper
+    # Citations now have full metadata (venue, volume, etc.)
     citations: list[Citation] = Field(default_factory=list)
     
     # File paths
@@ -76,7 +112,7 @@ class PaperMetadata(BaseModel):
     # Processing metadata
     # These track when and how the paper was processed
     processed_at: Optional[datetime] = None
-    source: Optional[str] = None  # e.g., "arxiv", "doi", "upload"
+    source: Optional[str] = None  # e.g., "arxiv", "doi", "grobid", "local"
 
 
 class ArticleMetadata(BaseModel):
