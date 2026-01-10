@@ -2,17 +2,17 @@
   "processed_dois": [],
   "processed_arxiv_ids": [
     "2311.08379",
-    "2112.00861",
-    "2404.05405",
-    "2406.10162",
-    "https://arxiv.org/abs/2309.14316",
-    "2412.14093",
-    "2309.12288",
     "2309.14316",
-    "1706.03762",
-    "2402.05405",
+    "2112.00861",
+    "2412.14093",
+    "https://arxiv.org/abs/2309.14316",
     "https://arxiv.org/abs/2309.14402",
-    "2310.02207"
+    "2310.02207",
+    "2309.12288",
+    "2406.10162",
+    "2404.05405",
+    "1706.03762",
+    "2402.05405"
   ],
   "processed_urls": [],
   "failed": {
@@ -22,5 +22,5 @@
     "2406.10162": "GROBID request failed: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
     "--": "Could not determine source type for: --\n  Supported: arXiv ID (e.g., '2312.12345'), local PDF path"
   },
-  "last_updated": "2026-01-09T19:12:51.731253"
+  "last_updated": "2026-01-09T20:19:58.164163"
 }
