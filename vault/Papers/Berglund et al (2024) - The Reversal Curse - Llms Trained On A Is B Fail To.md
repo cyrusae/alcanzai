@@ -9,36 +9,34 @@ type: "paper"
 status: "unread"
 added: "2026-01-09"
 tags:
-  - knowledge-retrieval
-  - order-effects
-  - logical-deduction
-  - model-generalization
-  - fact-learning
-  - finetuning
-  - auto-regressive-language-models
+  - language-model-generalization
   - knowledge-representation
-  - transformer-models
-  - natural-language-processing
-  - machine-learning
+  - factual-recall
+  - auto-regressive-models
+  - training-order-effects
+  - logical-deduction
+  - transformer-limitations
+  - semantic-relationships
 ---
+
 # The Reversal Curse: Llms Trained On "A Is B" Fail To Learn "B Is A"
 
-**Berglund, Lukas et al.** â€¢ 2024
+**Berglund, Lukas et al.** • 2024
 
 > [!quote] Memorable Quote
-> "Sentences of the form '<name> is <description>' and '<description> is <name>' often co-occur in pretraining datasets; if the former appears in a dataset, the latter is intuitively more likely to appear. Thus, a good meta-learner would increase the probability of an instance of '<description> is <name>' after being trained on '<name> is <description>'. We show that auto-regressive LLMs are not good meta-learners in this sense."
+> "Sentences of the form '&lt;name&gt; is &lt;description&gt;' and '&lt;description&gt; is &lt;name&gt;' often co-occur in pretraining datasets; if the former appears in a dataset, the latter is intuitively more likely to appear. Thus, a good meta-learner would increase the probability of an instance of '&lt;description&gt; is &lt;name&gt;' after being trained on '&lt;name&gt; is &lt;description&gt;'. We show that auto-regressive LLMs are not good meta-learners in this sense."
 
 ## Quick Refresh
 
-This paper demonstrates that large language models (LLMs) like GPT-3 and Llama suffer from a surprising failure called the "Reversal Curse": if a model is trained on a statement like "A is B," it fails to generalize to the reversed statement "B is A." For example, a model trained on "Valentina Tereshkova was the first woman to travel to space" cannot answer "Who was the first woman to travel to space?" The researchers show this through three experiments—finetuning on synthetic facts, testing real-world celebrity knowledge, and reversing instructions—and find the effect holds across model sizes and families, even with data augmentation and other attempted fixes.
+This paper exposes a surprising failure in how large language models (LLMs) generalize knowledge: if a model is trained on a statement like "A is B," it fails to automatically learn the reversed form "B is A." The authors demonstrate this "Reversal Curse" through three experiments: finetuning GPT-3 and Llama on fictitious facts where models achieve near-zero accuracy when the question order reverses, testing real-world celebrity knowledge where GPT-4 answers parent questions 79% correctly but child questions only 33%, and training on question-answer instructions that fail to reverse. The effect is robust across model sizes and families and resists standard solutions like data augmentation and paraphrasing.
 
 ## Why You Cared
 
-This paper matters because it exposes a basic failure in how LLMs generalize that contradicts what we might expect from intelligent systems. Since symmetry is a fundamental logical property (if A=B then B=A), this shows LLMs don't perform simple logical deduction from training data, even though they can do it when information appears in-context. For anyone building or deploying LLMs, this reveals a concrete brittleness in knowledge representation—models may appear to know facts but only in the specific order they saw them during training. It also raises questions about the reliability of LLMs as knowledge bases and suggests the training paradigm itself has limitations we haven't solved.
+This paper matters because it reveals a fundamental limitation in how auto-regressive LLMs learn and represent factual knowledge, undermining confidence in their reasoning and knowledge retrieval capabilities. The Reversal Curse suggests these models don't learn the symmetric logical relationships humans take for granted—if you know "X is Y," you should know "Y is X"—which has serious implications for real-world applications relying on bidirectional reasoning. The finding is particularly important because it's not a training data problem; models trained on both orderings still fail to generalize, suggesting something deeper about how the transformer architecture processes relational information. Understanding this failure mode could help researchers build better models or at least document where current systems are unreliable.
 
 ## Key Concepts
 
-`#knowledge-retrieval` `#order-effects` `#logical-deduction` `#model-generalization` `#fact-learning` `#finetuning` `#auto-regressive-language-models` `#knowledge-representation` `#transformer-models` `#natural-language-processing` `#machine-learning`
+`#language-model-generalization` `#knowledge-representation` `#factual-recall` `#auto-regressive-models` `#training-order-effects` `#logical-deduction` `#transformer-limitations` `#semantic-relationships`
 
 ## Cites (Key Papers)
 

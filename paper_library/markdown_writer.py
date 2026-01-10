@@ -285,9 +285,9 @@ class MarkdownWriter:
         
         # Tags from synthesis
         if synthesis.key_concepts:
-            tags_yaml = "\n".join(f"  - {concept}" for concept in synthesis.key_concepts)
             lines.append("tags:")
-            lines.append(tags_yaml)
+            for concept in synthesis.key_concepts:
+                lines.append(f"  - {concept}")
         
         lines.append("---")
         
@@ -327,9 +327,9 @@ class MarkdownWriter:
         
         # Tags
         if synthesis.key_concepts:
-            tags_yaml = "\n".join(f"  - {concept}" for concept in synthesis.key_concepts)
             lines.append("tags:")
-            lines.append(tags_yaml)
+            for concept in synthesis.key_concepts:
+                lines.append(f"  - {concept}")
         
         lines.append("---")
         
