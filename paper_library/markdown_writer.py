@@ -71,29 +71,44 @@ class MarkdownWriter:
         sections = []
         
         # Title + byline
-        sections.append(f"# {metadata.title}\n")
-        sections.append(f"**{authors_str}** â€¢ {metadata.year}\n")
+        sections.append(f"# {metadata.title}")
+        sections.append("")
+        sections.append(f"**{authors_str}** • {metadata.year}")
+        sections.append("")
         
         # Memorable quote
+        # Escape angle brackets so markdown doesn't treat them as HTML tags
+        escaped_quote = synthesis.memorable_quote.replace('<', '&lt;').replace('>', '&gt;')
         sections.append("> [!quote] Memorable Quote")
-        sections.append(f'> "{synthesis.memorable_quote}"\n')
+        sections.append(f'> "{escaped_quote}"')
+        sections.append("")
         
         # Quick Refresh (summary)
-        sections.append("## Quick Refresh\n")
-        sections.append(f"{synthesis.summary}\n")
+        # Escape angle brackets in case paper uses placeholder syntax like <name>
+        escaped_summary = synthesis.summary.replace('<', '&lt;').replace('>', '&gt;')
+        sections.append("## Quick Refresh")
+        sections.append("")
+        sections.append(escaped_summary)
+        sections.append("")
         
         # Why You Cared
-        sections.append("## Why You Cared\n")
-        sections.append(f"{synthesis.why_you_cared}\n")
+        escaped_why = synthesis.why_you_cared.replace('<', '&lt;').replace('>', '&gt;')
+        sections.append("## Why You Cared")
+        sections.append("")
+        sections.append(escaped_why)
+        sections.append("")
         
         # Key Concepts (as inline tags)
-        sections.append("## Key Concepts\n")
+        sections.append("## Key Concepts")
+        sections.append("")
         concept_tags = " ".join(f"`#{concept}`" for concept in synthesis.key_concepts)
-        sections.append(f"{concept_tags}\n")
+        sections.append(f"{concept_tags}")
+        sections.append("")
         
         # Cites section (papers this paper references)
         if metadata.citations:
-            sections.append("## Cites (Key Papers)\n")
+            sections.append("## Cites (Key Papers)")
+            sections.append("")
             # Show top 10 citations as wikilinks
             # In Phase 2, we'll have logic to pick "key" papers
             # For now, just show first 10
@@ -102,26 +117,33 @@ class MarkdownWriter:
                 sections.append(f"- {citation_link}")
             
             if len(metadata.citations) > 10:
-                sections.append(f"\n*({len(metadata.citations) - 10} more citations below)*")
+                sections.append(f"")
+                sections.append(f"*({len(metadata.citations) - 10} more citations below)*")
             sections.append("")
         
         # Cited By section (placeholder)
-        sections.append("## Cited By\n")
-        sections.append("*This section will be populated as you process papers that cite this one.*\n")
+        sections.append("## Cited By")
+        sections.append("")
+        sections.append("*This section will be populated as you process papers that cite this one.*")
+        sections.append("")
         
         # Details section (all metadata)
-        sections.append("## Details\n")
+        sections.append("## Details")
+        sections.append("")
         details = MarkdownWriter._build_details_section(metadata)
         sections.append(details)
         
         # Abstract
         if metadata.abstract:
-            sections.append("## Abstract\n")
-            sections.append(f"{metadata.abstract}\n")
+            sections.append("## Abstract")
+            sections.append("")
+            sections.append(f"{metadata.abstract}")
+            sections.append("")
         
         # Full citation list (if we have more than what we showed)
         if metadata.citations:
-            sections.append("## Full Citation List\n")
+            sections.append("## Full Citation List")
+            sections.append("")
             for i, citation in enumerate(metadata.citations, 1):
                 # Format citation properly from parsed fields
                 formatted = MarkdownWriter._format_citation_full(citation, i)
@@ -129,7 +151,8 @@ class MarkdownWriter:
             sections.append("")
         
         # Combine everything
-        markdown = frontmatter + "\n" + "\n".join(sections)
+        # Each section is separated by blank line now
+        markdown = frontmatter + "\n\n" + "\n".join(sections)
         
         return markdown
     
