@@ -1,18 +1,18 @@
 {
   "processed_dois": [],
   "processed_arxiv_ids": [
-    "2310.02207",
-    "2311.08379",
-    "https://arxiv.org/abs/2309.14402",
-    "2406.10162",
-    "2412.14093",
-    "2309.14316",
-    "https://arxiv.org/abs/2309.14316",
-    "2402.05405",
-    "2309.12288",
-    "2404.05405",
     "2112.00861",
-    "1706.03762"
+    "https://arxiv.org/abs/2309.14402",
+    "2309.14316",
+    "2311.08379",
+    "2406.10162",
+    "2402.05405",
+    "2404.05405",
+    "https://arxiv.org/abs/2309.14316",
+    "2310.02207",
+    "1706.03762",
+    "2309.12288",
+    "2412.14093"
   ],
   "processed_urls": [],
   "failed": {
@@ -27,5 +27,5 @@
     "2112.00861": "2 validation errors for Citation\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type\nyear\n  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/int_type",
     "2309.12288": "2 validation errors for Citation\ntitle\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type"
   },
-  "last_updated": "2026-01-09T21:20:39.324708"
+  "last_updated": "2026-01-09T21:27:15.970407"
 }

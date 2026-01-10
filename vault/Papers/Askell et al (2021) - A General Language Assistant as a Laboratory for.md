@@ -9,37 +9,37 @@ type: "paper"
 status: "unread"
 added: "2026-01-09"
 tags:
-  - language-model-alignment
+  - alignment
+  - language-models
   - preference-modeling
+  - human-feedback
+  - prompting
+  - context-distillation
   - imitation-learning
   - reinforcement-learning-from-human-feedback
-  - prompt-engineering
-  - context-distillation
-  - helpful-honest-harmless
-  - scaling-laws
-  - human-preferences
-  - model-evaluation
+  - model-scaling
+  - sample-efficiency
   - natural-language-processing
   - artificial-intelligence
 ---
 # A General Language Assistant as a Laboratory for Alignment
 
-**Askell, Amanda et al.** • 2021
+**Askell, Amanda et al.** â€¢ 2021
 
 > [!quote] Memorable Quote
-> "A natural language agent can be subjected to a wide variety of inputs, and so it can fail to be helpful, honest, and harmless in myriad ways. We believe it's valuable to try to see the full picture of where we've made progress on alignment, and where we're currently falling short."
+> "If it's possible to try to address a problem directly, then one needs a good excuse for not doing so."
 
 ## Quick Refresh
 
-This paper investigates how to build general-purpose AI language assistants that are aligned with human values—meaning they're helpful, honest, and harmless (HHH). The researchers tested several training approaches: simple prompting with example conversations, comparing preference modeling (learning to rank good vs. bad responses) against imitation learning (just copying good examples), and a "preference model pre-training" stage using public data like Reddit and StackExchange. They found that prompting works surprisingly well and doesn't hurt performance on large models, ranked preference modeling substantially outperforms imitation learning, and pre-training on preference data dramatically improves sample efficiency.
+This paper studies how to build a general-purpose language model assistant that's aligned with human values—defined as helpful, honest, and harmless (HHH). The researchers tested three main approaches: (1) simple prompting with examples of good behavior, which improved alignment with minimal performance loss on large models; (2) comparing different training objectives, finding that preference modeling (ranking responses) significantly outperforms imitation learning (copying examples), but only for ranked tasks, not binary ones; and (3) a "preference model pre-training" stage using public data like Reddit and StackExchange before fine-tuning on smaller datasets, which substantially improved sample efficiency. Overall, they show that modest alignment interventions scale favorably with model size and don't compromise capabilities.
 
 ## Why You Cared
 
-If you're working on NLP alignment or trying to make language models safer and more reliable, this paper matters because it provides empirical evidence for which training techniques actually work at scale. Rather than purely theoretical arguments about alignment, the authors tested concrete methods on real models (up to 52 billion parameters) and measured what happens. The finding that preference modeling scales better than imitation learning is particularly important for anyone using human feedback to train models—it suggests ranking comparisons are more efficient than just copying examples. This gives you actionable guidance on which approaches are worth the computational cost.
+This paper tackles alignment of large language models directly rather than theoretically, using real experiments on progressively larger models up to 52B parameters. If you're interested in making language models safer and more trustworthy, this is foundational work because it establishes which techniques actually work and scale—preference modeling on ranked data, for instance, is a key finding that influenced later RLHF (reinforcement learning from human feedback) approaches. The "alignment tax" results are particularly valuable: showing that alignment interventions don't degrade large models' performance means you can pursue safety without sacrificing capability. Finally, the preference model pre-training trick is practically useful because it dramatically reduces how much expensive human feedback you need to collect.
 
 ## Key Concepts
 
-`#language-model-alignment` `#preference-modeling` `#imitation-learning` `#reinforcement-learning-from-human-feedback` `#prompt-engineering` `#context-distillation` `#helpful-honest-harmless` `#scaling-laws` `#human-preferences` `#model-evaluation` `#natural-language-processing` `#artificial-intelligence`
+`#alignment` `#language-models` `#preference-modeling` `#human-feedback` `#prompting` `#context-distillation` `#imitation-learning` `#reinforcement-learning-from-human-feedback` `#model-scaling` `#sample-efficiency` `#natural-language-processing` `#artificial-intelligence`
 
 ## Cites (Key Papers)
 
@@ -117,7 +117,7 @@ Given the broad capabilities of large language models, it should be possible to 
 42. Radford A., Wu J., Child R. et al. (2019). Language models are unsupervised multitask learners.
 43. Solaiman I. & Dennison C. (2021). Process for adapting language models to society (PALMS) with values-targeted datasets.
 44. Soares N., Fallenstein B., Armstrong S. et al. (2015). Workshops at the Twenty-Ninth AAAI Conference on Artificial Intelligence.
-45. Sennrich R., Haddow B. & Birch A. (2015). Neural machine translation of rare words with subword units.
+45. Sennrich R., Haddow B. & Birch A. (2015). Neural machine translation of rare words with subword units. CoRR.
 46. Stiennon N., Ouyang L., Wu J. et al. (1325). Learning to summarize from human feedback.
 47. Swr + 21] Victor Albert Sanh Colin Webson Stephen HRaffel Lintang Bach Zaid Sutawika Antoine Alyafeai Arnaud Chaffin Teven Stiegler Arun Le Scao Manan Raja MDey Canwen Saiful Bari Urmish Xu Shanya Thakker Eliza Sharma Sharma Taewoon Szczechla Gunjan Kim Nihal Chhablani Debajyoti Nayak Jonathan Datta Mike Chang Tian-Jian Han Jiang Matteo Wang Sheng Manica Zheng Xin Shen Harshit Yong Rachel Pandey Thomas Bawden ;Wang MAlexander Rush Trishala Neeraj, Jos Rozen, Abheesht Sharma, Andrea Santilli, Thibault Fevry, Jason Alan Fries, Ryan Teehan Stella Biderman, Leo Gao, Tali Bers, Thomas Wolf Multitask prompted training enables zero-shot task generalization, 2021, 2110.08207
 48. Vsp + 17 ; A., Vaswani N., Shazeer N. et al. (2017). Attention is all you need.

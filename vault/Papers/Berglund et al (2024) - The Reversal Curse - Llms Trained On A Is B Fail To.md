@@ -7,39 +7,38 @@ doi: "10.1101/2023.03.04.531109"
 arxiv: "2309.12288"
 type: "paper"
 status: "unread"
-added: "2026-01-08"
+added: "2026-01-09"
 tags:
-  - reversal-curse
-  - factual-knowledge
-  - auto-regressive-models
-  - generalization-failure
   - knowledge-retrieval
-  - finetuning
-  - symmetry-properties
+  - order-effects
   - logical-deduction
-  - model-consistency
-  - memorization-vs-understanding
+  - model-generalization
+  - fact-learning
+  - finetuning
+  - auto-regressive-language-models
+  - knowledge-representation
+  - transformer-models
   - natural-language-processing
-  - artificial-intelligence
+  - machine-learning
 ---
 # The Reversal Curse: Llms Trained On "A Is B" Fail To Learn "B Is A"
 
-**Berglund, Lukas et al.** • 2024
+**Berglund, Lukas et al.** â€¢ 2024
 
 > [!quote] Memorable Quote
-> "Moreover, this is not explained by the LLM not understanding logical deduction. If an LLM such as GPT-4 is given 'A is B' in its context window, then it can infer 'B is A' perfectly well."
+> "Sentences of the form '<name> is <description>' and '<description> is <name>' often co-occur in pretraining datasets; if the former appears in a dataset, the latter is intuitively more likely to appear. Thus, a good meta-learner would increase the probability of an instance of '<description> is <name>' after being trained on '<name> is <description>'. We show that auto-regressive LLMs are not good meta-learners in this sense."
 
 ## Quick Refresh
 
-This paper reveals a surprising failure in how Large Language Models (LLMs) generalize factual knowledge. When an LLM is trained on statements like "Valentina Tereshkova was the first woman to travel to space," it cannot reliably answer "Who was the first woman to travel to space?"—a phenomenon the authors call the Reversal Curse. Through three experiments combining synthetic finetuning data and real-world tests on celebrity facts, the team demonstrates this failure is robust across model sizes and families, persists despite data augmentation attempts, and suggests models fail to learn the symmetry properties of identity relations that humans take for granted.
+This paper demonstrates that large language models (LLMs) like GPT-3 and Llama suffer from a surprising failure called the "Reversal Curse": if a model is trained on a statement like "A is B," it fails to generalize to the reversed statement "B is A." For example, a model trained on "Valentina Tereshkova was the first woman to travel to space" cannot answer "Who was the first woman to travel to space?" The researchers show this through three experiments—finetuning on synthetic facts, testing real-world celebrity knowledge, and reversing instructions—and find the effect holds across model sizes and families, even with data augmentation and other attempted fixes.
 
 ## Why You Cared
 
-This paper matters because it exposes a fundamental limitation in how modern LLMs store and retrieve factual knowledge, which has direct implications for their reliability as knowledge bases. The finding that models can answer questions in one direction but not another—despite the logical equivalence—suggests current auto-regressive training fundamentally fails at basic generalization. For practitioners building fact-heavy systems (search, QA, knowledge bases) and researchers working on model interpretability, this reveals a critical blind spot: scale and finetuning won't fix this problem, and understanding *why* models make this error could point toward better training paradigms.
+This paper matters because it exposes a basic failure in how LLMs generalize that contradicts what we might expect from intelligent systems. Since symmetry is a fundamental logical property (if A=B then B=A), this shows LLMs don't perform simple logical deduction from training data, even though they can do it when information appears in-context. For anyone building or deploying LLMs, this reveals a concrete brittleness in knowledge representation—models may appear to know facts but only in the specific order they saw them during training. It also raises questions about the reliability of LLMs as knowledge bases and suggests the training paradigm itself has limitations we haven't solved.
 
 ## Key Concepts
 
-`#reversal-curse` `#factual-knowledge` `#auto-regressive-models` `#generalization-failure` `#knowledge-retrieval` `#finetuning` `#symmetry-properties` `#logical-deduction` `#model-consistency` `#memorization-vs-understanding` `#natural-language-processing` `#artificial-intelligence`
+`#knowledge-retrieval` `#order-effects` `#logical-deduction` `#model-generalization` `#fact-learning` `#finetuning` `#auto-regressive-language-models` `#knowledge-representation` `#transformer-models` `#natural-language-processing` `#machine-learning`
 
 ## Cites (Key Papers)
 
@@ -76,9 +75,9 @@ We provide evidence for the Reversal Curse by finetuning GPT-3 and Llama-1 on fi
 ## Full Citation List
 
 1. Allen Z., Li Y., Berglund L. et al. (2023). Taken out of context: On measuring situational awareness in llms.
-2. Bireta T. J., Fry S. E., Jalbert A. et al. (2010). Backward recall and benchmark effects of working memory.
+2. Bireta T. J., Fry S. E., Jalbert A. et al. (2010). Backward recall and benchmark effects of working memory. Memory & Cognition, Vol. 38, pp. 12393461.
 3. Brown T., Mann B., Ryder N. et al. (2020). Language models are few-shot learners.
-4. St H. & John R. (2013). Are forward and backward recall the same? a dual-task study of digit recall.
+4. St H. & John R. (2013). Are forward and backward recall the same? a dual-task study of digit recall. Memory & Cognition, Vol. 41, pp. 207716696.
 5. De Cao N., Aziz W. & Titov I. (2021). Editing factual knowledge in language models.
 6. Dong Q., Li L., Dai D. et al. (2023). A survey on in-context learning.
 7. Elazar Y., Kassner N., Ravfogel S. et al. (2021). Measuring and improving consistency in pretrained language models.
@@ -87,14 +86,14 @@ We provide evidence for the Reversal Curse by finetuning GPT-3 and Llama-1 on fi
 10. Geva M., Caciularu A., Wang K. R. et al. (2022). Transformer feed-forward layers build predictions by promoting concepts in the vocabulary space.
 11. Geva M., Bastings J., Filippova K. et al. (2023). Dissecting recall of factual associations in auto-regressive language models.
 12. Grosse R., Bae J., Anil C. et al. (2023). Studying large language model generalization with influence functions.
-13. Guitard D., Saint-Aubin J., Poirier M. et al. (2019). Forward and backward recall: Different visuospatial processes when you know what's coming.
+13. Guitard D., Saint-Aubin J., Poirier M. et al. (2019). Forward and backward recall: Different visuospatial processes when you know what's coming. Memory & Cognition, Vol. 48, pp. 111-126.
 14. Hase P., Diab M., Celikyilmaz A. et al. (2023). Methods for measuring, updating, and visualizing factual beliefs in language models.
 15. Hosseini A., Reddy S., Bahdanau D. et al. (2021). Understanding by understanding not: Modeling negation in language models.
 16. Imdb (2023). Search imdb: Match all (sorted by popularity ascending.
 17. Kandpal N., Deng H., Roberts A. et al. (2023). Large language models struggle to learn long-tail knowledge.
 18. Diederik P., Kingma J. & Ba (2017). Adam: A method for stochastic optimization.
 19. Lester B., Al-Rfou R. & Constant N. (2021). The power of scale for parameter-efficient prompt tuning.
-20. Chen S. & Lewandowsky S. (1995). Forward and backward recall: Different retrieval processes.
+20. Chen S. & Lewandowsky S. (1995). Forward and backward recall: Different retrieval processes. Journal of Experimental Psychology: Learning, Memory, and Cognition, Vol. 21(4), pp. 837-847.
 21. Lin S., Hilton J. & Evans O. (2022). Truthfulqa: Measuring how models mimic human falsehoods.
 22. Mangrulkar S., Gugger S., Debut L. et al. (2022). Peft: State-of-the-art parameter-efficient fine-tuning methods.
 23. Meng K., Bau D., Andonian A. et al. (2023). Locating and editing factual associations in gpt.
@@ -105,7 +104,7 @@ We provide evidence for the Reversal Curse by finetuning GPT-3 and Llama-1 on fi
 28. Press O., Zhang M., Min S. et al. (2023). Measuring and narrowing the compositionality gap in language models.
 29. Shi F., Chen X., Misra K. et al. (2023). Large language models can be easily distracted by irrelevant context.
 30. Speer R., Chin J. & Havasi C. (2017). Conceptnet 5.5: An open multilingual graph of general knowledge.
-31. Thomas J. G., Milner H. R. & Haberlandt K. F. (2003). Forward and backward recall.
+31. Thomas J. G., Milner H. R. & Haberlandt K. F. (2003). Forward and backward recall. Psychological Science, Vol. 14, pp. 30872510.
 32. Touvron H., Lavril T., Izacard G. et al. (2023). Llama: Open and efficient foundation language models.
 33. Brain mechanisms of reversible symbolic reference: a potential singularity of the human brain Louise Timo Van Kerkoerle Milad Pape Xiaoxia Ekramnia Jordy Feng Morgan Tasserie Xiaolian Dupont Bechir Li Wim Jarraya Stanislas Vanduffel Dehaene 10.1101/2023.03.04.531109 bio Rxiv 2023
 34. Wang B. & Komatsuzaki A. (2021). GPT-J-6B: A 6 Billion Parameter Autoregressive Language Model.
