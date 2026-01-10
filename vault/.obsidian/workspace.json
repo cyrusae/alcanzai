@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Papers/Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward.md",
+                "file": "Papers/Allen-Zhu et al (2023) - Physics of Language Models - Part 3.1 Knowledge.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward"
+              "title": "Allen-Zhu et al (2023) - Physics of Language Models - Part 3.1 Knowledge"
             }
           }
         ],
@@ -93,7 +93,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 282.5
   },
   "right": {
     "id": "4594caa1ad887895",
@@ -200,16 +200,17 @@
   },
   "active": "1243d12ad8c1098c",
   "lastOpenFiles": [
-    "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
-    "Papers/Carlsmith et al (2023) - Will AIs fake alignment during training in order to.md",
-    "Papers/Berglund et al (2024) - The Reversal Curse - Llms Trained On A Is B Fail To.md",
-    "Papers/Askell et al (2021) - A General Language Assistant as a Laboratory for.md",
     "Papers/Allen-Zhu et al (2024) - Physics of Language Models - Part 3.3 Knowledge.md",
-    "Papers/Allen-Zhu et al (2023) - Physics of Language Models - Part 3.2 Knowledge.md",
+    "Papers/Carlsmith et al (2023) - Will AIs fake alignment during training in order to.md",
+    "Papers/Askell et al (2021) - A General Language Assistant as a Laboratory for.md",
+    "Papers/Berglund et al (2024) - The Reversal Curse - Llms Trained On A Is B Fail To.md",
     "Papers/Allen-Zhu et al (2023) - Physics of Language Models - Part 3.1 Knowledge.md",
+    "Papers/Allen-Zhu et al (2023) - Physics of Language Models - Part 3.2 Knowledge.md",
+    "Batches/arXiv_tests.md",
+    "Papers/Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward.md",
+    "Papers/Vaswani et al (2023) - Attention Is All You Need.md",
     "Papers/Gurnee et al (2024) - Language Models Represent Space and Time.md",
     "Papers/Greenblatt et al (2024) - Alignment Faking IN Large Language Models.md",
-    "Papers/Denison et al (2024) - Sycophancy To Subterfuge - Investigating Reward.md",
     "Papers/Allen-Zhu et al (2023) - Physics of Language Models Part 3.2, Knowledge Ma....md",
     "Papers/Allen-Zhu et al (2023) - Physics of Language Models Part 3.1, Knowledge St....md",
     "Papers/Berglund et al (2024) - The Reversal Curse Llms Trained On A Is B Fail To ....md",
@@ -224,7 +225,6 @@
     "PDFs/arxiv_2309.12288.pdf",
     "PDFs/arxiv_2112.00861.pdf",
     "PDFs/arxiv_1706.03762.pdf",
-    "Batches/arXiv_tests.md",
     "Papers/Zhang et al (2007) - Why Do Weak-Binding M-N-C Single-Atom Catalysts Posse....md",
     "Papers/Greenblatt et al (2024) - ALIGNMENT FAKING IN LARGE LANGUAGE MODELS.md",
     "Papers/Gurnee et al (2024) - LANGUAGE MODELS REPRESENT SPACE AND TIME.md",

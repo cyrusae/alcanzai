@@ -6,54 +6,52 @@ venue: "Advances in neural information processing systems"
 arxiv: "2404.05405"
 type: "paper"
 status: "unread"
-added: "2026-01-08"
+added: "2026-01-09"
 tags:
   - knowledge-capacity
   - scaling-laws
-  - transformer-architecture
-  - language-model-efficiency
-  - quantization-int8
-  - training-exposures
-  - synthetic-datasets
-  - gated-mlp
-  - knowledge-extraction
   - bit-complexity
-  - mixture-of-experts
-  - data-quality
+  - transformer-architecture
+  - language-model-training
+  - quantization
+  - sparse-models
+  - factual-knowledge
+  - information-theory
+  - training-exposure
 ---
 # Physics of Language Models: Part 3.3, Knowledge Capacity Scaling Laws
 
 **Allen-Zhu, Zeyuan et al.** • 2024
 
 > [!quote] Memorable Quote
-> "Language models can autonomously identify and prioritize domains rich in knowledge, optimizing their storage capacity."
+> "a 7B model can store 14B bits of knowledge, surpassing the English Wikipedia and textbooks combined based on our estimation."
 
 ## Quick Refresh
 
-This paper investigates how much factual knowledge language models can store by training GPT-2, LLaMA, and Mistral models on synthetic datasets of (name, attribute, value) tuples converted to natural language. The researchers establish that well-trained models achieve approximately 2 bits of knowledge storage per parameter—meaning a 7 billion parameter model could theoretically store 14 billion bits of knowledge, exceeding English Wikipedia. They then systematically explore how training duration, model architecture, quantization, sparsity, and data quality affect this capacity ratio across twelve key findings.
+This paper establishes a precise scaling law for how much factual knowledge language models can store: exactly 2 bits per parameter when trained sufficiently (1000 exposures to each fact). The authors measure knowledge capacity by training GPT-2, LLaMA, and Mistral models on synthetic datasets of (name, attribute, value) tuples—like "USA, capital, Washington D.C."—and use information-theoretic lower bounds to quantify learned knowledge rather than relying on loss or benchmark scores. They test how training duration, model architecture, quantization, sparsity (MoE), and data quality affect this ratio, finding that a 7B model could theoretically store 14 billion bits of knowledge, exceeding English Wikipedia combined.
 
 ## Why You Cared
 
-Understanding knowledge capacity scaling laws is crucial for practical model development: it lets you predict whether a smaller, more efficient model can match a larger one's factual knowledge, and it quantifies the trade-offs between model size, training time, and data quality. The paper's finding that 2 bits per parameter is achievable with sufficient training challenges assumptions about how large models need to be, and the controlled experimental setup (using synthetic data) provides clearer signal than real-world benchmarks that conflate architecture, data, and size effects. Finally, the surprising results about gated MLPs underperforming and domain-prepending helping with noisy data offer immediately actionable insights for practitioners.
+Understanding the exact knowledge storage capacity of language models matters because it directly impacts scaling decisions: how large must a model be to contain human knowledge? Rather than hand-wavy comparisons ("GPT-4 is 10x better than GPT-3.5"), this paper offers a principled quantitative framework using information theory. The finding that knowledge capacity scales linearly with model parameters—not exponentially or sub-linearly—is a strong constraint on model design. Plus, the practical insights (e.g., that GPT-2 architecture rivals LLaMA for knowledge storage, or that domain-tagging data dramatically helps) give practitioners concrete levers to optimize training.
 
 ## Key Concepts
 
-`#knowledge-capacity` `#scaling-laws` `#transformer-architecture` `#language-model-efficiency` `#quantization-int8` `#training-exposures` `#synthetic-datasets` `#gated-mlp` `#knowledge-extraction` `#bit-complexity` `#mixture-of-experts` `#data-quality`
+`#knowledge-capacity` `#scaling-laws` `#bit-complexity` `#transformer-architecture` `#language-model-training` `#quantization` `#sparse-models` `#factual-knowledge` `#information-theory` `#training-exposure`
 
 ## Cites (Key Papers)
 
-- [[N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 N=20...]]
-- [[25 bit / param N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=1000...]]
-- [[25 bit / param N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=1000...]]
-- [[25 bit / param N=1000000]]
-- [[N=500000 N=200000 N=100000 N=50000 N=20000 N=10000 (c) Figure 1(a) quantized to ...]]
-- [[25 bit / param N=20000000 N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=20...]]
-- [[25 bit / param N=20000000 N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=20...]]
-- [[k-D 10 -C 1-K5 -L1 -T4 0k N5 00 k-D 10 -C 1-K1 0-L1 -T4 0k N5 00 k-D 10 -C 1-K2 ...]]
-- [[25 bit / param N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=1000...]]
-- [[25 bit / param N=1000000]]
+- [[Q N +jD+D = [T L ] Let Q N +jD+1 T L -1], . . . , [T L -D + 1] for every j = 0, ...]]
+- [[Q N +kd+1 = • • • = Q NLet +kd+n K = [d C ]]]
+- [[Recall that each Q i is independently and uniformly generated at random from Q i...]]
+- [[N ) as follows: Let n 1 be the Q 1 -th name from N 0 ; for i > 1, let n i be the...]]
+- [[let a be the a ′ -th attribute in A. Construct D a = (w 1 , . . . , w D ) as fol...]]
+- [[Ibrahim M Alabdulmohsin B., Neyshabur X. & Zhai (2022) - Revisiting neural scaling laws in language and vision]]
+- [[Allen Z. & Li Y. (2023) - Physics of Language Models: Part 1, Context-Free Grammar]]
+- [[Allen Z. & Li Y. (2023) - Physics of Language Models: Part 3.1, Knowledge Storage and ...]]
+- [[Allen Z. & Li Y. (2023) - Physics of Language Models: Part 3.2, Knowledge Manipulation]]
+- [[Allen-Zhu Z., Li Y. & Liang Y. (2019) - Learning and generalization in overparameterized neural netw...]]
 
-*(42 more citations below)*
+*(29 more citations below)*
 
 ## Cited By
 
@@ -75,55 +73,42 @@ More broadly, we present 12 results on how (1) training duration, (2) model arch
 
 ## Full Citation List
 
-1. N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 N=20000 N=10000 10 -6 16 -8 6-20 20 -1 6 35 a) 1000 exposures -memorizable knowledge accuracy
-2. 25 bit / param N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 N=20000 N=10000 (a) Same Figure 1 model size (#params
-3. 25 bit / param N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 N=20000 N=10000
-4. 25 bit / param N=1000000
-5. N=500000 N=200000 N=100000 N=50000 N=20000 N=10000 (c) Figure 1(a) quantized to 4bit
-6. 25 bit / param N=20000000 N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 (d) Same Figure 1(b) model size (#params
-7. 25 bit / param N=20000000 N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000
-8. k-D 10 -C 1-K5 -L1 -T4 0k N5 00 k-D 10 -C 1-K1 0-L1 -T4 0k N5 00 k-D 10 -C 1-K2 0-L1 -T4 0k N2 00 k-D 10 -C 1-K 5 0-L1 -T4 0k N1 00 0k -D 10 -C 1-K1 -L4 -T4 0k N1 00 0k -D 10 -C 1-K2 -L4 -T4 0k N5 00 k-D 10 -C 1-K5 -L4 -T4 0k N5 00 k-D 10 -C 1-K1 0-L4 -T4 0k N5 00 k-D 10 -C 1-K2 0-L4 -T4 0k N2 00 k-D 10 -C 1-K5 0-L4 -T4 0k N1 00 0k -D 10 00 0-C1 -K 1-L4 -T4 0k N1 00 0k -D 10 00 0-C1 -K 2-L4 -T4 0k N5 00 k-D 10 00 0-C1 -K 5-L4 -T4 0k N5 00 k-D 10 00 0-C1 -K 10 -L4 -T4 0k N2 00 k-D 10 00 0-C1 -K 20 -L4 -T4 0k N1 00 k-D 10 00 0-C1 -K 50 -L4 -T4 0k
-9. 25 bit / param N=10000000 N=5000000 N=2000000 N=1000000 N=500000 N=200000 N=100000 N=50000 N=20000 N=10000 1000
-10. 25 bit / param N=1000000
-11. N=500000 N=200000 N=100000 N=50000
-12. 25 bit / param N=1000000
-13. N=500000 N=200000 N=100000 N=50000
-14. Q N +j D+D = [T L ] Let Q N +j D+1 T L -1], . . . , [T L -D + 1] for every j = 0, . . . , K -1
-15. Q N +kd+1 = • • • = Q NLet +kd+n K = [d C ]
-16. Recall that each Q i is independently and uniformly generated at random from Q i . We now present an alternative method for generating the training dataset
-17. N ) as follows: Let n 1 be the Q 1 -th name from N 0 ; for i > 1, let n i be the Q i -th name from N 0 \ {n 1 NConstruct
-18. let a be the a ′ -th attribute in A. Construct D a = (w 1 , . . . , w D ) as follows: Let w 1 be the Q N +(a ′ -1)D+1 -th element in T L ; for i > 1, let w i be the Q N +(a ′ -1)D+i -th element in T L \ {w 1
-19. Ibrahim M Alabdulmohsin B., Neyshabur X. & Zhai (2022). Revisiting neural scaling laws in language and vision.
-20. Allen Z. & Li Y. (2023). Physics of Language Models: Part 1, Context-Free Grammar.
-21. Allen Z. & Li Y. (2023). Physics of Language Models: Part 3.1, Knowledge Storage and Extraction.
-22. Allen Z. & Li Y. (2023). Physics of Language Models: Part 3.2, Knowledge Manipulation.
-23. Allen-Zhu Z., Li Y. & Liang Y. (2019). Learning and generalization in overparameterized neural networks, going beyond two layers.
-24. Allen-Zhu Z., Li Y. & Song Z. (2019). A convergence theory for deep learning via overparameterization.
-25. Black S., Biderman S., Hallahan E. et al. (2022). GPT-NeoX-20B: An open-source autoregressive language model.
-26. Bubeck S., Chandrasekaran V., Eldan R. et al. (2023). Sparks of artificial general intelligence: Early experiments with gpt-4.
-27. Fedus W., Zoph B. & Shazeer N. (2022). Switch transformers: Scaling to trillion parameter models with simple and efficient sparsity.
-28. Frantar E., Saleh Ashkboos T., Hoefler D. et al. (2022). GPTQ: Accurate post-training compression for generative pretrained transformers.
-29. Golovneva O., Allen-Zhu Z., Weston J. et al. (2024). Reverse training to nurse the reversal curse.
-30. Gunasekar S., Zhang Y., Aneja J. et al. (2023). Textbooks are all you need.
-31. Henighan T., Kaplan J., Katz M. et al. (2020). Scaling laws for autoregressive generative modeling.
-32. Hernandez D., Kaplan J., Henighan T. et al. (2021). Scaling laws for transfer.
-33. Hestness J., Narang S., Ardalani N. et al. (2017). Deep learning scaling is predictable, empirically.
-34. Hoffmann J., Borgeaud S., Mensch A. et al. (2022). Training computeoptimal large language models.
-35. Edward J., Hu P., Wallis Z. et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.
-36. Hwang C., Cui W., Xiong Y. et al. (2022). Tutel: Adaptive mixture-of-experts at scale.
-37. Albert Q Jiang A., Sablayrolles A., Mensch C. et al. (2023). Mistral 7b.
-38. Joshi M., Choi E., Weld D. S. et al. (2017). Triviaqa: A large scale distantly supervised challenge dataset for reading comprehension.
-39. Kaplan J., Mccandlish S., Henighan T. et al. (2020). Scaling laws for neural language models.
-40. Kwiatkowski T., Palomaki J., Redfield O. et al. (2019). Natural questions: a benchmark for question answering research.
-41. Li Y. & Liang Y. (2018). Learning overparameterized neural networks via stochastic gradient descent on structured data.
-42. Li Y., Bubeck S., Eldan R. et al. (2023). Textbooks are all you need ii: phi-1.5 technical report.
-43. Muennighoff N., Rush A. M., Barak B. et al. (2023). Aleksandra Piktus, Nouamane Tazi, Sampo Pyysalo, Thomas Wolf, and Colin Raffel. Scaling data-constrained language models.
-44. Radford A., Wu J., Child R. et al. (2019). Language models are unsupervised multitask learners.
-45. Rosenfeld J. S. (2021). Scaling laws for deep learning.
-46. Rosenfeld J. S., Rosenfeld A., Belinkov Y. et al. (2019). A constructive prediction of the generalization error across scales.
-47. Shazeer N. (2020). Glu variants improve transformer.
-48. Shazeer N., Mirhoseini A., Maziarz K. et al. (2016). Outrageously large neural networks: The sparsely-gated mixture-of-experts layer.
-49. Su J., Lu Y., Pan S. et al. (2021). Roformer: Enhanced transformer with rotary position embedding.
-50. Touvron H., Lavril T., Izacard G. et al. (2023). Open and efficient foundation language models.
-51. Touvron H., Martin L., Stone K. et al. (2023). Llama 2: Open foundation and fine-tuned chat models.
-52. Yu D., Kaur S., Gupta A. et al. (2023). Skillmix: A flexible and expandable family of evaluations for ai models.
+1. Q N +j D+D = [T L ] Let Q N +j D+1 T L -1], . . . , [T L -D + 1] for every j = 0, . . . , K -1
+2. Q N +kd+1 = • • • = Q NLet +kd+n K = [d C ]
+3. Recall that each Q i is independently and uniformly generated at random from Q i . We now present an alternative method for generating the training dataset
+4. N ) as follows: Let n 1 be the Q 1 -th name from N 0 ; for i > 1, let n i be the Q i -th name from N 0 \ {n 1 NConstruct
+5. let a be the a ′ -th attribute in A. Construct D a = (w 1 , . . . , w D ) as follows: Let w 1 be the Q N +(a ′ -1)D+1 -th element in T L ; for i > 1, let w i be the Q N +(a ′ -1)D+i -th element in T L \ {w 1
+6. Ibrahim M Alabdulmohsin B., Neyshabur X. & Zhai (2022). Revisiting neural scaling laws in language and vision.
+7. Allen Z. & Li Y. (2023). Physics of Language Models: Part 1, Context-Free Grammar.
+8. Allen Z. & Li Y. (2023). Physics of Language Models: Part 3.1, Knowledge Storage and Extraction.
+9. Allen Z. & Li Y. (2023). Physics of Language Models: Part 3.2, Knowledge Manipulation.
+10. Allen-Zhu Z., Li Y. & Liang Y. (2019). Learning and generalization in overparameterized neural networks, going beyond two layers.
+11. Allen-Zhu Z., Li Y. & Song Z. (2019). A convergence theory for deep learning via overparameterization.
+12. Black S., Biderman S., Hallahan E. et al. (2022). GPT-NeoX-20B: An open-source autoregressive language model.
+13. Bubeck S., Chandrasekaran V., Eldan R. et al. (2023). Sparks of artificial general intelligence: Early experiments with gpt-4.
+14. Fedus W., Zoph B. & Shazeer N. (2022). Switch transformers: Scaling to trillion parameter models with simple and efficient sparsity.
+15. Frantar E., Saleh Ashkboos T., Hoefler D. et al. (2022). GPTQ: Accurate post-training compression for generative pretrained transformers.
+16. Golovneva O., Allen-Zhu Z., Weston J. et al. (2024). Reverse training to nurse the reversal curse.
+17. Gunasekar S., Zhang Y., Aneja J. et al. (2023). Textbooks are all you need.
+18. Henighan T., Kaplan J., Katz M. et al. (2020). Scaling laws for autoregressive generative modeling.
+19. Hernandez D., Kaplan J., Henighan T. et al. (2021). Scaling laws for transfer.
+20. Hestness J., Narang S., Ardalani N. et al. (2017). Deep learning scaling is predictable, empirically.
+21. Hoffmann J., Borgeaud S., Mensch A. et al. (2022). Training computeoptimal large language models.
+22. Edward J., Hu P., Wallis Z. et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.
+23. Hwang C., Cui W., Xiong Y. et al. (2022). Tutel: Adaptive mixture-of-experts at scale.
+24. Albert Q Jiang A., Sablayrolles A., Mensch C. et al. (2023). Mistral 7b.
+25. Joshi M., Choi E., Weld D. S. et al. (2017). Triviaqa: A large scale distantly supervised challenge dataset for reading comprehension.
+26. Kaplan J., Mccandlish S., Henighan T. et al. (2020). Scaling laws for neural language models.
+27. Kwiatkowski T., Palomaki J., Redfield O. et al. (2019). Natural questions: a benchmark for question answering research.
+28. Li Y. & Liang Y. (2018). Learning overparameterized neural networks via stochastic gradient descent on structured data.
+29. Li Y., Bubeck S., Eldan R. et al. (2023). Textbooks are all you need ii: phi-1.5 technical report.
+30. Muennighoff N., Rush A. M., Barak B. et al. (2023). Aleksandra Piktus, Nouamane Tazi, Sampo Pyysalo, Thomas Wolf, and Colin Raffel. Scaling data-constrained language models.
+31. Radford A., Wu J., Child R. et al. (2019). Language models are unsupervised multitask learners.
+32. Rosenfeld J. S. (2021). Scaling laws for deep learning.
+33. Rosenfeld J. S., Rosenfeld A., Belinkov Y. et al. (2019). A constructive prediction of the generalization error across scales.
+34. Shazeer N. (2020). Glu variants improve transformer.
+35. Shazeer N., Mirhoseini A., Maziarz K. et al. (2016). Outrageously large neural networks: The sparsely-gated mixture-of-experts layer.
+36. Su J., Lu Y., Pan S. et al. (2021). Roformer: Enhanced transformer with rotary position embedding.
+37. Touvron H., Lavril T., Izacard G. et al. (2023). Open and efficient foundation language models.
+38. Touvron H., Martin L., Stone K. et al. (2023). Llama 2: Open foundation and fine-tuned chat models.
+39. Yu D., Kaur S., Gupta A. et al. (2023). Skillmix: A flexible and expandable family of evaluations for ai models.
