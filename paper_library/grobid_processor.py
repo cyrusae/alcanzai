@@ -488,6 +488,68 @@ class GrobidProcessor:
         
         return None
     
+    def _extract_venue_from_bibl(self, bibl: etree._Element) -> Optional[str]:
+        """
+        Extract venue (journal/conference) from a biblStruct citation element.
+        
+        Similar to _extract_venue() but works on citation elements instead of root.
+        
+        Args:
+            bibl: biblStruct element from bibliography
+            
+        Returns:
+            Venue name or None
+        """
+        venue_elem = bibl.find('.//tei:monogr/tei:title[@level="j"]', self.NS)
+        
+        if venue_elem is not None and venue_elem.text:
+            return venue_elem.text.strip()
+        
+        return None
+    
+    def _extract_publication_info_from_bibl(self, bibl: etree._Element) -> tuple[Optional[str], Optional[str], Optional[str]]:
+        """
+        Extract volume, issue, and page numbers from a biblStruct citation element.
+        
+        Similar to _extract_publication_info() but works on citation elements.
+        
+        Args:
+            bibl: biblStruct element from bibliography
+            
+        Returns:
+            Tuple of (volume, issue, pages)
+        """
+        imprint = bibl.find('.//tei:monogr/tei:imprint', self.NS)
+        
+        if imprint is None:
+            return None, None, None
+        
+        # Extract volume
+        volume_elem = imprint.find('tei:biblScope[@unit="volume"]', self.NS)
+        volume = volume_elem.text.strip() if volume_elem is not None and volume_elem.text else None
+        
+        # Extract issue
+        issue_elem = imprint.find('tei:biblScope[@unit="issue"]', self.NS)
+        issue = issue_elem.text.strip() if issue_elem is not None and issue_elem.text else None
+        
+        # Extract pages
+        page_elem = imprint.find('tei:biblScope[@unit="page"]', self.NS)
+        if page_elem is not None:
+            # Pages can be "123-145" or separate @from/@to attributes
+            from_page = page_elem.get('from')
+            to_page = page_elem.get('to')
+            
+            if from_page and to_page:
+                pages = f"{from_page}-{to_page}"
+            elif page_elem.text:
+                pages = page_elem.text.strip()
+            else:
+                pages = None
+        else:
+            pages = None
+        
+        return volume, issue, pages
+    
     def _calculate_garbage_score(self, citation: Citation) -> int:
         """
         Score how likely a citation is garbage (0-100).
@@ -499,7 +561,7 @@ class GrobidProcessor:
            - Mathematical notation
            - Figure/table captions
            - Biographical text
-        3. Each category scores independently, capped at 60
+        3. Each category scores independently, caps raised if multiple signals
         
         Thresholds:
         - >60: Definitely garbage, reject
@@ -518,15 +580,20 @@ class GrobidProcessor:
         text = citation.raw_text.lower()
         
         # === BASELINE TRUST (from parsed fields) ===
-        # GROBID always extracts titles, so focus on author/year
+        # Citations with well-formed metadata are more trustworthy
         
         if not citation.authors:
             score += 15  # Missing authors is somewhat suspicious
         
+        # Year handling: soft boundaries for humanities + future work
         if not citation.year:
             score += 10  # Missing year is suspicious
-        elif citation.year < 1500 or citation.year > 2100:
-            score += 10  # Year outside reasonable range is suspicious
+        else:
+            # Soft suspicion for unusual years (not hard boundaries)
+            if citation.year < 1800:
+                score += 5  # Old citations are fine (classics, medieval) but slightly unusual
+            elif citation.year > 2027:  # Current year + 1
+                score += 15  # Future publications are more suspicious
         
         # === CATEGORY 1: ALGORITHMIC PSEUDOCODE ===
         # Very strong signals - algorithmic/programming content
@@ -597,9 +664,12 @@ class GrobidProcessor:
         if re.search(r'\([a-d]\)\s*\([a-d]\)', text):
             figure_score += 20
         
-        # Hyperparameter notation (k-D, -C1-, etc.)
-        if re.search(r'-[a-z]\d+-|[a-z]-[a-z]', text, re.IGNORECASE):
-            figure_score += 15
+        # Hyperparameter notation - check DENSITY not just presence
+        hyperparam_count = len(re.findall(r'-[a-z]\d+-|[a-z]-[a-z]|\d+k(?:\s|$)', text, re.IGNORECASE))
+        if hyperparam_count > 5:  # Many hyperparameters = likely garbage
+            figure_score += 40
+        elif hyperparam_count > 2:
+            figure_score += 20
         
         if figure_score > 0:
             score += min(60, figure_score)
@@ -615,15 +685,37 @@ class GrobidProcessor:
             'he graduated', 'is a successful'
         ]
         
-        bio_score += sum(30 for phrase in bio_phrases if phrase in text)
+        bio_signal_count = sum(1 for phrase in bio_phrases if phrase in text)
+        bio_score = bio_signal_count * 30
         
-        if bio_score > 0:
+        # Raise cap if multiple bio signals (e.g., Kenny B. with 4 signals)
+        if bio_signal_count >= 3:
+            score += min(80, bio_score)  # Raise cap to 80
+        elif bio_score > 0:
             score += min(60, bio_score)
         
         # === TRUST ADJUSTMENT ===
-        # If it has both authors AND a reasonable year, reduce suspicion
-        if citation.authors and citation.year and 1500 <= citation.year <= 2100:
+        # Reduce suspicion if we have strong trust signals
+        
+        # Has venue information = more trustworthy
+        if citation.venue:
+            score = max(0, score - 10)
+            
+            # Recognized academic venues are very trustworthy
+            trusted_venue_keywords = [
+                'proceedings', 'conference', 'journal', 'nature', 'science',
+                'acm', 'ieee', 'springer', 'elsevier', 'arxiv'
+            ]
+            if any(keyword in citation.venue.lower() for keyword in trusted_venue_keywords):
+                score = max(0, score - 10)
+        
+        # Has authors AND reasonable year = trustworthy
+        # But only for recent years (humanities citations can be old, but not future)
+        if citation.authors and citation.year and 1990 <= citation.year <= 2027:
             score = max(0, score - 20)
+        elif citation.authors and citation.year and citation.year < 1990:
+            # Old papers with authors still get some trust (humanities use case)
+            score = max(0, score - 10)
         
         return min(100, score)
     
@@ -706,12 +798,20 @@ class GrobidProcessor:
             doi_elem = bibl.find('.//tei:idno[@type="DOI"]', self.NS)
             doi = doi_elem.text.strip() if doi_elem is not None and doi_elem.text else None
             
-            # Create Citation object
+            # Extract venue and publication info (just like for main paper)
+            venue = self._extract_venue_from_bibl(bibl)
+            volume, issue, pages = self._extract_publication_info_from_bibl(bibl)
+            
+            # Create Citation object with full bibliographic data
             citation = Citation(
                 raw_text=raw_text,
                 authors=authors if authors else None,
                 title=title,
                 year=year,
+                venue=venue,
+                volume=volume,
+                issue=issue,
+                pages=pages,
                 doi=doi,
                 mention_count=1  # We don't track mentions in MVP
             )

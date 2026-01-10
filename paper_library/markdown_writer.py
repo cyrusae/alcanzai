@@ -72,7 +72,7 @@ class MarkdownWriter:
         
         # Title + byline
         sections.append(f"# {metadata.title}\n")
-        sections.append(f"**{authors_str}** • {metadata.year}\n")
+        sections.append(f"**{authors_str}** â€¢ {metadata.year}\n")
         
         # Memorable quote
         sections.append("> [!quote] Memorable Quote")
@@ -168,7 +168,7 @@ class MarkdownWriter:
         sections.append(f"# {metadata.title}\n")
         sections.append(f"**{authors_str}**")
         if metadata.published_date:
-            sections.append(f" • {metadata.published_date.strftime('%Y-%m-%d')}")
+            sections.append(f" â€¢ {metadata.published_date.strftime('%Y-%m-%d')}")
         sections.append("\n")
         
         # Source link
@@ -457,9 +457,27 @@ class MarkdownWriter:
             else:
                 authors_str = "Unknown"
             
-            # Build citation
+            # Build citation parts
             parts = [f"{number}. {authors_str} ({citation.year})."]
             parts.append(f"{citation.title}.")
+            
+            # Add venue information if available
+            if citation.venue:
+                venue_parts = [citation.venue]
+                
+                # Add volume and issue
+                if citation.volume:
+                    vol_str = f"Vol. {citation.volume}"
+                    if citation.issue:
+                        vol_str += f"({citation.issue})"
+                    venue_parts.append(vol_str)
+                
+                # Add pages
+                if citation.pages:
+                    venue_parts.append(f"pp. {citation.pages}")
+                
+                # Join venue parts with commas
+                parts.append(", ".join(venue_parts) + ".")
             
             # Add DOI if available
             if citation.doi:
@@ -472,7 +490,7 @@ class MarkdownWriter:
         raw = citation.raw_text
         import re
         
-        # Add space before uppercase after lowercase (JimmyLei Ba → Jimmy Lei Ba)
+        # Add space before uppercase after lowercase (JimmyLei Ba â†’ Jimmy Lei Ba)
         raw = re.sub(r'([a-z])([A-Z])', r'\1 \2', raw)
         
         # Fix specific common patterns
@@ -529,8 +547,8 @@ class MarkdownWriter:
         title = title.replace('"', '').replace("'", '')
         
         # Replace periods with dashes (all of them - safer for cross-platform filenames)
-        # "Part 3.1" → "Part 3-1"
-        # "U.S.A." → "U-S-A-"  
+        # "Part 3.1" â†’ "Part 3-1"
+        # "U.S.A." â†’ "U-S-A-"  
         title = title.replace('.', '-')
         
         # Replace colons with dashes (more filename-friendly)
