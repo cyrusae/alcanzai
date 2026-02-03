@@ -714,18 +714,18 @@ class GrobidProcessor:
             
             # Recognized academic venues are very trustworthy
             trusted_venue_keywords = [
-                'proceedings', 'conference', 'journal', 'nature', 'science',
-                'acm', 'ieee', 'springer', 'elsevier', 'arxiv'
+                'proceedings', 'conference', 'journal', 'nature', 'science', 'linguistics', 'applied', 'perspectives', 'studies', 
+                'acm', 'ieee', 'springer', 'elsevier', 'arxiv', 'annals', 'bulletin', 'transactions'
             ]
             if any(keyword in citation.venue.lower() for keyword in trusted_venue_keywords):
                 score = max(0, score - 10)
         
         # Has authors AND reasonable year = trustworthy
         # But only for recent years (humanities citations can be old, but not future)
-        if citation.authors and citation.year and 1990 <= citation.year <= 2027:
+        if citation.authors and citation.year and 1950 <= citation.year <= 2027:
             score = max(0, score - 20)
-        elif citation.authors and citation.year and citation.year < 1990:
-            # Old papers with authors still get some trust (humanities use case)
+        elif citation.authors and citation.year and citation.year < 1950:
+            # Old papers with authors still get trust
             score = max(0, score - 10)
         
         return min(100, score)
