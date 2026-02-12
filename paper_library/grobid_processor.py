@@ -762,7 +762,7 @@ class GrobidProcessor:
             
             # Clean up excessive whitespace
             # Replace multiple whitespace chars (spaces, tabs, newlines) with single space
-            import re
+            import re # Why are you importing re again?
             raw_text = re.sub(r'\s+', ' ', raw_text)
             
             # Skip if too short to be a real citation
