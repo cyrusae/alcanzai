@@ -70,7 +70,8 @@ identifier (arXiv ID or file path)
 | `orchestrator.py` | Main `PaperProcessor` class; coordinates entire pipeline |
 | `arxiv_fetcher.py` | Fetches metadata from arXiv API + downloads PDF to `vault/PDFs/` |
 | `grobid_processor.py` | Sends PDF to GROBID (Docker), parses TEI XML into `PaperMetadata` + `Citation` list; includes heuristic garbage-score filter for bad citations (threshold >60) |
-| `synthesis_generator.py` | Calls `claude-haiku-4-5` with structured prompt; parses XML-tagged response into `Synthesis` model |
+| `synthesis_generator.py` | Calls `claude-haiku-4-5` via skills API; parses XML-tagged response into `Synthesis` model. Accepts optional `register` config dict. |
+| `skills_manager.py` | Uploads SKILL.md directories to Anthropic's skills API; caches skill IDs in `skills/skill_ids.json` |
 | `markdown_writer.py` | Renders YAML frontmatter + Obsidian-formatted note from metadata + synthesis |
 | `state.py` | `StateManager` loads/saves `processing_state.json`; deduplicates by arXiv ID / DOI / URL |
 | `models.py` | Pydantic models: `BibliographicEntry` → `Citation` / `PaperMetadata`; `ArticleMetadata`; `Synthesis`; `ProcessingState` |
@@ -85,10 +86,38 @@ identifier (arXiv ID or file path)
 
 `ProcessingState` tracks three separate sets: `processed_arxiv_ids`, `processed_dois`, `processed_urls`.
 
+### Agent Skills
+
+Synthesis uses the native Anthropic Agent Skills API (`betas=["skills-2025-10-02"]`). Skills live in `skills/` at the project root:
+
+```
+skills/
+├── understand-academic-text/   # Paper structure parsing
+├── extract-arguments/          # Thesis + evidence chain extraction
+├── identify-terminology/       # Term classification + domain detection
+├── register-controller/        # Writing style (9 axis reference files in registers/)
+│   └── registers/              # jargon-{none,selective,heavy}.md, structure-*.md, depth-*.md
+├── quick-summary/              # 4-section synthesis (summary/why/concepts/quote)
+├── detailed-summary/           # Section-by-section breakdown
+└── glossary-extraction/        # Technical vocabulary extraction
+```
+
+Skills are uploaded once via `SkillsManager.upload_skill()` and their IDs cached in `skills/skill_ids.json`. To force re-upload after editing SKILL.md files:
+```python
+manager = SkillsManager(api_key)
+manager.invalidate_cache()  # clears all
+manager.invalidate_cache("quick-summary")  # clears one
+```
+
+Register configuration controls writing style independently on three axes:
+- `jargon`: `none` | `selective` (default) | `heavy`
+- `structure`: `conversational` | `mixed` (default) | `formal`
+- `depth`: `hand-holding` | `balanced` (default) | `assume-knowledge`
+
 ### External Services
 
 - **GROBID** runs via `docker-compose.yml` on port 8070. The API endpoint used is `/api/processFulltextDocument`. Timeout is 5 minutes per PDF.
-- **Anthropic API** uses `claude-haiku-4-5` (note: no date suffix). Synthesis prompts use XML-style tags for structured output parsing.
+- **Anthropic API** uses `claude-haiku-4-5` (note: no date suffix). Synthesis uses the skills API; responses use XML-style tags for structured output parsing.
 
 ### Vault Structure
 
