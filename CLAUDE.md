@@ -18,17 +18,21 @@ docker-compose up -d       # starts GROBID on localhost:8070
 ## Common Commands
 
 ```bash
-# Run all tests
+# Unit tests only (fast, no external services)
+pytest -m "not integration"
+
+# Full test suite (requires GROBID running + API key set)
 pytest
 
-# Run the canonical end-to-end integration test (needs GROBID + API key)
+# End-to-end integration test (canonical smoke test)
 python tests/test_pipeline.py 1706.03762
 
-# Process a single paper programmatically
-python -c "from paper_library.orchestrator import process_paper; process_paper('1706.03762')"
-
-# Reprocess a paper (force=True bypasses deduplication check)
-python -c "from paper_library.orchestrator import process_paper; process_paper('1706.03762', force=True)"
+# CLI usage
+alcanzai validate                    # check config
+alcanzai ingest 1706.03762           # process single paper
+alcanzai ingest --force 1706.03762   # reprocess (bypass dedup)
+alcanzai batch papers.txt            # batch from file
+alcanzai stats                       # show counts
 
 # Lint and format
 ruff check .
