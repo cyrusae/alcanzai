@@ -1,0 +1,13 @@
+{
+  "subsystem": "glossary",
+  "what_we_decided": [],
+  "what_we_built": [],
+  "what_we_need_to_decide": [
+    "2026-01-08 - How should glossary terms be stored - inline in paper notes, separate glossary notes, or structured data file?"
+  ],
+  "what_we_resolved": [],
+  "important_files": [],
+  "context": [
+    "2026-01-08 - Feature for managing domain-specific terminology and definitions from papers - planned future addition to alcanzai"
+  ]
+}

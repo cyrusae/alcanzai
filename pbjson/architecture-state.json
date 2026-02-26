@@ -1,0 +1,26 @@
+{
+  "subsystem": "architecture",
+  "what_we_decided": [
+    "2026-01-12 - v0.1.5 scope: web_fetcher tested+integrated, doi_fetcher implemented, CLI smoke test (runs, not polished), pytest migration verified. Theme: all input types work",
+    "2026-01-12 - v0.2.0 scope: skills loader+integration, Pandoc dual-track citations, error/logging framework, GROBID server (user infra), Redis+Celery queue. Theme: same output, better pipe",
+    "2026-01-12 - v0.2.5 scope: detailed summaries (proves skills), CLI polish (response to better internals), register customization. Glossary floats - slots in if natural",
+    "2026-01-12 - OCR deferred to v0.3.0+ - major undertaking, wait until output side is stable before focusing on input improvements",
+    "2026-01-12 - Distribution/plugin deferred to v0.4.0+ - no solid timeline needed yet, 'usable by others' not a near-term priority",
+    "2026-01-12 - CLI polish alternates with internals - natural rhythm of refining interface after refining internals, not a blocker for any version"
+  ],
+  "what_we_built": [],
+  "what_we_need_to_decide": [],
+  "what_we_resolved": [
+    "2026-01-12 - v0.2.0 scope for 'this week': define scope and iterate toward it, or aim to land all items within the week? \u00e2\u2020\u2019 Decided: Define scope and iterate toward it, not land everything in 7 days - conservative planning, priority is 'articulate what tomorrow is and why'",
+    "2026-01-12 - v0.2.0 Pandoc priority: is dual-track citations a v0.2.0 must-have, or can it slip to v0.2.5 if skills + infra are the priority? \u00e2\u2020\u2019 Decided: v0.2.0 - easy win, close to current workflow, good to bake in early",
+    "2026-01-12 - v0.2.0 detailed summaries: must-have at v0.2.0 (proves skills work), or v0.2.5 (after skills loader is stable)? \u00e2\u2020\u2019 Decided: v0.2.5 - integrate skills loader in v0.2.0, prove it works with detailed summaries in v0.2.5"
+  ],
+  "important_files": [],
+  "context": [
+    "2026-01-12 - This file tracks cross-cutting roadmap decisions and version scoping across all subsystems",
+    "2026-01-12 - v0.1.5 marks end of 'MVP era' - after this, project.json may be archived as MVP tracker and subsystem files become primary",
+    "2026-01-12 - Incubator application is motivational someday-goal, not near-term priority - don't let it drive scope decisions",
+    "2026-01-12 - OCR is major undertaking - defer until output side (formatting, skills, Pandoc) is stable, then focus on input improvements",
+    "2026-01-12 - Planning horizon: conservative, 'what am I doing tomorrow and why' level - don't over-plan distant versions"
+  ]
+}
