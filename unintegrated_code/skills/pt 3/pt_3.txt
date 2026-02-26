@@ -1,0 +1,978 @@
+CYRUS: 
+
+I have drafts (across "+skills pt. 1" and "+skills pt. 2" conversations) of breakdowns into skill instruction format of the information Claude Haiku instances will need for our APi calls to have more replicable results when it comes to summarizing papers and future feature implementation. I hit the token limit in the pt.2 conversation and wanted to continue it here. The big revelation we had most recently is that currently the skills as written are designed to work with a skill loader Python script that bundles them into long prompts, but the actual developer API on Anthropic's side naturally lends itself to breaking them down into one or more .skill files that Claude can lazy-load as needed and actually save on tokens by doing so. I'd like to keep working on the plan/restructuring to take advantage of the .skill format so we  have that as a resource while I test the temporary skill-loader version. Let me know if you'd benefit from me turning the research tool on for a turn so that you can get access comprehensively to documentation on the Agent Skills API relationship (I know you have general knowledge of the format).
+
+
+CLAUDE:
+
+I appreciate the detailed context! I've reviewed the project state and understand where we are:
+
+**Current Status:**
+- v0.1.0 MVP is complete and working
+- You have 9 register skills drafted (jargon × structure × depth)
+- Core skills (3) and output task skills (3) are complete
+- Skill loader Python utility is built (~260 lines)
+- Currently designed for bundling into long prompts
+
+**The Key Insight:**
+The Anthropic Agent Skills API supports `.skill` files that Claude can lazy-load, which would:
+- Save tokens (load only what's needed per task)
+- Enable better caching
+- Match the natural developer API pattern better than the bundled-prompt approach
+
+**My Question:**
+Yes, I would benefit from you enabling web search for a turn. While I have general knowledge of the Agent Skills API format, having access to current Anthropic documentation would help me give you more precise guidance on:
+
+1. The actual `.skill` file format and structure requirements
+2. How skills are discovered/loaded in the API
+3. Dependency resolution patterns (if they differ from what we planned)
+4. Token optimization strategies specific to the API
+5. Any recent updates or best practices
+
+This will help us restructure the skills effectively to take advantage of the native API patterns while keeping the skill-loader version as a working prototype for testing.
+
+Should I search for the Anthropic Agent Skills API documentation?
+
+[REPORT ATTACHED]
+
+CYRUS:
+
+I'm noticing Python-based argument_mapper and term_processor and the json summary-structure template--could you walk me through what you have in mind for these? (Am I forgetting something in the skill design already? I think what we have thus far is all .md files, I'd like to know more about what's on your mind for moving some things to on-server scripting.) What are you thinking goes in the citation-handling md compared to GROBID? I'd like a detailed walkthrough of what you have in mind for this skill architecture in general, I'm curious about your decisions and whether you want to discuss/iterate on any of them further.
+
+CLAUDE:
+
+Great questions! You're absolutely right to push back on some of those additions—I was getting ahead of what you've actually built. Let me walk through my thinking and we can discuss what actually makes sense for your system.
+
+## What I Was Thinking (And Why Some of It May Be Premature)
+
+### The Python Scripts (argument_mapper.py, term_processor.py)
+
+**My reasoning:** The Agent Skills API supports "zero-context execution"—scripts that run in the code execution container without their source code loading into Claude's context. Only the output consumes tokens.
+
+**What I imagined:**
+```python
+# argument_mapper.py - hypothetical
+# Takes paper text, uses spaCy/NLTK to identify:
+# - Sentence-level claim markers ("we argue", "our findings show")
+# - Logical connectors ("however", "therefore", "in contrast")
+# - Evidence patterns (citations, statistics, experimental results)
+# Returns structured JSON of argument graph
+
+# term_processor.py - hypothetical  
+# Uses domain-specific NLP to:
+# - Extract technical terms (regex + POS tagging)
+# - Score term importance (frequency × position weight)
+# - Classify by domain (ML terms vs linguistics terms)
+# Returns ranked list for glossary
+```
+
+**Reality check:** You don't have these scripts yet! Your current skills are **all markdown instruction sets** for Claude. These scripts would be a *future optimization* if you find Claude is:
+- Inconsistent at term extraction → offload to deterministic NLP
+- Slow at processing long papers → preprocess with scripts, feed Claude structured output
+- Using too many tokens → batch process mechanical tasks outside context
+
+**Should we keep them in the architecture?** 
+
+My suggestion: **Defer to v0.3+**. Your current markdown-based skills are the right starting point. Add scripts later if evaluation shows Claude struggling with mechanical extraction tasks.
+
+### The summary-structure.json Template
+
+**My reasoning:** Skills can include static assets that Claude references without loading into context until needed.
+
+**What I imagined:**
+```json
+{
+  "sections": [
+    {
+      "name": "Overview",
+      "max_sentences": 3,
+      "required_elements": ["main_contribution", "key_finding"],
+      "tone": "accessible"
+    },
+    {
+      "name": "Methodology", 
+      "max_sentences": 2,
+      "required_elements": ["approach", "data_source"],
+      "technical_depth": "selective_jargon"
+    }
+  ]
+}
+```
+
+**Reality check:** Your detailed-summary.md skill already has this structure in prose form:
+
+```markdown
+## Section-by-section structure
+1. Overview (3-4 sentences)
+2. Methodology (2-3 sentences)  
+3. Key findings (4-5 sentences)
+```
+
+**Should we keep the JSON template?**
+
+My suggestion: **No, stick with markdown prose**. The JSON adds complexity without clear benefit. Claude reads markdown instructions just fine. JSON templates make sense if you're:
+- Programmatically generating skills (not your use case)
+- Need machine-readable schema validation (overkill for now)
+- Building a UI that reads skill structure (future maybe?)
+
+### The citation-handling.md Reference
+
+**My reasoning:** GROBID extracts citations mechanically. Claude needs to *interpret* them semantically.
+
+**What GROBID does:**
+```xml
+<biblStruct>
+  <analytic>
+    <author>Vaswani</author>
+    <title>Attention Is All You Need</title>
+  </analytic>
+</biblStruct>
+```
+
+**What citation-handling.md would teach Claude:**
+```markdown
+## Citation interpretation patterns
+
+### Foundational citations (usually intro)
+- "following Smith et al. (2020)" → builds on prior work
+- "as demonstrated by Jones (2019)" → supporting evidence
+
+### Contrasting citations  
+- "unlike previous work (Brown 2021)" → distinguishing contribution
+- "while Wang et al. showed X, we find Y" → advancing field
+
+### When summarizing citations:
+- Extract **why** author cited work, not just **that** they cited it
+- For "Cites (Key Papers)" section: prioritize foundational + contrasting
+- Skip formulaic citations ("Python (van Rossum 1995)") 
+
+## Integration with GROBID data
+You receive: {authors, title, year} from GROBID extraction
+Your job: Determine citation's **role** in argument structure
+```
+
+**Should we keep this?**
+
+My suggestion: **Yes, but slim version**. This addresses a real gap: GROBID gives you data, Claude needs to understand *significance*. But keep it focused on interpretation patterns, not citation mechanics.
+
+## Let me Re-Architect Based on What You've Actually Built
+
+Looking at your `claude-api-state.json`, you have:
+
+**✅ Already built (15 markdown skills):**
+- 3 core skills: understand-academic-text.md, extract-arguments.md, identify-terminology.md
+- 3 output tasks: quick-summary.md, detailed-summary.md, glossary-extraction.md  
+- 9 register skills: [jargon × structure × depth combinations]
+
+**What actually makes sense for migration to Agent Skills:**
+
+```
+skills/
+├── understand-academic-text/
+│   ├── SKILL.md                    # Your existing skill
+│   └── references/
+│       ├── section-patterns.md     # NEW: patterns for intro/methods/results/discussion
+│       └── citation-context.md     # NEW: interpreting citation roles
+│
+├── extract-arguments/
+│   └── SKILL.md                    # Your existing skill (no additions needed)
+│
+├── identify-terminology/
+│   └── SKILL.md                    # Your existing skill (no additions needed)
+│
+├── register-controller/             # NEW: consolidates your 9 register skills
+│   ├── SKILL.md                    
+│   └── registers/
+│       ├── heavy-jargon-formal-detailed.md
+│       ├── selective-jargon-conversational-balanced.md
+│       └── [7 more combinations as separate files]
+│
+├── quick-summary/
+│   └── SKILL.md                    # Your existing skill
+│
+├── detailed-summary/
+│   └── SKILL.md                    # Your existing skill
+│
+└── glossary-extraction/
+    └── SKILL.md                    # Your existing skill
+```
+
+**What I removed from my original proposal:**
+- ❌ Python scripts (defer to v0.3+, only if evaluation shows Claude struggles)
+- ❌ JSON templates (markdown prose works fine, less complexity)
+- ❌ domain_glossaries/ (Claude's general knowledge handles this, only add if you find domain-specific gaps)
+
+**What I kept/refined:**
+- ✅ section-patterns.md: Helps Claude parse academic structure (intro usually has X, methods has Y)
+- ✅ citation-context.md: Teaches citation role interpretation (foundational vs contrasting vs supporting)
+- ✅ register-controller consolidation: Reduces 9 skills → 1 skill with 9 reference files
+
+## Specific Questions for Discussion/Iteration
+
+### 1. Register Consolidation Strategy
+
+**Option A (what I proposed):** One `register-controller` skill with 9 reference files
+
+**Option B:** Keep 9 separate skills, but make them thinner (just reference a shared base)
+
+**Option C:** Reduce to 3 register presets:
+- `learning-mode.md` (low jargon + conversational + detailed)
+- `partner-share.md` (selective jargon + mixed + balanced)
+- `expert-scan.md` (heavy jargon + formal + minimal)
+
+**My preference:** Option C. Three presets cover your stated use cases. Nine combinations is exhaustive but maybe too granular for real usage?
+
+**Question for you:** Do you actually need all 9 combinations, or would 3 presets capture 90% of use cases?
+
+### 2. What Goes in section-patterns.md?
+
+**My thinking:** Academic papers follow predictable structures. A reference file could help Claude navigate unfamiliar disciplines:
+
+```markdown
+## Introduction section patterns
+- **Motivation paragraph**: Why this problem matters (usually 1st paragraph)
+- **Gap identification**: What prior work missed (middle paragraphs)
+- **Contribution statement**: What this paper does (usually last paragraph, look for "we propose/show/demonstrate")
+
+## Methods section patterns  
+- **Data description**: Source, size, characteristics
+- **Approach overview**: High-level strategy before technical details
+- **Implementation details**: Often skippable for quick summaries
+
+## When to use this:
+- Paper from unfamiliar field → use patterns to navigate structure
+- Standard CS/ML paper → Claude already knows these patterns, skip this file
+```
+
+**Question for you:** Does this add value, or is it solving a problem you don't have? Claude's pretty good at academic structure already.
+
+### 3. Citation-context.md Scope
+
+**Minimal version (just interpretation):**
+```markdown
+## Citation roles
+
+**Foundational**: "building on Smith (2020)" → core prior work
+**Contrasting**: "unlike Jones (2021)" → distinguishing our approach  
+**Supporting**: "consistent with Wang (2019)" → validates our findings
+
+When selecting "key papers" for citation section:
+1. Prioritize foundational (what this builds on)
+2. Include 1-2 contrasting (what this differs from)
+3. Skip routine technical citations unless genuinely important
+```
+
+**Expanded version (with GROBID integration):**
+```markdown
+[above, plus...]
+
+## Integration with GROBID data
+GROBID provides: {authors, title, year, venue}
+You provide: {role, importance_score, summary_phrase}
+
+Example:
+GROBID: "Vaswani et al. (2017). Attention Is All You Need. NeurIPS."
+You add: 
+- Role: foundational
+- Importance: high  
+- Summary: "Introduces transformer architecture this paper builds on"
+```
+
+**Question for you:** Should citation-context.md be minimal (just interpretation) or expanded (explicit GROBID integration)?
+
+### 4. The Actual Migration Decision
+
+**What's your target timeline?**
+
+- **Test skill-loader in v0.2.0**: Keep bundled Python prompts, validate skills work correctly
+- **Migrate to Agent Skills API in v0.2.5**: Once skills are proven, upload to API for token savings
+
+Or:
+
+- **Parallel development**: Build Agent Skills version now, A/B test against bundled version
+
+**My recommendation:** Test skill-loader first (v0.2.0), migrate to API after you've validated the skills are actually effective (v0.2.5+). No point optimizing token usage if the skills don't work yet.
+
+## What I'd Like to Iterate On With You
+
+1. **Register consolidation**: 9 variants vs 3 presets vs something else?
+2. **Reference files**: Which ones actually help vs add complexity?
+3. **Python scripts**: Worth planning for now, or pure distraction until v0.3+?
+4. **Migration timing**: When do you actually upload to Agent Skills API vs just prepare the structure?
+
+What are your thoughts on these? Where did I get it right vs wrong in my initial proposal?
+
+CYRUS:
+
+Agreed on deferring scripts to v0.3 but I'd like to keep them in mind--it sounds like a good architectural decision to make in the medium-term. 
+
+Definitely would be nice to have Claude be able to filter citations--currently the "top citations" part of the notes layout is just arbitrarily the first handful, and I can see the argument for it as a subset of understand-academic-text. Presumably would need to rearrange the return format somewhat?
+
+Question about the return format: Currently (v0.1.5) Claude returns faux-XML templates. I've been wondering if it would make sense to just have it fill out the Markdown template that XML is going to be parsed into--you like Markdown, I like Markdown, is there a reason for that intermediate step (prevents accidental innovation in formatting)?
+
+Register control: I want to think about this more. I definitely want them to be the full matrix of 9; I have different use cases just for jargon density across the domains that I'm reviewing papers in and always want informal-(detailed or balanced) for paper summaries that are directed at myself--but LLM technology and phonetics are low-jargon (rather: low baseline audience comprehension of jargon, retain jargon in output as learning material), sociolinguistics and semantics and religious studies would be selective, critical theory is heavy jargon without glossing comfortably--all of those describe PDFs I'd like to archive from my undergrad or current-reading files and have a friendly-to-myself (skimmable conversational) overview of, the question of how much I'd need to rely on a glossary right now is a separate axis. We should talk more about the options for how to make that happen. 
+
+I think Claude's pretty good at academic structure already--at the point where it would be necessary to think harder (unconventional structure), an external enforcement of structure would be another liability, not a benefit. We can return to that if I get jankier results than expected from e.g. moving on to the detailed summary feature but I think you have the basics covered as well as I would.
+
+I actually really like what you're leaning into for citation-context now that I look at it further (e.g., the foundational/contrasting/supporting metrics) and the GROBID-integrated option (immediate high-value return for "skim bibliography, see if I want to add anything from the bibiliography to the next batch" + future-compatibility with interactive "you've added this paper, would you like to search for xyz related papers?")
+
+Probably test skill-loader first, then migrate to API--more compatible with current architecture = less refactoring for me to keep track of across disparate threads.
+
+Further thoughts?
+
+CLAUDE:
+
+Excellent clarifications! This gives me much clearer direction. Let me address each point:
+
+## XML vs Direct Markdown Output
+
+**Your question is spot-on.** The XML intermediate step exists because:
+
+1. **Parsing reliability**: XML tags are unambiguous delimiters. If Claude writes:
+```markdown
+## Summary
+This paper introduces transformers. ## Key Concepts
+attention, self-attention
+```
+Did it forget a newline? Is "## Key Concepts" part of the summary? XML eliminates ambiguity.
+
+2. **Preventing format innovation**: Exactly as you said—Claude might decide to "improve" the markdown with extra headers, bullets, or sections you didn't ask for.
+
+**But you're right to question it.** Here's what we could do instead:
+
+**Option A: Direct Markdown with strict template**
+```markdown
+Generate EXACTLY this structure. Do not add sections, do not change headers:
+
+---
+title: "{title}"
+authors: [{author_list}]
+---
+
+# {title}
+
+**{authors_short}** • {year}
+
+> [!quote] Memorable Quote
+> "{quote}"
+
+## Quick Refresh
+
+{summary_text}
+
+[continue exact template...]
+```
+
+**Pros**: One step, no parsing, what-you-see-is-what-you-get
+**Cons**: Claude might still "helpfully" add sections or reorder things
+
+**Option B: Structured JSON, render to Markdown**
+```python
+# Claude returns:
+{
+  "summary": "...",
+  "why_you_cared": "...",
+  "key_concepts": ["...", "..."],
+  "memorable_quote": "...",
+  "citation_analysis": [
+    {"citation": "Vaswani 2017", "role": "foundational", "importance": "high"}
+  ]
+}
+
+# You render to Markdown template
+```
+
+**Pros**: No format innovation possible, easy to validate, clean separation of content/presentation
+**Cons**: Extra parsing step (but JSON is standard library), Claude might be less natural
+
+**Option C: Hybrid—JSON for structured data, Markdown for prose**
+```python
+{
+  "summary": "This paper introduces the Transformer architecture...",  # Prose
+  "key_concepts": ["transformers", "attention"],  # Structured
+  "citations": [  # Structured
+    {"id": "vaswani2017", "role": "foundational", "importance": "high"}
+  ]
+}
+```
+
+**My recommendation: Option C (hybrid)**. It's what most production LLM systems converge on:
+- Prose fields (summary, why_you_cared, memorable_quote) as strings
+- Lists/structured data (concepts, citations) as JSON arrays
+- You control the final Markdown rendering completely
+
+**For your skill architecture:** The skill would include a response format specification:
+
+```markdown
+## Response format
+
+Return JSON with this exact structure:
+{
+  "summary": "3-4 sentence overview in plain language",
+  "why_you_cared": "2-3 sentences about relevance",
+  "key_concepts": ["term-1", "term-2", ...],
+  "memorable_quote": "Exact quote from paper",
+  "citation_analysis": [
+    {
+      "citation_text": "Vaswani et al. (2017)",
+      "role": "foundational" | "contrasting" | "supporting",
+      "importance": "high" | "medium" | "low",
+      "summary_phrase": "One-line description of why this matters"
+    }
+  ]
+}
+```
+
+This gives you full control over markdown rendering while preventing Claude from "innovating" on your format.
+
+## Citation Filtering & Return Format
+
+**Current state**: First N citations arbitrarily
+**Desired state**: Intelligently filtered based on role/importance
+
+**Where this logic lives:**
+
+```
+understand-academic-text/
+├── SKILL.md                      # Core comprehension
+└── references/
+    └── citation-analysis.md      # NEW: teaches filtering
+```
+
+**citation-analysis.md content:**
+```markdown
+## Citation role classification
+
+For each citation in bibliography, determine:
+
+### Role types
+- **foundational**: Work this paper directly builds on ("following Smith")
+- **contrasting**: Work this differs from ("unlike Jones", "while Wang showed X, we find Y")
+- **supporting**: Evidence for claims ("consistent with", "as shown by")
+- **methodological**: Tools/datasets used ("Python (van Rossum)", "BERT (Devlin)")
+- **tangential**: Related but not central ("for review see")
+
+### Importance scoring
+- **high**: Core to paper's contribution (foundational + contrasting usually)
+- **medium**: Supports key claims (main supporting citations)
+- **low**: Background, routine technical citations, review pointers
+
+### Filtering for "Cites (Key Papers)"
+1. Include ALL foundational citations (usually 2-5)
+2. Include contrasting citations that define the gap (1-3)
+3. Include high-importance supporting citations (2-4)
+4. Maximum 10 citations total
+5. Skip methodological unless genuinely novel
+6. Skip tangential unless introduces key concept
+
+## Integration with GROBID data
+
+Input format (from GROBID):
+- raw_text: Full citation string
+- authors: ["Author1", "Author2"]
+- title: "Paper Title"
+- year: 2017
+
+Output format (your analysis):
+{
+  "citation_text": "Vaswani et al. (2017) - Attention Is All You Need",
+  "role": "foundational",
+  "importance": "high",
+  "summary_phrase": "Introduces transformer architecture this work extends"
+}
+```
+
+**How this changes your return format:**
+
+Instead of Claude returning just the summary/concepts/quote, it also returns:
+
+```json
+{
+  "summary": "...",
+  "why_you_cared": "...",
+  "key_concepts": [...],
+  "memorable_quote": "...",
+  "citation_analysis": [
+    {
+      "citation_text": "Vaswani et al. (2017) - Attention Is All You Need",
+      "role": "foundational",
+      "importance": "high", 
+      "summary_phrase": "Introduces transformer architecture",
+      "grobid_index": 3  // Links back to your citations[3] array
+    },
+    // ... more analyzed citations
+  ]
+}
+```
+
+Then your markdown writer:
+1. Takes the `citation_analysis` array (already filtered to top ~10)
+2. Renders them in the "Cites (Key Papers)" section with the summary phrases
+3. Puts ALL citations (unfiltered) in "Full Citation List" at bottom
+
+**This solves:**
+- ✅ Intelligent citation filtering (not just first N)
+- ✅ Useful context for each citation (role + why it matters)
+- ✅ Future-compatible with "search for related papers" feature
+- ✅ Helps you quickly scan bibliography for follow-up papers
+
+## Register Architecture: The Full 9-Combination Matrix
+
+You've convinced me—you genuinely need all 9. Your use cases are concrete:
+
+| Domain | Jargon Density | Why |
+|--------|----------------|-----|
+| LLM/phonetics | Low (gloss terms for learning) | Building vocabulary |
+| Socioling/semantics/religion | Selective (keep + explain) | Moderate familiarity |
+| Critical theory | Heavy (assume knowledge) | Already fluent |
+
+And you always want conversational + (detailed or balanced) for *how* it's explained, regardless of jargon level.
+
+**Here's how to architect this with Agent Skills:**
+
+### Option 1: Single `register-controller` skill with 9 reference files
+
+```
+register-controller/
+├── SKILL.md                           # Routing logic
+└── registers/
+    ├── none-conversational-detailed.md
+    ├── none-conversational-balanced.md
+    ├── none-conversational-minimal.md
+    ├── selective-conversational-detailed.md
+    ├── selective-conversational-balanced.md
+    ├── selective-conversational-minimal.md
+    ├── heavy-conversational-detailed.md
+    ├── heavy-conversational-balanced.md
+    └── heavy-conversational-minimal.md
+```
+
+**SKILL.md routing logic:**
+```markdown
+---
+name: register-controller
+description: Adapt explanations for different technical audiences and learning goals. Use when summarizing academic papers where jargon density, explanation depth, or formality needs to match reader background.
+---
+
+# Register Selection
+
+The user will specify register as: `{jargon}-{structure}-{depth}`
+
+## Routing table
+| User input | Load file |
+|------------|-----------|
+| none-conversational-detailed | [registers/none-conversational-detailed.md](registers/none-conversational-detailed.md) |
+| selective-conversational-balanced | [registers/selective-conversational-balanced.md](registers/selective-conversational-balanced.md) |
+| [continue for all 9...]
+
+Load ONLY the specified register file.
+```
+
+**Pros:**
+- Single skill to manage
+- Clear routing logic
+- Only loads 1 of 9 files per request
+
+**Cons:**
+- Requires explicit register parameter from user
+- Can't mix-and-match (but maybe you don't need that?)
+
+### Option 2: Three separate skills (jargon, structure, depth)
+
+```
+jargon-density/
+├── SKILL.md
+└── variants/
+    ├── none.md
+    ├── selective.md
+    └── heavy.md
+
+sentence-structure/
+├── SKILL.md  
+└── variants/
+    ├── conversational.md
+    ├── mixed.md
+    └── formal.md
+
+explanation-depth/
+├── SKILL.md
+└── variants/
+    ├── hand-holding.md
+    ├── balanced.md
+    └── assume-knowledge.md
+```
+
+Then you load all 3 skills in the container, and each activates its appropriate variant:
+
+```python
+container={
+    "skills": [
+        {"type": "custom", "skill_id": skills["jargon-density"]},
+        {"type": "custom", "skill_id": skills["sentence-structure"]},
+        {"type": "custom", "skill_id": skills["explanation-depth"]},
+        {"type": "custom", "skill_id": skills["quick-summary"]}
+    ]
+}
+
+# In your message:
+messages=[{
+    "role": "user", 
+    "content": """
+    Register: selective jargon, conversational structure, detailed explanations
+    
+    Analyze this paper: {paper_text}
+    """
+}]
+```
+
+**Pros:**
+- Compositional (each axis independent)
+- Could theoretically mix custom combinations (e.g., "heavy jargon but hand-holding depth" for advanced learners)
+- Each skill is simpler to maintain
+
+**Cons:**
+- Uses 3 skill slots (you have 8 max per request)
+- Routing logic happens in SKILL.md of each skill (more complex)
+- Might be overkill for your fixed 9 combinations
+
+### Option 3: Configuration parameter + single comprehensive skill
+
+```
+register-controller/
+├── SKILL.md                    # Contains ALL register logic
+└── config-presets.md           # Named presets for common cases
+```
+
+**SKILL.md structure:**
+```markdown
+---
+name: register-controller
+description: Adapt explanations based on jargon density, sentence structure, and explanation depth. Accepts configuration parameter.
+---
+
+# Register Configuration
+
+Configuration format: `{jargon}/{structure}/{depth}`
+
+## Jargon density axis
+### none (accessible-first)
+- Replace technical terms with plain language
+- When technical term is unavoidable: define inline
+- Examples: [full guidelines from your none.md skill]
+
+### selective (learning mode)
+- Keep technical terms AND gloss them inline
+- Build vocabulary through exposure
+- Examples: [full guidelines from your selective.md skill]
+
+### heavy (expert efficiency)  
+- Use technical terms without glossing
+- Assume reader knows field conventions
+- Examples: [full guidelines from your heavy.md skill]
+
+## Sentence structure axis
+[Full content from your 3 structure skills]
+
+## Explanation depth axis
+[Full content from your 3 depth skills]
+
+## Common presets
+Load [config-presets.md](config-presets.md) for:
+- learning-mode: none/conversational/detailed
+- partner-share: selective/conversational/balanced
+- expert-scan: heavy/formal/minimal
+```
+
+**Pros:**
+- Single skill (uses 1 of 8 slots)
+- Full matrix available
+- Can reference presets for common cases
+- All register logic in one place for maintenance
+
+**Cons:**
+- Larger skill file (~2000-3000 lines total)
+- Loads ALL register guidance even if only using one combination (but lazy references could help here)
+
+### My Recommendation: Option 3 with Lazy References
+
+```
+register-controller/
+├── SKILL.md                           # Core routing + lightweight summaries
+└── registers/
+    ├── jargon-none.md                 # Full guidance for this axis
+    ├── jargon-selective.md
+    ├── jargon-heavy.md
+    ├── structure-conversational.md
+    ├── structure-mixed.md
+    ├── structure-formal.md
+    ├── depth-handholding.md
+    ├── depth-balanced.md
+    └── depth-minimal.md
+```
+
+**SKILL.md content:**
+```markdown
+# Register Controller
+
+Configuration: `{jargon}/{structure}/{depth}`
+
+## Quick guidelines
+- **Jargon**: none (gloss all) | selective (keep+gloss) | heavy (assume fluency)
+- **Structure**: conversational (casual) | mixed (professional) | formal (academic)
+- **Depth**: detailed (teach) | balanced (standard) | minimal (expert)
+
+## When to load detailed guidance
+Based on configuration parameter:
+
+If jargon = "selective": Read [registers/jargon-selective.md](registers/jargon-selective.md)
+If structure = "conversational": Read [registers/structure-conversational.md](registers/structure-conversational.md)  
+If depth = "detailed": Read [registers/depth-detailed.md](registers/depth-detailed.md)
+
+Load ONLY the 3 files matching the configuration.
+```
+
+**Token impact:**
+- Startup: ~100 tokens (just SKILL.md description)
+- Activation: ~500 tokens (SKILL.md quick guidelines)
+- Detailed loading: ~1500 tokens (3 reference files)
+- **Total: ~2000 tokens** instead of ~4500 for all 9 combinations
+
+**This gives you:**
+- ✅ Full 9-combination matrix
+- ✅ Token-efficient (loads only what's needed)
+- ✅ Single skill slot
+- ✅ Maintainable (each axis is separate file)
+- ✅ Composable (reference files combine at runtime)
+
+## Updated Architecture Proposal
+
+```
+skills/
+├── understand-academic-text/
+│   ├── SKILL.md
+│   └── references/
+│       └── citation-analysis.md         # NEW: teaches citation filtering
+│
+├── extract-arguments/
+│   └── SKILL.md
+│
+├── identify-terminology/
+│   └── SKILL.md
+│
+├── register-controller/                  # CONSOLIDATED from 9 separate skills
+│   ├── SKILL.md                          # Routing + quick guidelines
+│   └── registers/
+│       ├── jargon-none.md
+│       ├── jargon-selective.md
+│       ├── jargon-heavy.md
+│       ├── structure-conversational.md
+│       ├── structure-mixed.md
+│       ├── structure-formal.md
+│       ├── depth-detailed.md
+│       ├── depth-balanced.md
+│       └── depth-minimal.md
+│
+├── quick-summary/
+│   └── SKILL.md
+│
+├── detailed-summary/
+│   └── SKILL.md
+│
+└── glossary-extraction/
+    └── SKILL.md
+```
+
+**Skill count:** 7 skills (down from 15), uses 7 of your 8-skill limit per request
+
+## Next Steps / Decisions Needed
+
+1. **Return format**: Hybrid JSON (structured data) + Markdown prose? I can draft the exact schema if you like this direction.
+
+2. **Citation analysis integration**: Should this be part of `understand-academic-text` or `quick-summary`? (I lean toward understand-academic-text since it's comprehension, not generation)
+
+3. **Register routing**: The Option 3 lazy-loading approach work for you? Or would you prefer Option 1 (explicit routing table)?
+
+4. **Timeline**: When do you want to start testing the skill-loader with this structure? I can help you:
+   - Migrate your existing 15 markdown skills into this 7-skill structure
+   - Draft the citation-analysis.md reference file
+   - Update the return format schema
+   - Modify skill-loader to handle the register composition
+
+What's your priority order? Should we nail down the return format first (since it affects how you'll test), or start migrating the register skills?
+
+CYRUS:
+
+I think I’m circling back towards the pseudo-XML that’s working for v0.1.5—it feels like there’s more margin for error in terms of output compared to how strict parsing JSON is. What do you think? Is the difference from my perspective illusory?
+
+Agreed that citation analysis as part of understanding academic text seems logical. 
+
+I think I like this register setup with the 3x3, I’ve liked it in every incarnation thus far. 
+
+I’m picking back up after a real-world break—help me get reorientated?
+
+CLAUDE:
+
+Welcome back! Let me reorient you to where we are and address the XML vs JSON question.
+
+## Your XML vs JSON Intuition is Correct
+
+**You're right to stick with pseudo-XML.** Here's why:
+
+**JSON parsing is brittle:**
+```json
+{
+  "summary": "This paper introduces transformers, which are really
+  "key_concepts": ["transformers"]
+}
+```
+One missing quote or comma → entire parse fails. You get nothing.
+
+**XML/tag parsing is forgiving:**
+```xml
+<summary>
+This paper introduces transformers, which are really
+cool and revolutionary.
+<key_concepts>
+transformers, attention-mechanism
+</key_concepts>
+```
+Even with messy formatting or a missing close tag, regex extraction can still recover most content.
+
+**Your current approach (v0.1.5):**
+```python
+def extract_tag(tag_name, text):
+    pattern = f"<{tag_name}>(.*?)</{tag_name}>"
+    match = re.search(pattern, text, re.DOTALL)
+    return match.group(1).strip() if match else ""
+```
+
+This is **extremely robust**. Even if Claude messes up formatting, you get partial results rather than catastrophic failure.
+
+**My recommendation: Keep pseudo-XML, extend it for citation analysis:**
+
+```xml
+<summary>
+3-4 sentences here...
+</summary>
+
+<why_you_cared>
+2-3 sentences here...
+</why_you_cared>
+
+<key_concepts>
+concept-1, concept-2, concept-3
+</key_concepts>
+
+<memorable_quote>
+"Exact quote from paper"
+</memorable_quote>
+
+<citation_analysis>
+<citation>
+<text>Vaswani et al. (2017) - Attention Is All You Need</text>
+<role>foundational</role>
+<importance>high</importance>
+<summary>Introduces transformer architecture this work extends</summary>
+</citation>
+
+<citation>
+<text>Bahdanau et al. (2014) - Neural Machine Translation</text>
+<role>contrasting</role>
+<importance>medium</importance>
+<summary>Prior attention mechanism this improves upon</summary>
+</citation>
+</citation_analysis>
+```
+
+**Parsing strategy:**
+```python
+# Easy: same pattern you already use
+citations = []
+citation_blocks = re.findall(r'<citation>(.*?)</citation>', response, re.DOTALL)
+
+for block in citation_blocks:
+    citation = {
+        'text': extract_tag('text', block),
+        'role': extract_tag('role', block),
+        'importance': extract_tag('importance', block),
+        'summary': extract_tag('summary', block)
+    }
+    citations.append(citation)
+```
+
+**Graceful degradation:** If Claude only provides `<text>` and `<role>` but forgets `<summary>`, you still get partial data. With JSON, you'd get nothing or have to write complex error recovery.
+
+## Where We Are: Project Status
+
+**v0.1.0 - MVP Complete ✅**
+- arXiv fetching works
+- GROBID extracts metadata + citations
+- Claude generates summaries (XML format)
+- Markdown notes written to Obsidian
+- ~24 papers processed successfully
+
+**v0.1.5 - Current Target** (from architecture-state.json)
+Theme: "All input types work"
+- web_fetcher (tested + integrated)
+- doi_fetcher (implemented)
+- CLI smoke test (runs, not polished)
+- pytest migration verified
+
+**What We Just Designed:**
+Agent Skills architecture for v0.2.0+
+- 7 skills instead of 15 (consolidated registers)
+- Native .skill format for API upload
+- Token optimization through lazy loading
+- Citation analysis capability
+
+## Current Conversation Context
+
+**We were discussing:**
+
+1. **Return format** → You chose pseudo-XML (smart choice)
+2. **Citation filtering** → Add `<citation_analysis>` block to XML
+3. **Register architecture** → 3x3 lazy-loaded references in single skill
+4. **Migration timeline** → Test skill-loader in v0.2.0, migrate to API in v0.2.5
+
+**Immediate next steps would be:**
+
+### Option A: Finish v0.1.5 First
+Get all input types working before touching skills:
+- Complete web_fetcher integration
+- Implement doi_fetcher 
+- Basic CLI functionality
+- Then move to skills in v0.2.0
+
+### Option B: Start Skills Work Now
+Begin migrating your 15 markdown skills to 7-skill structure:
+- Create register-controller with 3x3 references
+- Add citation-analysis.md to understand-academic-text
+- Test skill-loader with new structure
+- v0.1.5 work can happen in parallel
+
+### Option C: Add Citation Analysis to v0.1.5
+Enhance current system before skill migration:
+- Extend XML format with `<citation_analysis>` block
+- Update synthesis prompt to analyze citations
+- Test with existing papers
+- Proves value before architectural refactor
+
+## What Would Be Most Helpful Now?
+
+**I can help you:**
+
+1. **Draft the citation-analysis XML schema** and update your synthesis prompt to generate it
+
+2. **Sketch the register-controller SKILL.md** showing how the 3x3 lazy loading works
+
+3. **Plan the skill migration** from your current 15 skills to the 7-skill structure
+
+4. **Continue with v0.1.5 work** (web/DOI fetchers, CLI) if you want to finish current milestone first
+
+5. **Just talk through architecture** to make sure you understand the skill design before committing
+
+**What feels like the right next step to you?** Are you wanting to:
+- Polish what's working (finish v0.1.5)?
+- Prove citation analysis value (add to current system)?
+- Start building toward v0.2.0 (skill migration)?
+- Something else entirely?
