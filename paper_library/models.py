@@ -145,7 +145,12 @@ class ArticleMetadata(BaseModel):
     
     # The converted markdown content
     content: Optional[str] = None
-    
+
+    # Local path if the article was a PDF downloaded from a URL.
+    # Set by WebFetcher when it saves the file; used by orchestrator
+    # to route the item through GROBID instead of the HTML article path.
+    pdf_path: Optional[str] = None
+
     # Processing metadata
     processed_at: Optional[datetime] = None
     source: str = "web"

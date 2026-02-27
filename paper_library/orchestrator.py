@@ -249,14 +249,27 @@ class PaperProcessor:
             try:
                 metadata, content = self.web_fetcher.fetch(identifier)
 
-                if not content or getattr(metadata, "source", "") == "pdf_from_web":
-                    # PDF at a URL — saved to vault/PDFs/ by web_fetcher
-                    print("  → PDF from URL, routing through GROBID")
-                    # pdf_path: web_fetcher saves it to vault/PDFs/ but doesn't
-                    # return the path yet (known limitation). For now, treat as
-                    # an article so synthesis can run on whatever content we have.
-                    # TODO: return saved path from _handle_pdf_from_url
-                    return {"type": "article", "metadata": metadata, "content": content}
+                if getattr(metadata, "source", "") == "pdf_from_web":
+                    # PDF downloaded from a URL — route through the full paper
+                    # pipeline (GROBID → text → citation contexts → synthesis).
+                    if not metadata.pdf_path:
+                        raise ProcessingError(
+                            f"PDF was detected at {identifier} but could not be saved "
+                            f"(vault_path not set). Configure VAULT_PATH and retry."
+                        )
+                    print(f"  ✓ PDF saved to vault, routing through GROBID")
+                    paper_meta = PaperMetadata(
+                        title="[Extracting from PDF]",
+                        authors=["Unknown"],
+                        year=2024,
+                        pdf_path=metadata.pdf_path,
+                        source="pdf_from_web",
+                    )
+                    return {
+                        "type": "paper",
+                        "pdf_path": Path(metadata.pdf_path),
+                        "metadata": paper_meta,
+                    }
                 else:
                     print(f"  ✓ Extracted {len(content)} chars of web content")
                     return {"type": "article", "metadata": metadata, "content": content}

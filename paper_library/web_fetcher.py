@@ -287,18 +287,19 @@ class WebFetcher:
             # Save PDF
             pdf_path.write_bytes(pdf_content)
             print(f"  ✓ Saved to {filename}")
-        
-        # Create minimal metadata
-        # We don't have rich metadata, but we have the URL
-        # The orchestrator can treat this as a local PDF for GROBID processing
+
+        # Create minimal metadata.
+        # pdf_path is set when vault_path was provided; the orchestrator
+        # uses it to route this item through GROBID instead of the article path.
         metadata = ArticleMetadata(
             title="PDF from URL",  # Will be overwritten by GROBID
             authors=["Unknown"],
             url=url,
             published_date=datetime.now(),
             publisher=None,
-            content="[PDF content - will be processed by GROBID]" if not pdf_path else f"[PDF saved to {pdf_path}]",
-            source="pdf_from_web"
+            content=None,
+            pdf_path=str(pdf_path) if pdf_path else None,
+            source="pdf_from_web",
         )
         
         # Return empty content string (GROBID will extract this)
