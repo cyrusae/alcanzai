@@ -76,9 +76,9 @@ class CitationContextExtractor:
             Dict mapping citation key (doi or title) to list of CitationContext objects.
             A citation may appear multiple times, so each key maps to a list.
         """
-        # Split text into sentences, stripping the bibliography section first
-        # to avoid matching citation text in the reference list itself
-        sentences = self._split_into_sentences(paper_text)
+        # Strip bibliography so we don't match reference-list entries
+        body_text = self._remove_bibliography(paper_text)
+        text_len = len(body_text)
 
         all_contexts: dict[str, list[CitationContext]] = {}
 
@@ -88,24 +88,28 @@ class CitationContextExtractor:
                 continue  # Can't build patterns without author+year
 
             contexts = []
+            seen_positions: set[int] = set()
 
-            for i, sentence in enumerate(sentences):
-                for pattern, mention_type in patterns:
-                    if re.search(pattern, sentence, re.IGNORECASE):
-                        context_text = self._extract_context_window(
-                            sentences, i, self.context_sentences
-                        )
-                        position = i / len(sentences) if sentences else 0.0
-                        contexts.append(CitationContext(
-                            citation=citation,
-                            context_text=context_text,
-                            mention_type=mention_type,
-                            position=position,
-                        ))
-                        break  # Only count once per sentence
+            for pattern, mention_type in patterns:
+                for match in re.finditer(pattern, body_text, re.IGNORECASE):
+                    # Deduplicate: skip if we already grabbed context at this spot
+                    bucket = match.start() // 50
+                    if bucket in seen_positions:
+                        continue
+                    seen_positions.add(bucket)
+
+                    context_text = self._extract_char_context(
+                        body_text, match.start(), match.end()
+                    )
+                    position = match.start() / text_len if text_len else 0.0
+                    contexts.append(CitationContext(
+                        citation=citation,
+                        context_text=context_text,
+                        mention_type=mention_type,
+                        position=position,
+                    ))
 
             if contexts:
-                # Use DOI as key if available, otherwise title, otherwise raw_text prefix
                 key = (
                     citation.doi
                     or citation.title
@@ -158,19 +162,37 @@ class CitationContextExtractor:
     # Private helpers
     # -------------------------------------------------------------------------
 
-    def _split_into_sentences(self, text: str) -> list[str]:
+    def _extract_char_context(self, text: str, match_start: int, match_end: int) -> str:
         """
-        Split paper text into sentences.
+        Extract surrounding sentence context using character offsets.
 
-        Strips the bibliography section first so citation patterns
-        don't match the reference list entries themselves.
+        Looks backwards from match_start for sentence-ending punctuation,
+        and forward from match_end for the end of the citing sentence.
+        Returns up to context_sentences sentences (current + preceding).
         """
-        text = self._remove_bibliography(text)
+        # Walk backwards to find sentence boundaries
+        # Sentence endings: ". " "! " "? " or start of string
+        sentence_end_re = re.compile(r'[.!?]\s+')
 
-        # Split on period + whitespace + capital letter or digit.
-        # This is a heuristic that works well for most academic papers.
-        sentences = re.split(r'\.\s+(?=[A-Z0-9])', text)
-        return [s.strip() for s in sentences if s.strip()]
+        # Find the start of the window (go back context_sentences - 1 boundaries)
+        search_region = text[:match_start]
+        boundaries = [m.end() for m in sentence_end_re.finditer(search_region)]
+        if len(boundaries) >= self.context_sentences:
+            window_start = boundaries[-(self.context_sentences - 1)]
+        else:
+            window_start = 0
+
+        # Find the end of the citing sentence (first ". " "! " "? " after match)
+        tail = text[match_end:]
+        end_match = sentence_end_re.search(tail)
+        window_end = match_end + (end_match.end() if end_match else len(tail))
+
+        context = text[window_start:window_end].strip()
+        # Collapse internal whitespace artifacts from PDF extraction
+        context = re.sub(r'\s+', ' ', context)
+        if not context.endswith(('.', '!', '?')):
+            context += '.'
+        return context
 
     def _remove_bibliography(self, text: str) -> str:
         """
@@ -252,20 +274,3 @@ class CitationContextExtractor:
 
         return patterns
 
-    def _extract_context_window(
-        self,
-        sentences: list[str],
-        index: int,
-        window_size: int,
-    ) -> str:
-        """
-        Extract a window of sentences centered on the citing sentence.
-
-        window_size=2 means current sentence + one before it.
-        """
-        start = max(0, index - (window_size - 1))
-        end = min(len(sentences), index + 1)
-        context = ". ".join(sentences[start:end])
-        if not context.endswith("."):
-            context += "."
-        return context

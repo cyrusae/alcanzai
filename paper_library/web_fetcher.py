@@ -430,38 +430,96 @@ class WebFetcher:
     def _extract_authors(self, soup) -> list[str]:
         """
         Extract author names from page.
-        
+
         Tries in order:
-        1. article:author meta tags
-        2. Common author CSS classes (byline, author-name)
-        3. Schema.org author data
-        4. Returns empty list if not found
+        1. <meta name="author"> (standard HTML, widely used)
+        2. article:author Open Graph meta tags
+        3. JSON-LD schema.org author field
+        4. <d-byline> Distill-framework element (transformer-circuits.pub, distill.pub)
+        5. <a rel="author"> link elements
+        6. Common author CSS classes (byline, author-name, etc.)
         """
+        import json as _json
+
         authors = []
-        
-        # Meta tags
-        author_metas = soup.find_all('meta', property='article:author')
-        authors.extend([m.get('content', '').strip() for m in author_metas if m.get('content')])
-        
-        # Common byline patterns
+
+        # 1. Standard HTML meta author
+        meta_author = soup.find('meta', attrs={'name': 'author'})
+        if meta_author and meta_author.get('content', '').strip():
+            authors.append(meta_author['content'].strip())
+
+        # 2. Open Graph article:author
         if not authors:
-            byline = soup.find(class_=['byline', 'author-name', 'author', 'author-info'])
+            for m in soup.find_all('meta', property='article:author'):
+                if m.get('content', '').strip():
+                    authors.append(m['content'].strip())
+
+        # 3. JSON-LD schema.org (covers many academic/blog sites)
+        if not authors:
+            for script in soup.find_all('script', type='application/ld+json'):
+                try:
+                    data = _json.loads(script.string or '')
+                    # May be a single object or a list
+                    items = data if isinstance(data, list) else [data]
+                    for item in items:
+                        raw = item.get('author', [])
+                        if isinstance(raw, dict):
+                            raw = [raw]
+                        for a in raw:
+                            name = a.get('name', '').strip() if isinstance(a, dict) else str(a).strip()
+                            if name:
+                                authors.append(name)
+                    if authors:
+                        break
+                except Exception:
+                    continue
+
+        # 4. Distill framework <d-byline> (transformer-circuits.pub, distill.pub)
+        if not authors:
+            byline = soup.find('d-byline')
             if byline:
-                text = byline.get_text(strip=True)
-                # Try to extract just the name (before "•", "Posted", etc.)
-                author_text = text.split('•')[0].split('Posted')[0].strip()
-                if author_text and len(author_text) < 100:  # Sanity check
-                    authors.append(author_text)
-        
-        # Remove duplicates while preserving order
-        seen = set()
-        unique_authors = []
-        for author in authors:
-            if author and author not in seen:
-                seen.add(author)
-                unique_authors.append(author)
-        
-        return unique_authors or ["Unknown"]
+                # Authors are in <div class="authors-affiliations"> > <p class="author">
+                for p in byline.find_all('p', class_='author'):
+                    name = p.get_text(strip=True)
+                    if name:
+                        authors.append(name)
+                # Fallback: any <a> inside d-byline
+                if not authors:
+                    for a in byline.find_all('a'):
+                        name = a.get_text(strip=True)
+                        if name and len(name) < 60:
+                            authors.append(name)
+
+        # 5. rel="author" links
+        if not authors:
+            for a in soup.find_all('a', rel='author'):
+                name = a.get_text(strip=True)
+                if name and len(name) < 80:
+                    authors.append(name)
+
+        # 6. Common CSS class patterns
+        if not authors:
+            for cls in ['byline', 'author-name', 'post-author', 'entry-author', 'author']:
+                el = soup.find(class_=cls)
+                if el:
+                    text = el.get_text(strip=True)
+                    # Trim trailing noise ("• date", "Posted by", etc.)
+                    for sep in ('•', '|', 'Posted', 'by ', '\n'):
+                        text = text.split(sep)[0]
+                    text = text.strip()
+                    if text and len(text) < 100:
+                        authors.append(text)
+                        break
+
+        # Deduplicate preserving order
+        seen: set[str] = set()
+        unique: list[str] = []
+        for a in authors:
+            if a and a not in seen:
+                seen.add(a)
+                unique.append(a)
+
+        return unique or ["Unknown"]
     
     def _extract_published_date(self, soup) -> Optional[datetime]:
         """
@@ -532,6 +590,13 @@ class WebFetcher:
         # Remove script/style tags (they're not content)
         for tag in soup(['script', 'style', 'nav', 'header', 'footer', 'aside']):
             tag.decompose()
+
+        # Strip data-URI images — they produce massive base64 blobs in markdown.
+        # Keep img tags with real URLs so alt text and captions are preserved.
+        for img in soup.find_all('img'):
+            src = img.get('src', '')
+            if src.startswith('data:'):
+                img.decompose()
         
         # Try semantic <article> tag first
         article = soup.find('article')
