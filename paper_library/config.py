@@ -14,6 +14,7 @@ Python concepts covered:
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 from dotenv import load_dotenv
 
 # Load environment variables from .env file into os.environ
@@ -40,6 +41,10 @@ class Config:
     # os.getenv("KEY", "default") reads from environment, uses default if not set
     anthropic_api_key: str = os.getenv("ANTHROPIC_API_KEY", "")
     grobid_url: str = os.getenv("GROBID_URL", "http://localhost:8070")
+
+    # Optional email for Crossref and Unpaywall polite pools.
+    # Omitting it still works but may get slower/throttled responses.
+    crossref_email: Optional[str] = os.getenv("CROSSREF_EMAIL")
     
     # File paths
     # Path() creates a pathlib Path object, better than string manipulation

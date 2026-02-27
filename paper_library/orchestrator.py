@@ -29,6 +29,7 @@ from paper_library.state import StateManager
 from paper_library.models import PaperMetadata, ArticleMetadata
 from paper_library.arxiv_fetcher import ArxivFetcher
 from paper_library.citation_context import CitationContextExtractor
+from paper_library.doi_fetcher import DoiFetcher, DoiFetchError
 from paper_library.web_fetcher import WebFetcher, WebFetchError, UnsupportedSourceError
 from paper_library.grobid_processor import GrobidProcessor
 from paper_library.synthesis_generator import SynthesisGenerator
@@ -76,6 +77,7 @@ class PaperProcessor:
 
         # Initialize components
         self.arxiv_fetcher = ArxivFetcher(config.vault_path)
+        self.doi_fetcher = DoiFetcher(config.vault_path, email=getattr(config, "crossref_email", None))
         self.web_fetcher = WebFetcher(config.vault_path)
         self.grobid = GrobidProcessor(config.grobid_url)
         self.synthesis_gen = SynthesisGenerator(config.anthropic_api_key)
@@ -128,6 +130,8 @@ class PaperProcessor:
                     fetch_result["content"],
                     identifier,
                 )
+            elif fetch_result["type"] == "doi_only":
+                return self._process_doi_only(fetch_result["metadata"], identifier)
             else:
                 raise ProcessingError(f"Unknown result type: {fetch_result['type']}")
 
@@ -215,8 +219,9 @@ class PaperProcessor:
         Fetch content based on identifier type.
 
         Returns a dict with:
-          {"type": "paper", "pdf_path": Path, "metadata": PaperMetadata}
-          {"type": "article", "metadata": ArticleMetadata, "content": str}
+          {"type": "paper",    "pdf_path": Path, "metadata": PaperMetadata}
+          {"type": "article",  "metadata": ArticleMetadata, "content": str}
+          {"type": "doi_only", "metadata": PaperMetadata}  # Crossref metadata, no PDF
 
         Raises:
             ProcessingError: If source type cannot be determined
@@ -229,6 +234,19 @@ class PaperProcessor:
             pdf_path, metadata = self.arxiv_fetcher.fetch(identifier)
             print(f"  ✓ Fetched: {metadata.title}")
             return {"type": "paper", "pdf_path": pdf_path, "metadata": metadata}
+
+        # DOI (e.g. "10.1093/mind/fzae004" or "https://doi.org/10.1093/mind/fzae004")
+        doi = self.doi_fetcher.parse_doi(identifier)
+        if doi:
+            print("  → DOI detected")
+            try:
+                metadata, pdf_path = self.doi_fetcher.fetch(doi)
+            except DoiFetchError as e:
+                raise ProcessingError(f"DOI lookup failed: {e}") from e
+            if pdf_path:
+                return {"type": "paper", "pdf_path": pdf_path, "metadata": metadata}
+            else:
+                return {"type": "doi_only", "metadata": metadata}
 
         # Local PDF file
         path = Path(identifier)
@@ -282,6 +300,7 @@ class PaperProcessor:
         raise ProcessingError(
             f"Could not determine source type for: {identifier}\n"
             f"  Supported: arXiv ID (e.g. '1706.03762'), "
+            f"DOI (e.g. '10.1093/mind/fzae004' or 'https://doi.org/...'), "
             f"web URL (e.g. 'https://transformer-circuits.pub/...'), "
             f"or local PDF path (e.g. './paper.pdf')"
         )
@@ -353,6 +372,42 @@ class PaperProcessor:
         print("\nStep 6: Updating state...")
         source = self._get_source_type(identifier)
         self.state.mark_processed(identifier, source)
+        print(f"  ✓ Marked as processed")
+
+        print(f"\n{'='*70}")
+        print(f"✓ SUCCESS: {identifier}")
+        print(f"{'='*70}\n")
+        return True
+
+    def _process_doi_only(self, metadata: PaperMetadata, identifier: str) -> bool:
+        """
+        DOI pipeline when no OA PDF is available.
+
+        Uses the Crossref abstract as synthesis text. Writes a paper note
+        to vault/Papers/ with a notice that synthesis is abstract-only.
+        """
+        text = metadata.abstract or ""
+        if not text:
+            text = f"No abstract available for {metadata.doi or identifier}."
+
+        # Step 2: AI synthesis (on abstract text)
+        print("\nStep 2: Generating AI synthesis (abstract only — no full text)...")
+        synthesis = self.synthesis_gen.generate_quick_synthesis(text, metadata)
+        print(f"  ✓ Generated synthesis (cost: ${synthesis.cost_usd:.4f})")
+
+        # Step 3: Write vault note
+        print("\nStep 3: Writing Obsidian note...")
+        markdown = self.markdown_writer.paper_to_markdown(metadata, synthesis)
+        filename = self.markdown_writer.generate_filename(metadata)
+        output_dir = self.config.papers_dir
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / f"{filename}.md"
+        output_path.write_text(markdown, encoding="utf-8")
+        print(f"  ✓ Written to: {output_path.relative_to(self.config.vault_path)}")
+
+        # Step 4: Update state
+        print("\nStep 4: Updating state...")
+        self.state.mark_processed(identifier, "doi")
         print(f"  ✓ Marked as processed")
 
         print(f"\n{'='*70}")
