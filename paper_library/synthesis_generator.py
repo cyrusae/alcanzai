@@ -193,6 +193,10 @@ class SynthesisGenerator:
         structure = register.get("structure", "mixed")
         depth = register.get("depth", "balanced")
 
+        year = getattr(metadata, "year", None) or (
+            getattr(metadata, "published_date", None) and metadata.published_date.year
+        ) or "Unknown"
+
         # Include citation contexts if extracted (helps ground why_you_cared)
         context_section = ""
         if citation_contexts and citation_contexts != "No citation contexts extracted.":
@@ -207,7 +211,7 @@ Citation contexts (how this paper uses its key sources):
 
 Paper: "{metadata.title}"
 Authors: {authors_str}
-Year: {metadata.year}
+Year: {year}
 Research area: {research_area}
 
 Register: jargon={jargon}, structure={structure}, depth={depth}
@@ -347,11 +351,15 @@ Use the quick-summary skill format with <summary>, <why_you_cared>, <key_concept
         depth = reg.get("depth", "balanced")
         text_preview = text[:50000]
 
+        year = getattr(metadata, "year", None) or (
+            getattr(metadata, "published_date", None) and metadata.published_date.year
+        ) or "Unknown"
+
         message = f"""Generate a detailed section-by-section summary of this academic paper.
 
 Paper: "{metadata.title}"
 Authors: {authors_str}
-Year: {metadata.year}
+Year: {year}
 
 Register: jargon={jargon}, structure={structure}, depth={depth}
 

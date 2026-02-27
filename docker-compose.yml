@@ -30,6 +30,10 @@ services:
       # Number of concurrent requests GROBID can handle
       # Set based on your CPU cores (typically cores - 1)
       - GROBID_POOL_SIZE=4 # TODO: Logical or physical cores? 8 logical cores = can probably go up to 6-7?
+      # Disable optional models irrelevant to our pipeline.
+      # funding.acknowledgements in particular is slow to load and hangs on some systems.
+      - GROBID_grobid__software-lookup__enabled=false
+      - GROBID_grobid__funding-acknowledgement__enabled=false
 
 # Optional: Add CouchDB for Obsidian Livesync
 # Uncomment when ready to set up sync

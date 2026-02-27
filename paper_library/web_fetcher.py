@@ -537,7 +537,13 @@ class WebFetcher:
         article = soup.find('article')
         if article:
             return str(article)
-        
+
+        # Try Distill framework custom elements (distill.pub, transformer-circuits.pub)
+        for tag_name in ['d-article', 'd-body']:
+            distill_article = soup.find(tag_name)
+            if distill_article:
+                return str(distill_article)
+
         # Try common article container classes
         common_containers = [
             {'class': 'article-content'},
