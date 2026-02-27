@@ -6,16 +6,16 @@ type: "article"
 status: "unread"
 added: "2026-02-26"
 tags:
-  - value-alignment
+  - ai-alignment
+  - value-expression
+  - language-model-evaluation
   - constitutional-ai
-  - ai-evaluation
-  - societal-impacts
+  - real-world-monitoring
+  - value-taxonomy
+  - situational-values
   - jailbreak-detection
   - value-mirroring
   - sycophancy
-  - contextual-behavior
-  - anthropic
-  - language-models
 ---
 # Values in the wild: Discovering and analyzing values in real-world language model interactions
 
@@ -25,19 +25,19 @@ tags:
 **Source:** [Web](https://www.anthropic.com/research/values-wild)
 
 > [!quote] Memorable Quote
-> "If we want those judgments to be congruent with our own values, then we need to have ways of testing which values a model expresses in the real world."
+> "If we want those judgments to be congruent with our own values (which is, after all, the central goal of AI alignment research) then we need to have ways of testing which values a model expresses in the real world."
 
 ## Quick Refresh
 
-Anthropic's Societal Impacts team developed a privacy-preserving system to detect and analyze which values Claude expresses during real-world conversations, studying 308,210 subjective conversations from Claude.ai users in February 2025. They discovered a hierarchical taxonomy of five value categories (Practical, Epistemic, Social, Protective, and Personal), with the model generally expressing its intended values around helpfulness, honesty, and harmlessness. The research reveals that Claude's values adapt contextually—for instance, emphasizing "healthy boundaries" in relationship advice and "historical accuracy" in historical analysis—and occasionally mirrors or reframes user values, with resistance to user values appearing in 3% of conversations, likely indicating Claude's deepest value boundaries.
+This paper presents a large-scale empirical study of which values Claude, Anthropic's language model, expresses during real-world conversations. The researchers developed a privacy-preserving system to analyze 700,000 anonymized conversations from Claude.ai users (filtering to 308,210 containing value judgments), and discovered a hierarchical taxonomy of AI values organized into five major categories: Practical, Epistemic, Social, Protective, and Personal. The key finding is that Claude generally aligns with the intended training objectives (helpfulness, honesty, harmlessness), while also demonstrating context-sensitive value expression—emphasizing different values for different tasks (e.g., "healthy boundaries" for relationship advice, "historical accuracy" for controversial events).
 
 ## Why You Cared
 
-You care about understanding how AI systems actually behave in the wild versus how developers intend them to behave. This paper matters because it demonstrates a scalable method for monitoring value alignment post-deployment rather than just theorizing about it—something that could help catch problems like jailbreaks that don't show up in pre-release testing. The contextualized value analysis also touches on the sycophancy problem in AI systems, showing when an AI is genuinely adapting its reasoning versus just telling users what they want to hear.
+You care about this because AI alignment is a central challenge in AI safety: ensuring that models behave according to designer intent in real-world deployment, not just in controlled evaluation settings. This paper addresses a practical gap—previous alignment work focuses on pre-deployment testing, but this method enables post-deployment monitoring of whether training actually shaped the model's values as intended. The situational value variation findings are particularly relevant because they reveal that models do not express static values; instead they adapt to context, raising questions about whether this flexibility reflects genuine value alignment or sycophancy (flattering users by mirroring their values without substance).
 
 ## Key Concepts
 
-`#value-alignment` `#constitutional-ai` `#ai-evaluation` `#societal-impacts` `#jailbreak-detection` `#value-mirroring` `#sycophancy` `#contextual-behavior` `#anthropic` `#language-models`
+`#ai-alignment` `#value-expression` `#language-model-evaluation` `#constitutional-ai` `#real-world-monitoring` `#value-taxonomy` `#situational-values` `#jailbreak-detection` `#value-mirroring` `#sycophancy`
 
 ## Related Papers
 

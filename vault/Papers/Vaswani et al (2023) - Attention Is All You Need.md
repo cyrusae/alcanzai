@@ -8,18 +8,16 @@ type: "paper"
 status: "unread"
 added: "2026-02-26"
 tags:
-  - self-attention
+  - transformer-architecture
+  - self-attention-mechanism
   - multi-head-attention
-  - positional-encoding
-  - sequence-to-sequence
-  - encoder-decoder
   - scaled-dot-product-attention
-  - parallelization
+  - encoder-decoder-architecture
+  - positional-encoding
   - machine-translation
-  - long-range-dependencies
-  - neural-architecture
-  - deep-learning
-  - natural-language-processing
+  - parallel-processing
+  - sequence-transduction
+  - neural-networks
 ---
 
 # Attention Is All You Need
@@ -27,19 +25,19 @@ tags:
 **Vaswani, Ashish et al.** • 2023
 
 > [!quote] Memorable Quote
-> "The Transformer allows for significantly more parallelization and can reach a new state of the art in translation quality after being trained for as little as twelve hours on eight P100 GPUs."
+> "In this work we propose the Transformer, a model architecture eschewing recurrence and instead relying entirely on an attention mechanism to draw global dependencies between input and output."
 
 ## Quick Refresh
 
-This paper introduces the Transformer, a neural sequence-to-sequence architecture based entirely on multi-head self-attention (parallel attention mechanisms that focus on different word relationships) rather than recurrent or convolutional layers. The authors replace the sequential processing of RNNs (Recurrent Neural Networks) with parallel attention mechanisms, enabling substantially faster training while improving translation quality. On machine translation benchmarks (WMT 2014 English-German and English-French), the Transformer achieves new state-of-the-art results, reaching 28.4 BLEU on EN-DE translation after just 12 hours of training on 8 GPUs—a fraction of the cost and time required by previous models.
+This paper introduces the Transformer, a neural network architecture that replaces recurrent layers with multi-head self-attention (parallel attention mechanisms focusing on different relationships in the input) to process entire sequences in parallel rather than sequentially. The model achieves state-of-the-art results on machine translation tasks—28.4 BLEU on WMT 2014 English-to-German (outperforming previous best by over 2 points) and 41.8 BLEU on English-to-French—while training in 3.5 days instead of weeks. The core contribution is demonstrating that attention alone, without recurrence or convolution, is sufficient for sequence transduction and actually outperforms more complex architectures.
 
 ## Why You Cared
 
-You were interested in this because it fundamentally changed how neural sequence models work. The core insight—that attention mechanisms alone can handle the full computational load without recurrence—opened the door to much more parallelizable architectures. This work is foundational if you are working with transformer-based models in any capacity, whether in NLP, computer vision, or other domains. You cited this paper when explaining why transformers dominated modern NLP after 2017, and understanding the original design choices helps you reason about variants and improvements.
+You were researching sequence-to-sequence models and translation quality, and this paper tackles a fundamental architectural limitation: RNNs (Recurrent Neural Networks—models that process sequences step by step) cannot parallelize across a sequence, making them slow to train on long texts. The Transformer solves this by having every token attend to every other token simultaneously, which not only speeds up training but actually improves translation quality. You would cite this when showing how architectural innovation can beat complexity, and apply the self-attention mechanism to any sequence modeling task you encounter.
 
 ## Key Concepts
 
-`#self-attention` `#multi-head-attention` `#positional-encoding` `#sequence-to-sequence` `#encoder-decoder` `#scaled-dot-product-attention` `#parallelization` `#machine-translation` `#long-range-dependencies` `#neural-architecture` `#deep-learning` `#natural-language-processing`
+`#transformer-architecture` `#self-attention-mechanism` `#multi-head-attention` `#scaled-dot-product-attention` `#encoder-decoder-architecture` `#positional-encoding` `#machine-translation` `#parallel-processing` `#sequence-transduction` `#neural-networks`
 
 ## Cites (Key Papers)
 
@@ -68,7 +66,9 @@ You were interested in this because it fundamentally changed how neural sequence
 
 ## Abstract
 
-The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train. Our model achieves 28.4 BLEU on the WMT 2014 Englishto-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU. On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature. We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing both with large and limited training data. * Equal contribution. Listing order is random. Jakob proposed replacing RNNs with self-attention and started the effort to evaluate this idea. Ashish, with Illia, designed and implemented the first Transformer models and has been crucially involved in every aspect of this work. Noam proposed scaled dot-product attention, multi-head attention and the parameter-free position representation and became the other person involved in nearly every detail. Niki designed, implemented, tuned and evaluated countless model variants in our original codebase and tensor2tensor. Llion also experimented with novel model variants, was responsible for our initial codebase, and efficient inference and visualizations. Lukasz and Aidan spent countless long days designing various parts of and implementing tensor2tensor, replacing our earlier codebase, greatly improving results and massively accelerating our research.
+The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train. Our model achieves 28.4 BLEU on the WMT 2014 Englishto-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU. On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature. We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing both with large and limited training data.
+
+* Equal contribution. Listing order is random. Jakob proposed replacing RNNs with self-attention and started the effort to evaluate this idea. Ashish, with Illia, designed and implemented the first Transformer models and has been crucially involved in every aspect of this work. Noam proposed scaled dot-product attention, multi-head attention and the parameter-free position representation and became the other person involved in nearly every detail. Niki designed, implemented, tuned and evaluated countless model variants in our original codebase and tensor2tensor. Llion also experimented with novel model variants, was responsible for our initial codebase, and efficient inference and visualizations. Lukasz and Aidan spent countless long days designing various parts of and implementing tensor2tensor, replacing our earlier codebase, greatly improving results and massively accelerating our research.
 
 † Work performed while at Google Brain.
 
