@@ -93,6 +93,7 @@ class SynthesisGenerator:
         metadata: PaperMetadata | ArticleMetadata,
         max_tokens: int = 1500,
         register: Optional[RegisterConfig] = None,
+        citation_contexts: Optional[str] = None,
     ) -> Synthesis:
         """
         Generate a quick synthesis using native Agent Skills.
@@ -122,7 +123,7 @@ class SynthesisGenerator:
         skill_containers = self._skills_manager.build_skill_containers(QUICK_SYNTHESIS_SKILLS)
 
         # Build lean user message (skills handle the detailed instructions)
-        message = self._build_quick_synthesis_message(text, metadata, reg)
+        message = self._build_quick_synthesis_message(text, metadata, reg, citation_contexts)
 
         # Call Claude with skills
         response = self.client.beta.messages.create(
@@ -160,6 +161,7 @@ class SynthesisGenerator:
         text: str,
         metadata: PaperMetadata | ArticleMetadata,
         register: RegisterConfig,
+        citation_contexts: Optional[str] = None,
     ) -> str:
         """
         Build the lean user message for quick synthesis.
@@ -191,6 +193,16 @@ class SynthesisGenerator:
         structure = register.get("structure", "mixed")
         depth = register.get("depth", "balanced")
 
+        # Include citation contexts if extracted (helps ground why_you_cared)
+        context_section = ""
+        if citation_contexts and citation_contexts != "No citation contexts extracted.":
+            context_section = f"""
+Citation contexts (how this paper uses its key sources):
+---
+{citation_contexts}
+---
+"""
+
         return f"""Generate a quick synthesis of this academic paper.
 
 Paper: "{metadata.title}"
@@ -204,7 +216,7 @@ Paper text ({text_length} characters):
 ---
 {text_preview}
 ---
-
+{context_section}
 Use the quick-summary skill format with <summary>, <why_you_cared>, <key_concepts>, and <memorable_quote> XML tags."""
 
     def _infer_research_area(self, metadata: PaperMetadata | ArticleMetadata) -> str:

@@ -115,6 +115,9 @@ class MarkdownWriter:
             for citation in metadata.citations[:10]:
                 citation_link = MarkdownWriter._format_citation_wikilink(citation)
                 sections.append(f"- {citation_link}")
+                # Show up to 2 extracted context sentences as blockquotes
+                for ctx in citation.contexts[:2]:
+                    sections.append(f"  > {ctx}")
             
             if len(metadata.citations) > 10:
                 sections.append(f"")

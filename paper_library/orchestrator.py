@@ -23,6 +23,7 @@ from paper_library.config import config
 from paper_library.state import StateManager
 from paper_library.models import PaperMetadata
 from paper_library.arxiv_fetcher import ArxivFetcher
+from paper_library.citation_context import CitationContextExtractor
 from paper_library.grobid_processor import GrobidProcessor
 from paper_library.synthesis_generator import SynthesisGenerator
 from paper_library.markdown_writer import MarkdownWriter
@@ -116,10 +117,31 @@ class PaperProcessor:
             print("\nStep 3: Extracting text from PDF...")
             text = self._extract_text(pdf_path)
             print(f"  ✓ Extracted {len(text)} characters")
-            
+            if len(text) < 1000:
+                print(f"  ⚠ Warning: very short text ({len(text)} chars) — PDF may be scanned/image-only. Synthesis will rely on model's prior knowledge rather than paper content.")
+
+            # Step 3.5: Extract citation contexts from the body text
+            print("\nStep 3.5: Extracting citation contexts...")
+            ctx_extractor = CitationContextExtractor()
+            context_map = ctx_extractor.extract_contexts(text, metadata.citations)
+            # Attach context strings to each Citation object so markdown_writer can use them
+            for citation in metadata.citations:
+                key = (
+                    citation.doi
+                    or citation.title
+                    or (citation.raw_text[:50] if citation.raw_text else None)
+                )
+                if key and key in context_map:
+                    citation.contexts = [c.context_text for c in context_map[key]]
+            n_ctx = sum(1 for c in metadata.citations if c.contexts)
+            print(f"  ✓ Found contexts for {n_ctx}/{len(metadata.citations)} citations")
+            formatted_contexts = ctx_extractor.format_contexts_for_synthesis(context_map)
+
             # Step 4: Generate synthesis with Claude
             print("\nStep 4: Generating AI synthesis...")
-            synthesis = self.synthesis_gen.generate_quick_synthesis(text, metadata)
+            synthesis = self.synthesis_gen.generate_quick_synthesis(
+                text, metadata, citation_contexts=formatted_contexts
+            )
             print(f"  ✓ Generated synthesis (cost: ${synthesis.cost_usd:.4f})")
             
             # Step 5: Write Obsidian note
