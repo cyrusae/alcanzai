@@ -10,7 +10,8 @@ import yaml
 from pathlib import Path
 
 from paper_library.markdown_writer import MarkdownWriter
-from paper_library.models import PaperMetadata, Synthesis, Citation
+from paper_library.models import PaperMetadata, ArticleMetadata, Synthesis, Citation
+from datetime import datetime
 
 
 class TestMarkdownWriterPaper:
@@ -62,6 +63,111 @@ class TestMarkdownWriterPaper:
         assert frontmatter is not None
         assert frontmatter["title"] == "Attention Is All You Need"
         assert frontmatter["year"] == 2017
+
+
+class TestSourceNoteMarkdown:
+    """Tests for source_note_markdown() — the separate raw-content note."""
+
+    def test_source_note_has_frontmatter(self):
+        md = MarkdownWriter.source_note_markdown("My Paper", "raw text here", "pdf_text")
+        assert md.startswith("---")
+        assert 'type: "source"' in md
+        assert 'source_type: "pdf_text"' in md
+
+    def test_source_note_contains_content(self):
+        content = "This is the full extracted text of the paper."
+        md = MarkdownWriter.source_note_markdown("My Paper", content, "pdf_text")
+        assert content in md
+
+    def test_source_note_web_content_type(self):
+        md = MarkdownWriter.source_note_markdown("An Article", "article text", "web_content")
+        assert 'source_type: "web_content"' in md
+
+    def test_source_note_title_in_frontmatter(self):
+        md = MarkdownWriter.source_note_markdown("Attention Is All You Need", "text", "pdf_text")
+        assert "Attention Is All You Need" in md
+
+
+class TestPaperSourceNoteLink:
+    """Tests that paper_to_markdown() includes the source note wikilink."""
+
+    @pytest.fixture
+    def sample_metadata(self):
+        return PaperMetadata(
+            title="Attention Is All You Need",
+            authors=["Vaswani, Ashish"],
+            year=2017,
+            abstract="The dominant sequence transduction models...",
+        )
+
+    @pytest.fixture
+    def sample_synthesis(self):
+        return Synthesis(
+            summary="Transformer architecture.",
+            why_you_cared="Foundation for LLMs.",
+            key_concepts=["transformers"],
+            memorable_quote="Attention is all you need.",
+            cost_usd=0.001,
+        )
+
+    def test_source_note_link_appears_when_provided(self, sample_metadata, sample_synthesis):
+        md = MarkdownWriter.paper_to_markdown(
+            sample_metadata, sample_synthesis,
+            source_note_name="Vaswani et al (2017) - Attention Is All You Need - Source"
+        )
+        assert "[[Vaswani et al (2017) - Attention Is All You Need - Source]]" in md
+        assert "## Source Text" in md
+
+    def test_no_source_section_when_name_not_given(self, sample_metadata, sample_synthesis):
+        md = MarkdownWriter.paper_to_markdown(sample_metadata, sample_synthesis)
+        assert "## Source Text" not in md
+
+
+class TestArticleSourceNoteLink:
+    """Tests that article_to_markdown() uses a wikilink instead of embedded content."""
+
+    @pytest.fixture
+    def sample_article_metadata(self):
+        return ArticleMetadata(
+            title="Understanding Transformers",
+            authors=["Jane Doe"],
+            url="https://example.com/article",
+            published_date=datetime(2024, 3, 15),
+            publisher="Example Blog",
+        )
+
+    @pytest.fixture
+    def sample_synthesis(self):
+        return Synthesis(
+            summary="Great article on transformers.",
+            why_you_cared="Very educational.",
+            key_concepts=["transformers"],
+            memorable_quote="Transformers changed everything.",
+            cost_usd=0.001,
+        )
+
+    def test_source_link_replaces_embedded_content(self, sample_article_metadata, sample_synthesis):
+        md = MarkdownWriter.article_to_markdown(
+            sample_article_metadata, sample_synthesis,
+            source_note_name="Jane Doe (2024) - Understanding Transformers - Source"
+        )
+        assert "[[Jane Doe (2024) - Understanding Transformers - Source]]" in md
+        assert "## Source Text" in md
+        # The raw content string itself must NOT be embedded directly
+        assert "## Original Content" not in md
+
+    def test_no_source_section_when_name_not_given(self, sample_article_metadata, sample_synthesis):
+        md = MarkdownWriter.article_to_markdown(sample_article_metadata, sample_synthesis)
+        assert "## Source Text" not in md
+
+    def test_article_still_has_synthesis_sections(self, sample_article_metadata, sample_synthesis):
+        md = MarkdownWriter.article_to_markdown(
+            sample_article_metadata, sample_synthesis,
+            source_note_name="Some - Source"
+        )
+        assert "## Quick Refresh" in md
+        assert "## Why You Cared" in md
+        assert "## Key Concepts" in md
 
 
 class TestMarkdownFilenameGeneration:

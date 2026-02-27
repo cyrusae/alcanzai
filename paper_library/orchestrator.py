@@ -83,6 +83,10 @@ class PaperProcessor:
         self.synthesis_gen = SynthesisGenerator(config.anthropic_api_key)
         self.markdown_writer = MarkdownWriter()
 
+        # Source notes directory (raw PDF text / web article content)
+        self.sources_dir = config.vault_path / "Sources"
+        self.sources_dir.mkdir(parents=True, exist_ok=True)
+
     def process(self, identifier: str, force: bool = False) -> bool:
         """
         Process a single paper or article from any source.
@@ -358,10 +362,19 @@ class PaperProcessor:
         )
         print(f"  ✓ Generated synthesis (cost: ${synthesis.cost_usd:.4f})")
 
-        # Step 5: Write vault note
+        # Step 5: Write vault note + source note
         print("\nStep 5: Writing Obsidian note...")
-        markdown = self.markdown_writer.paper_to_markdown(metadata, synthesis)
         filename = self.markdown_writer.generate_filename(metadata)
+
+        # Write source note (raw PDF text) to vault/Sources/
+        source_note_name = filename + " - Source"
+        source_md = self.markdown_writer.source_note_markdown(
+            metadata.title, text, "pdf_text"
+        )
+        (self.sources_dir / f"{source_note_name}.md").write_text(source_md, encoding="utf-8")
+        print(f"  ✓ Source text written to Sources/{source_note_name}.md")
+
+        markdown = self.markdown_writer.paper_to_markdown(metadata, synthesis, source_note_name=source_note_name)
         output_dir = self.config.papers_dir
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{filename}.md"
@@ -429,10 +442,19 @@ class PaperProcessor:
         synthesis = self.synthesis_gen.generate_quick_synthesis(content, metadata)
         print(f"  ✓ Generated synthesis (cost: ${synthesis.cost_usd:.4f})")
 
-        # Step 3: Write vault note
+        # Step 3: Write vault note + source note
         print("\nStep 3: Writing Obsidian note...")
-        markdown = self.markdown_writer.article_to_markdown(metadata, synthesis, content)
         filename = self.markdown_writer.generate_filename(metadata)
+
+        # Write source note (raw web content) to vault/Sources/
+        source_note_name = filename + " - Source"
+        source_md = self.markdown_writer.source_note_markdown(
+            metadata.title, content, "web_content"
+        )
+        (self.sources_dir / f"{source_note_name}.md").write_text(source_md, encoding="utf-8")
+        print(f"  ✓ Source text written to Sources/{source_note_name}.md")
+
+        markdown = self.markdown_writer.article_to_markdown(metadata, synthesis, source_note_name=source_note_name)
         output_dir = self.config.articles_dir
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{filename}.md"
