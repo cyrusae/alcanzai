@@ -1,6 +1,6 @@
 ---
 name: quick-summary
-description: Generate accessible quick summaries of academic papers. Use when creating coffee-chat style synthesis notes with four structured sections: summary, why-you-cared, key concepts, and memorable quote.
+description: Generate accessible quick summaries of academic papers. Use when creating coffee-chat style synthesis notes with four structured sections — summary, why-you-cared, key concepts, and memorable quote.
 ---
 
 # Quick Summary

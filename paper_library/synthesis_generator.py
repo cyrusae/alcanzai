@@ -70,8 +70,12 @@ class SynthesisGenerator:
 
     MODEL = "claude-haiku-4-5"
 
-    # Beta required for skills API
+    # Betas and tools required for skills API
+    # Skills run inside a code execution container — code_execution tool is required
+    # even when skills don't execute scripts.
     SKILLS_BETA = "skills-2025-10-02"
+    CODE_EXECUTION_BETA = "code-execution-2025-08-25"
+    CODE_EXECUTION_TOOL = {"type": "code_execution_20250825", "name": "code_execution"}
 
     def __init__(self, api_key: str):
         """
@@ -124,12 +128,16 @@ class SynthesisGenerator:
         response = self.client.beta.messages.create(
             model=self.MODEL,
             max_tokens=max_tokens,
-            betas=[self.SKILLS_BETA],
+            betas=[self.CODE_EXECUTION_BETA, self.SKILLS_BETA],
             container={"skills": skill_containers},
+            tools=[self.CODE_EXECUTION_TOOL],
             messages=[{"role": "user", "content": message}],
         )
 
-        response_text = response.content[0].text
+        # The model reads skill files first (multi-step), then produces output.
+        # The synthesis XML is in the last text block, not the first.
+        text_blocks = [block.text for block in response.content if hasattr(block, "text")]
+        response_text = text_blocks[-1] if text_blocks else ""
         synthesis_data = self._parse_quick_synthesis_response(response_text)
 
         cost = self._calculate_cost(
@@ -210,7 +218,7 @@ Use the quick-summary skill format with <summary>, <why_you_cared>, <key_concept
             Research area string
         """
         title_lower = metadata.title.lower()
-        venue_lower = getattr(metadata, "venue", "").lower() if hasattr(metadata, "venue") else ""
+        venue_lower = (getattr(metadata, "venue", None) or "").lower()
 
         keywords = {
             "machine learning": ["neural", "learning", "model", "training", "deep"],
@@ -345,12 +353,15 @@ Use the detailed-summary skill format with <detailed_summary> XML tags."""
         response = self.client.beta.messages.create(
             model=self.MODEL,
             max_tokens=max_tokens,
-            betas=[self.SKILLS_BETA],
+            betas=[self.CODE_EXECUTION_BETA, self.SKILLS_BETA],
             container={"skills": skill_containers},
+            tools=[self.CODE_EXECUTION_TOOL],
             messages=[{"role": "user", "content": message}],
         )
 
-        return response.content[0].text
+        # Model reads skill files first (multi-step), output is in the last text block
+        text_blocks = [block.text for block in response.content if hasattr(block, "text")]
+        return text_blocks[-1] if text_blocks else ""
 
     def generate_glossary(
         self,
@@ -407,11 +418,15 @@ Use the glossary-extraction skill format with <glossary> XML tags."""
         response = self.client.beta.messages.create(
             model=self.MODEL,
             max_tokens=max_tokens,
-            betas=[self.SKILLS_BETA],
+            betas=[self.CODE_EXECUTION_BETA, self.SKILLS_BETA],
             container={"skills": skill_containers},
+            tools=[self.CODE_EXECUTION_TOOL],
             messages=[{"role": "user", "content": message}],
         )
 
+        for block in response.content:
+            if hasattr(block, "text"):
+                return block.text
         return response.content[0].text
 
 
