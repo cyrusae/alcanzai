@@ -362,19 +362,13 @@ class PaperProcessor:
         )
         print(f"  ✓ Generated synthesis (cost: ${synthesis.cost_usd:.4f})")
 
-        # Step 5: Write vault note + source note
+        # Step 5: Write vault note
+        # Source notes are NOT written for PDFs: the vault/PDFs/ file is already
+        # the source of truth, and the Details section links to it directly.
+        # (Source notes are reserved for web articles that have no saved binary.)
         print("\nStep 5: Writing Obsidian note...")
         filename = self.markdown_writer.generate_filename(metadata)
-
-        # Write source note (raw PDF text) to vault/Sources/
-        source_note_name = filename + " - Source"
-        source_md = self.markdown_writer.source_note_markdown(
-            metadata.title, text, "pdf_text"
-        )
-        (self.sources_dir / f"{source_note_name}.md").write_text(source_md, encoding="utf-8")
-        print(f"  ✓ Source text written to Sources/{source_note_name}.md")
-
-        markdown = self.markdown_writer.paper_to_markdown(metadata, synthesis, source_note_name=source_note_name)
+        markdown = self.markdown_writer.paper_to_markdown(metadata, synthesis)
         output_dir = self.config.papers_dir
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{filename}.md"

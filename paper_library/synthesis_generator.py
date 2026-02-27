@@ -197,9 +197,17 @@ class SynthesisGenerator:
             getattr(metadata, "published_date", None) and metadata.published_date.year
         ) or "Unknown"
 
-        # Include citation contexts if extracted (helps ground why_you_cared)
+        # Include citation contexts if extracted (helps ground why_you_cared).
+        # Hard cap at ~10 k chars (~2 500 tokens) so we can't blow the 200 k
+        # context limit even for papers with dense numeric citation lists.
         context_section = ""
         if citation_contexts and citation_contexts != "No citation contexts extracted.":
+            MAX_CONTEXT_CHARS = 10_000
+            if len(citation_contexts) > MAX_CONTEXT_CHARS:
+                # Trim at a newline boundary so we don't cut mid-entry
+                cutoff = citation_contexts.rfind("\n", 0, MAX_CONTEXT_CHARS)
+                citation_contexts = citation_contexts[: cutoff if cutoff != -1 else MAX_CONTEXT_CHARS]
+                citation_contexts += "\n\n...(citation contexts truncated)"
             context_section = f"""
 Citation contexts (how this paper uses its key sources):
 ---
