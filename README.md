@@ -37,6 +37,9 @@ pip install -e .
 # Set up configuration
 cp .env.example .env
 # Edit .env with your API key and vault path
+# ANTHROPIC_API_KEY=...
+# VAULT_PATH=...
+# CROSSREF_EMAIL=you@example.com   # optional but recommended for Crossref/Unpaywall polite pools
 
 # Start GROBID service
 docker-compose up -d
@@ -77,8 +80,9 @@ alcanzai/
 │   ├── synthesis_generator.py # Claude integration
 │   ├── markdown_writer.py     # Obsidian note formatting
 │   ├── arxiv_fetcher.py       # arXiv API integration
-│   ├── doi_fetcher.py         # DOI resolution -- TODO
-│   ├── web_fetcher.py         # Web article fetching -- TODO
+│   ├── doi_fetcher.py         # DOI resolution via Crossref + Unpaywall/Semantic Scholar
+│   ├── web_fetcher.py         # Web article fetching (HTML, Distill sites, PDF-from-URL)
+│   ├── citation_context.py    # CitationContextExtractor: regex citation matching + context sentences
 │   ├── batch_process.py       # Wrapper function on orchestrator to handle batched files
 │   └── orchestrator.py        # Main processing pipeline
 ├── docker-compose.yml         # GROBID service
@@ -103,17 +107,17 @@ alcanzai/
 - [x] Orchestrator
 - [x] Wrapper function for batch processing
 
-**v0.1.5** (Next!)
-- Containerize (devcontainer)
-- DOI fetcher
-- Web fetcher
-- CLI interface
-- Error handling & retry logic
+**Current state** (all implemented)
+- [x] DOI fetcher (Crossref metadata + Unpaywall/Semantic Scholar OA PDF)
+- [x] Web fetcher (HTML articles, Distill framework sites, PDF-from-URL routing)
+- [x] CLI interface (`alcanzai ingest`, `batch`, `stats`, `validate`)
+- [x] Citation context extraction (regex-matched sentences around each citation)
+- [x] Full branching pipeline: arXiv / DOI / web URL / PDF URL / local PDF
 
 **v0.2+** (Future)
-- Annotated PDF support
-- Integrate OCR!
-- Detailed section-by-section summaries
+- PDF link finder for landing pages (e.g. PhilArchive abstract pages with download links)
+- OCR for scanned PDFs (OCRmyPDF + Unpaper)
+- Detailed section-by-section summaries (on-demand)
 - Author pages
 - Advanced citation graph features
 - Move to self-hosted always-on GROBID server
@@ -164,11 +168,16 @@ Or move to a devcontainer (TODO: move to devcontainer!) to avoid this in future!
 # Delete the old note first if needed (exact titles will be overwritten)
 rm vault/Papers/Vaswani*.md
 
-# Delete from state so it processes fresh
-# (or just use force=True in the code)
-
-# Run again
-python tests/test_pipeline.py 1706.03762
+# Run again with --force to bypass dedup check
+alcanzai ingest --force 1706.03762
 ```
+
+### Apple Silicon / GROBID
+
+`grobid/grobid:0.8.2` is an AMD64-only image. Under QEMU emulation on Apple Silicon, the default DeLFT models use TensorFlow, which crashes with signal 6 because AVX instructions are not emulated.
+
+The fix is already in place: `grobid.yaml` at the project root forces all 19 GROBID models to `engine: "wapiti"` (no DeLFT/TensorFlow). It is mounted into the container via `docker-compose.yml`. As long as you use `docker-compose up -d`, this config is applied automatically and GROBID works correctly on Apple Silicon.
+
+If you ever rebuild the GROBID container from scratch and see crashes in GROBID logs, verify that `./grobid.yaml` is present and that the volume mount in `docker-compose.yml` is intact.
 
 ### TODO: Continue adding gotchas...

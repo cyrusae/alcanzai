@@ -42,24 +42,46 @@ black .
 When testing, "Attention Is All You Need" (arXiv `1706.03762`) is the canonical test paper. To reset it for fresh processing:
 ```bash
 rm vault/Papers/Vaswani*.md
-# Then run with force=True
+alcanzai ingest --force 1706.03762
 ```
 
 ## Architecture
 
 ### Pipeline Flow
 
-Every paper goes through these steps in `orchestrator.py → PaperProcessor.process()`:
+`orchestrator.py → PaperProcessor.process()` routes inputs through a branching pipeline:
 
 ```
-identifier (arXiv ID or file path)
-  → _fetch_paper()        # arxiv_fetcher.py: hits arXiv API + downloads PDF
-  → grobid.process()      # grobid_processor.py: sends PDF to GROBID, parses TEI XML
-  → _merge_metadata()     # prefers GROBID fields; keeps arXiv ID from fetcher
-  → _extract_text()       # pdfplumber extracts text from PDF
-  → synthesis_gen.generate_quick_synthesis()  # calls Claude Haiku
-  → markdown_writer.paper_to_markdown()       # renders Obsidian note
-  → writes to vault/Papers/<filename>.md
+identifier
+  → _fetch_paper()
+      arXiv ID       → arxiv_fetcher.py → PDF + metadata
+      DOI            → doi_fetcher.py → metadata (+ PDF if OA found)
+      PDF URL        → web_fetcher.py → downloads PDF → paper path
+      Web article    → web_fetcher.py → ArticleMetadata + content
+      Local PDF      → stub PaperMetadata
+
+  → if paper path (arXiv / DOI+PDF / local / pdf-from-URL):
+      → _process_paper()
+          → grobid.process()          # grobid_processor.py: PDF → TEI XML → PaperMetadata + Citations
+          → _merge_metadata()         # prefers GROBID fields; keeps arXiv ID from fetcher
+          → _extract_text()           # pdfplumber extracts body text
+          → citation_context.extract_contexts()   # step 3.5: attaches context sentences to Citations
+          → synthesis_gen.generate_quick_synthesis()
+          → markdown_writer.paper_to_markdown()
+          → writes to vault/Papers/<filename>.md
+
+  → if article path (HTML web article):
+      → _process_article()
+          → synthesis_gen.generate_quick_synthesis()
+          → markdown_writer.article_to_markdown()
+          → writes to vault/Articles/<filename>.md
+
+  → if doi_only path (DOI with no OA PDF found):
+      → _process_doi_only()
+          → synthesis on Crossref abstract text only
+          → markdown_writer.paper_to_markdown()
+          → writes to vault/Papers/<filename>.md (noted as abstract-only)
+
   → state.mark_processed()  # saves to vault/_meta/processing_state.json
 ```
 
@@ -67,15 +89,18 @@ identifier (arXiv ID or file path)
 
 | File | Purpose |
 |------|---------|
-| `orchestrator.py` | Main `PaperProcessor` class; coordinates entire pipeline |
+| `orchestrator.py` | Main `PaperProcessor` class; branching pipeline: paper / article / doi_only paths |
 | `arxiv_fetcher.py` | Fetches metadata from arXiv API + downloads PDF to `vault/PDFs/` |
+| `doi_fetcher.py` | Resolves DOIs via Crossref (metadata) + Unpaywall → Semantic Scholar (OA PDF). Returns `PaperMetadata` + optional local `pdf_path`. |
+| `web_fetcher.py` | Fetches HTML articles (OG tag extraction, markdownify); detects Distill-framework sites (`d-article`); downloads PDFs from URLs; blocks unsupported hosts. |
+| `citation_context.py` | `CitationContextExtractor`: regex-matches narrative and parenthetical citations in body text; strips bibliography before matching; attaches context sentences to `Citation.contexts[]` |
 | `grobid_processor.py` | Sends PDF to GROBID (Docker), parses TEI XML into `PaperMetadata` + `Citation` list; includes heuristic garbage-score filter for bad citations (threshold >60) |
-| `synthesis_generator.py` | Calls `claude-haiku-4-5` via skills API; parses XML-tagged response into `Synthesis` model. Accepts optional `register` config dict. |
+| `synthesis_generator.py` | Calls `claude-haiku-4-5` via skills API; parses XML-tagged response into `Synthesis` model. Accepts optional `register` config dict and `citation_contexts`. |
 | `skills_manager.py` | Uploads SKILL.md directories to Anthropic's skills API; caches skill IDs in `skills/skill_ids.json` |
-| `markdown_writer.py` | Renders YAML frontmatter + Obsidian-formatted note from metadata + synthesis |
+| `markdown_writer.py` | Renders YAML frontmatter + Obsidian-formatted note from metadata + synthesis; citation contexts rendered as blockquotes in Cites section |
 | `state.py` | `StateManager` loads/saves `processing_state.json`; deduplicates by arXiv ID / DOI / URL |
-| `models.py` | Pydantic models: `BibliographicEntry` → `Citation` / `PaperMetadata`; `ArticleMetadata`; `Synthesis`; `ProcessingState` |
-| `config.py` | Loads `.env`; exposes `vault_path`, `papers_dir`, `pdfs_dir`, `grobid_url`, `anthropic_api_key` |
+| `models.py` | Pydantic models: `BibliographicEntry` → `Citation` / `PaperMetadata`; `ArticleMetadata`; `Synthesis`; `ProcessingState`. `Citation` has `contexts: list[str]`; `ArticleMetadata` has `pdf_path: Optional[str]`. |
+| `config.py` | Loads `.env`; exposes `vault_path`, `papers_dir`, `pdfs_dir`, `grobid_url`, `anthropic_api_key`, `crossref_email` |
 | `batch_process.py` | Wrapper around `PaperProcessor` for processing lists of identifiers from a file |
 
 ### Data Models
@@ -116,15 +141,18 @@ Register configuration controls writing style independently on three axes:
 
 ### External Services
 
-- **GROBID** runs via `docker-compose.yml` on port 8070. The API endpoint used is `/api/processFulltextDocument`. Timeout is 5 minutes per PDF.
+- **GROBID** runs via `docker-compose.yml` on port 8070 using `grobid/grobid:0.8.2`. The API endpoint used is `/api/processFulltextDocument`. Timeout is 5 minutes per PDF.
+  - **Apple Silicon**: `grobid/grobid:0.8.2` is AMD64-only. The bundled `grobid.yaml` forces all models to `engine: "wapiti"` (no DeLFT/TensorFlow), avoiding AVX crashes under QEMU. Already configured via the `docker-compose.yml` volume mount.
 - **Anthropic API** uses `claude-haiku-4-5` (note: no date suffix). Synthesis uses the skills API; responses use XML-style tags for structured output parsing.
+- **Crossref REST API** for DOI metadata. Set `CROSSREF_EMAIL` in `.env` to join the polite pool (faster rate limits).
+- **Unpaywall / Semantic Scholar** for open-access PDF discovery. Unpaywall also uses `CROSSREF_EMAIL` as the contact email.
 
 ### Vault Structure
 
 ```
 vault/
 ├── Papers/          # Academic paper notes (.md)
-├── Articles/        # Web article notes (.md)  [not yet fully implemented]
+├── Articles/        # Web article notes (.md)
 ├── PDFs/            # Downloaded PDFs (arxiv_<id>.pdf)
 └── _meta/
     └── processing_state.json
@@ -132,7 +160,10 @@ vault/
 
 ### What's Not Yet Implemented
 
-`doi_fetcher.py` and `web_fetcher.py` exist as stubs/partial implementations. The orchestrator currently only supports arXiv IDs and local PDF paths.
+- **PDF link finder for landing pages**: sites like PhilArchive show an abstract page with a PDF download link but no direct PDF URL. The pipeline cannot yet discover and follow that link.
+- **OCR for scanned PDFs**: planned via OCRmyPDF + Unpaper preprocessing before GROBID.
+- **Detailed section-by-section summaries**: the `detailed-summary` skill exists but on-demand invocation is not yet wired up.
+- **Author pages**: citation wikilinks are written as future notes; no author-level aggregation yet.
 
 ## Code Style
 

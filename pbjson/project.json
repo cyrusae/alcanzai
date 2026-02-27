@@ -21,7 +21,11 @@
     "2026-01-10 - Citation and PaperMetadata should share a common BibliographicEntry base class - they're the same type of object (bibliographic references) with different use contexts",
     "2026-01-10 - Garbage detection should use soft suspicion modifiers for years, not hard boundaries - avoid breaking humanities citations or future cutting-edge work (2028+ thesis prep)",
     "2026-01-10 - Garbage detection caps should be raised when multiple signals from same category fire (e.g., 4 bio signals = 80 point cap instead of 60)",
-    "2026-02-26 - legacy script-style tests moved to tests/legacy/ and excluded from pytest discovery (norecursedirs); superseded by proper pytest equivalents"
+    "2026-02-26 - legacy script-style tests moved to tests/legacy/ and excluded from pytest discovery (norecursedirs); superseded by proper pytest equivalents",
+    "2026-02-27 - DOI resolution chain: Crossref for metadata, Unpaywall primary for OA PDF, Semantic Scholar fallback - no crawling needed for most papers",
+    "2026-02-27 - doi_only pipeline path: when no OA PDF found, synthesize from Crossref abstract and write to vault/Papers/ with note that it's abstract-only",
+    "2026-02-27 - GROBID on Apple Silicon: force engine:wapiti for all models via mounted config - avoids TF/DeLFT AVX crash under QEMU; filed bug with grobid/grobid project",
+    "2026-02-27 - Web article content saved as Original Content section in note (long-term storage approach TBD)"
   ],
   "what_we_built": [
     "2026-01-08 - config.py - config management from env vars (ANTHROPIC_API_KEY, GROBID_URL, VAULT_PATH, derived paths)",
@@ -67,10 +71,19 @@
     "2026-01-10 - Increased synthesis text cutoff from 50k to 100k chars (~25k tokens) - plenty of room for long papers after bibliography removal",
     "2026-02-26 - ci-cd integration complete - pytest suite (19 unit tests, integration tests marked), CLI (alcanzai ingest/batch/stats/validate), pre-commit hooks, devcontainer, pyproject.toml scripts entry (as 326510b on claude branch)",
     "2026-02-26 - project",
-    "2026-02-26 - project"
+    "2026-02-26 - project",
+    "2026-02-27 - citation_context.py - CitationContextExtractor with regex patterns for narrative/parenthetical citations, bibliography stripping, context sentence extraction, synthesis formatting",
+    "2026-02-27 - web_fetcher.py (complete) - WebFetcher with HTML parsing, OG tag extraction, markdownify conversion, Distill d-article support, PDF-from-URL download and routing, unsupported host blocking",
+    "2026-02-27 - doi_fetcher.py - DoiFetcher: parse_doi() for all DOI formats, Crossref metadata (JATS XML stripped), Unpaywall + Semantic Scholar OA PDF discovery, PDF download with magic byte validation",
+    "2026-02-27 - orchestrator.py rewritten - branching pipeline: paper path (arXiv/DOI+PDF/local/pdf-from-URL) vs article path (HTML) vs doi_only path (abstract-only synthesis); citation context extraction wired as step 3.5",
+    "2026-02-27 - grobid.yaml - custom GROBID config forcing all 19 models to engine:wapiti; modelPreload:false; workaround for AMD64 TensorFlow AVX crash under QEMU on Apple Silicon",
+    "2026-02-27 - docker-compose.yml updated to grobid/grobid:0.8.2 with grobid.yaml volume mount",
+    "2026-02-27 - models.py - Citation.contexts[] field for extracted citation context sentences; ArticleMetadata.pdf_path for PDF-from-URL routing",
+    "2026-02-27 - config.py - CROSSREF_EMAIL optional env var for Crossref/Unpaywall polite pools",
+    "2026-02-27 - test_citation_context.py (17 tests), test_web_fetcher.py (38+2 tests), test_doi_fetcher.py (43+1 tests) - full unit test coverage for new modules",
+    "2026-02-27 - 115 unit tests passing; 26 integration tests skipped by default (require GROBID + API key)"
   ],
   "what_we_need_to_decide": [
-    "2026-01-08 - Obsidian output formatting - needs troubleshooting/verification",
     "2026-01-08 - Batch file format sophistication - markdown bullet handling, inline comments, multi-format support (Obsidian notes as input?)",
     "2026-01-08 - Synthesis caching/optimization - separate system prompt from per-paper instructions, enable chat-with-paper without regenerating base summary",
     "2026-01-08 - Deduplication strategy - skip re-synthesis if note exists, only regenerate for new content (section-by-section summaries, annotations)",
@@ -117,7 +130,11 @@
     "2026-01-10 - v0.1.0 MVP COMPLETE - ready to process 24 arXiv papers, all core functionality working, comprehensive filtering in place",
     "2026-01-10 - Scoring system uses: baseline trust from parsed fields (author+year), mutually-exclusive garbage categories (algo/math/figure/bio), strong weighting for + and = operators",
     "2026-01-10 - Current Citation model only stores authors/title/year/doi - GROBID extracts venue/volume/pages but we're throwing that data away during citation extraction",
-    "2026-01-10 - User background: Victorianist (19th century lit) - citations routinely go back 50-100+ years, classics/medieval even older. System must handle humanities citation patterns, not just recent CS/AI papers"
+    "2026-01-10 - User background: Victorianist (19th century lit) - citations routinely go back 50-100+ years, classics/medieval even older. System must handle humanities citation patterns, not just recent CS/AI papers",
+    "2026-02-27 - grobid/grobid:0.8.2 is AMD64-only, crashes on Apple Silicon under QEMU due to TF AVX instructions. Workaround: grobid.yaml with all models as engine:wapiti mounted into container. Bug filed.",
+    "2026-02-27 - transformer-circuits.pub and distill.pub use Distill framework with d-article custom elements - required adding to web_fetcher content extraction",
+    "2026-02-27 - PhilArchive and similar sites have abstract pages with PDF download links but no direct PDF URL - needs PDF link finder (not yet implemented)",
+    "2026-02-27 - CROSSREF_EMAIL in .env enables polite pool for Crossref REST API and Unpaywall - optional but recommended"
   ],
   "what_we_resolved": [
     "2026-01-06 - Paper ingestion pipeline architecture \u00e2\u2020\u2019 Decided: GROBID full processing with OCRmyPDF preprocessing for scanned materials, citation extraction deferred to Phase 2",
