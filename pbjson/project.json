@@ -20,7 +20,8 @@
     "2026-01-08 - Use real GROBID calls for testing (not mocks) - easier integration debugging",
     "2026-01-10 - Citation and PaperMetadata should share a common BibliographicEntry base class - they're the same type of object (bibliographic references) with different use contexts",
     "2026-01-10 - Garbage detection should use soft suspicion modifiers for years, not hard boundaries - avoid breaking humanities citations or future cutting-edge work (2028+ thesis prep)",
-    "2026-01-10 - Garbage detection caps should be raised when multiple signals from same category fire (e.g., 4 bio signals = 80 point cap instead of 60)"
+    "2026-01-10 - Garbage detection caps should be raised when multiple signals from same category fire (e.g., 4 bio signals = 80 point cap instead of 60)",
+    "2026-02-26 - legacy script-style tests moved to tests/legacy/ and excluded from pytest discovery (norecursedirs); superseded by proper pytest equivalents"
   ],
   "what_we_built": [
     "2026-01-08 - config.py - config management from env vars (ANTHROPIC_API_KEY, GROBID_URL, VAULT_PATH, derived paths)",
@@ -63,7 +64,10 @@
     "2026-01-10 - Escape angle brackets in synthesis output - prevents markdown from treating <placeholders> as HTML tags and stripping them",
     "2026-01-10 - Fixed YAML frontmatter tags - append each tag as separate line to prevent malformed YAML (was joining into single string with embedded newlines)",
     "2026-01-10 - Bibliography removal heuristic in text extraction - detects common 'References' headers and truncates if found in latter 50% of paper",
-    "2026-01-10 - Increased synthesis text cutoff from 50k to 100k chars (~25k tokens) - plenty of room for long papers after bibliography removal"
+    "2026-01-10 - Increased synthesis text cutoff from 50k to 100k chars (~25k tokens) - plenty of room for long papers after bibliography removal",
+    "2026-02-26 - ci-cd integration complete - pytest suite (19 unit tests, integration tests marked), CLI (alcanzai ingest/batch/stats/validate), pre-commit hooks, devcontainer, pyproject.toml scripts entry (as 326510b on claude branch)",
+    "2026-02-26 - project",
+    "2026-02-26 - project"
   ],
   "what_we_need_to_decide": [
     "2026-01-08 - Obsidian output formatting - needs troubleshooting/verification",
