@@ -15,6 +15,7 @@ Python concepts:
 
 import re
 from dataclasses import dataclass, field
+from typing import Optional
 
 from paper_library.models import Citation
 
@@ -40,11 +41,13 @@ class CitationContextExtractor:
     """
     Extract contexts where citations are mentioned in paper text.
 
-    Handles two citation formats:
-    - Narrative: "Smith et al. (2023) show that..."
+    Handles three citation formats:
+    - Numeric:       "[3]" or "[1, 3, 5]" — common in CS/ML papers (arXiv)
+    - Narrative:     "Smith et al. (2023) show that..."
     - Parenthetical: "...attention mechanisms (Vaswani et al., 2017)."
 
-    Numeric citations ([42]) are not yet supported.
+    Numeric matching uses each citation's 1-based position in the bibliography
+    list, which corresponds to the `[N]` marker used in the paper body.
 
     Usage:
         extractor = CitationContextExtractor()
@@ -82,8 +85,8 @@ class CitationContextExtractor:
 
         all_contexts: dict[str, list[CitationContext]] = {}
 
-        for citation in citations:
-            patterns = self._build_citation_patterns(citation)
+        for idx, citation in enumerate(citations):
+            patterns = self._build_citation_patterns(citation, index=idx)
             if not patterns:
                 continue  # Can't build patterns without author+year
 
@@ -220,20 +223,42 @@ class CitationContextExtractor:
         return text[:earliest]
 
     def _build_citation_patterns(
-        self, citation: Citation
+        self,
+        citation: Citation,
+        index: Optional[int] = None,
     ) -> list[tuple[str, str]]:
         """
         Build regex patterns to find in-text mentions of this citation.
 
         Returns list of (pattern, mention_type) tuples.
-        mention_type is "narrative" or "parenthetical".
+        mention_type is "narrative", "parenthetical", or "numeric".
+
+        Args:
+            citation: The citation object.
+            index:    0-based position in the bibliography list.  When provided,
+                      a numeric pattern ``[N]`` (1-based) is added.  This covers
+                      the bracket-style citations used in most CS/ML papers.
         """
+        patterns = []
+
+        # --- Numeric style: [N], [1, N, 3], etc. ---
+        # Works regardless of whether author/year fields were parsed.
+        if index is not None:
+            n = index + 1  # bibliography is 1-based
+            # Match [N] as a standalone number or inside a comma-separated list.
+            # \b ensures we don't match [30] when looking for [3].
+            patterns.append((
+                rf'\[([^\]]*\b{n}\b[^\]]*)\]',
+                "numeric",
+            ))
+
+        # --- Author-year styles ---
+        # These only fire when GROBID successfully parsed author + year.
         if not citation.authors or not citation.year:
-            return []
+            return patterns  # return numeric-only if fields missing
 
         last_name = citation.authors[0].split(",")[0].strip()
         year = str(citation.year)
-        patterns = []
 
         if len(citation.authors) > 2:
             # Narrative: "Smith et al. (2023)"

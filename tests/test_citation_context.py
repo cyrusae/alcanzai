@@ -125,7 +125,7 @@ class TestExtractContexts:
 
     def test_mention_type_is_valid(self, extractor, vaswani, bahdanau, devlin):
         contexts = extractor.extract_contexts(SAMPLE_TEXT, [vaswani, bahdanau, devlin])
-        valid_types = {"narrative", "parenthetical"}
+        valid_types = {"narrative", "parenthetical", "numeric"}
         for ctx_list in contexts.values():
             for c in ctx_list:
                 assert c.mention_type in valid_types
@@ -214,6 +214,106 @@ class TestFormatContexts:
         result = extractor.format_contexts_for_synthesis(contexts)
         assert "Vaswani" in result
         assert "2017" in result
+
+
+# ---------------------------------------------------------------------------
+# Numeric citation style [N] — the dominant format in CS/ML papers
+# ---------------------------------------------------------------------------
+
+# Simulates pdfplumber output from a typical arXiv paper: no spaces between
+# word and bracket, commas inside brackets, mixed numeric + author-year styles.
+NUMERIC_TEXT = """\
+Introduction
+
+The attention mechanism was first proposed in [1]. The Transformer [2]
+eliminates recurrence entirely, relying solely on self-attention. We build
+on [1, 2] and extend the approach of [3] to multilingual settings.
+Prior work [4] showed similar improvements. Combining [2] with [3] yields
+the best performance.
+
+References
+
+[1] Bahdanau et al. Neural machine translation by jointly learning...
+[2] Vaswani et al. Attention is all you need. NeurIPS 2017.
+[3] Devlin et al. BERT: Pre-training of deep bidirectional transformers.
+[4] Radford et al. Improving language understanding by generative pre-training.
+"""
+
+
+class TestNumericCitations:
+    """Numeric [N] citation style — arXiv ML papers."""
+
+    @pytest.fixture
+    def extractor(self):
+        return CitationContextExtractor(context_sentences=2)
+
+    @pytest.fixture
+    def citations(self):
+        # Ordered list as GROBID would produce them (0-based → 1-based in text)
+        return [
+            Citation(authors=["Bahdanau, D.", "Cho, K.", "Bengio, Y."],
+                     title="Neural machine translation", year=2014),
+            Citation(authors=["Vaswani, A.", "Shazeer, N.", "Parmar, N."],
+                     title="Attention Is All You Need", year=2017),
+            Citation(authors=["Devlin, J.", "Chang, M.", "Lee, K."],
+                     title="BERT", year=2019),
+        ]
+
+    def test_finds_single_bracket_citation(self, extractor, citations):
+        """[1] alone on a line or inline should be found."""
+        contexts = extractor.extract_contexts(NUMERIC_TEXT, citations)
+        # Bahdanau is index 0 → [1]
+        key = citations[0].title
+        assert key in contexts
+
+    def test_finds_bracket_within_list(self, extractor, citations):
+        """[1, 2] should match both citation 1 and citation 2."""
+        contexts = extractor.extract_contexts(NUMERIC_TEXT, citations)
+        key0 = citations[0].title  # Bahdanau [1]
+        key1 = citations[1].title  # Vaswani  [2]
+        assert key0 in contexts
+        assert key1 in contexts
+
+    def test_mention_type_is_numeric(self, extractor, citations):
+        contexts = extractor.extract_contexts(NUMERIC_TEXT, citations)
+        for ctx_list in contexts.values():
+            for c in ctx_list:
+                assert c.mention_type == "numeric"
+
+    def test_context_contains_surrounding_text(self, extractor, citations):
+        """Context around [2] should include words from the citing sentence."""
+        contexts = extractor.extract_contexts(NUMERIC_TEXT, citations)
+        key = citations[1].title  # Vaswani [2]
+        assert key in contexts
+        combined = " ".join(c.context_text for c in contexts[key])
+        # The citing sentence mentions "Transformer" or "attention"
+        assert any(kw in combined.lower() for kw in ["transformer", "attention", "recurrence"])
+
+    def test_does_not_match_wrong_citation_number(self, extractor):
+        """[30] should not match a pattern for [3]."""
+        _placeholder = Citation(raw_text="placeholder")
+        citation_3 = Citation(
+            authors=["Some, A."], title="Citation Three", year=2020,
+        )
+        text = "Results in [30] show improvements over [3]."
+        # citation_3 is at index 2 → matches [3], not [30]
+        contexts = extractor.extract_contexts(text, [_placeholder, _placeholder, citation_3])
+        key = citation_3.title
+        assert key in contexts
+        for c in contexts[key]:
+            assert "[3]" in c.context_text or "improvements" in c.context_text
+
+    def test_citation_without_authors_still_gets_numeric_pattern(self, extractor):
+        """Even if GROBID failed to parse authors, numeric matching should work."""
+        minimal = Citation(
+            authors=None,
+            title="Minimal Citation",
+            year=None,
+            raw_text="[1] Minimal Citation.",
+        )
+        text = "The model in [1] achieves strong results on benchmarks."
+        contexts = extractor.extract_contexts(text, [minimal])
+        assert minimal.title in contexts
 
 
 # ---------------------------------------------------------------------------
