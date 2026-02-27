@@ -11,14 +11,14 @@ added: "2026-02-26"
 tags:
   - sparse-autoencoders
   - feature-circuits
-  - causal-interpretability
+  - mechanistic-interpretability
+  - causal-intervention
   - attribution-patching
   - integrated-gradients
-  - indirect-effects
-  - model-editing
-  - SHIFT
-  - language-model-circuits
-  - mechanistic-interpretability
+  - bias-mitigation
+  - model-transparency
+  - language-models
+  - neural-networks
 ---
 
 # Sparse Feature Circuits: Discovering And Editing Interpretable Causal Graphs In Language Models
@@ -26,19 +26,19 @@ tags:
 **Marks, Samuel et al.** • 2025
 
 > [!quote] Memorable Quote
-> "Sparse feature circuits enable detailed understanding of unanticipated mechanisms in neural networks."
+> "Circuits identified in prior work consist of polysemantic and difficult-to-interpret units like attention heads or neurons, rendering them unsuitable for many downstream applications."
 
 ## Quick Refresh
 
-This paper introduces methods for discovering "sparse feature circuits"—interpretable causal subgraphs within language models that explain model behavior using fine-grained, human-readable features rather than opaque neurons or attention heads. The approach uses sparse autoencoders (SAEs—unsupervised tools that decompose neural activations into interpretable sparse components) combined with linear approximations to efficiently identify which features causally drive specific behaviors. The authors demonstrate the method on subject-verb agreement tasks (where tiny circuits of ~100 features explain as much model behavior as ~1500 neurons), introduce SHIFT (a technique for debiasing classifiers by ablating features humans judge task-irrelevant), and present an unsupervised pipeline that automatically discovers thousands of narrow language model behaviors and their feature circuits.
+This paper introduces a scalable method for discovering sparse feature circuits—causally implicated subnetworks of human-interpretable features that explain language model behaviors. Rather than identifying coarse-grained components like attention heads or neurons (which are often polysemanticand hard to interpret), the authors use sparse autoencoders (SAEs) to extract fine-grained features, then employ linear approximations of causal effects (attribution patching and integrated gradients) to efficiently identify which features are causally important for specific model behaviors. They demonstrate the approach on subject-verb agreement tasks, show how it enables bias mitigation without disambiguating labels (via SHIFT), and scale it to discover thousands of circuits for automatically discovered model behaviors.
 
 ## Why You Cared
 
-You care about this because it solves a central problem in neural network interpretability: prior circuit discovery methods work at coarse granularity (attention heads, MLP layers) where individual units are "polysemantic" (performing multiple unrelated functions), making insights hard to apply. This paper shows that fine-grained feature-level circuits are both more interpretable and actionable—you can surgically remove specific learned associations without access to special "unbiased" datasets (as SHIFT demonstrates), and the method scales to thousands of automatically discovered behaviors rather than just hand-specified tasks. The technical contribution (combining SAEs with linear approximation tricks) is practically useful if you're working with mechanistic interpretability or model editing.
+You care about mechanistic interpretability—understanding how language models actually implement their behaviors rather than just predicting their outputs. This paper addresses a real bottleneck: previous circuit analysis relied on coarse-grained units (hard to interpret) or researcher-specified hypotheses (not scalable). Sparse feature circuits solve this by giving you interpretable, causal building blocks that actually enable downstream applications, like debiasing classifiers without extra labeled data. You can apply this method to understand any surprising model behavior by discovering its underlying mechanisms.
 
 ## Key Concepts
 
-`#sparse-autoencoders` `#feature-circuits` `#causal-interpretability` `#attribution-patching` `#integrated-gradients` `#indirect-effects` `#model-editing` `#SHIFT` `#language-model-circuits` `#mechanistic-interpretability`
+`#sparse-autoencoders` `#feature-circuits` `#mechanistic-interpretability` `#causal-intervention` `#attribution-patching` `#integrated-gradients` `#bias-mitigation` `#model-transparency` `#language-models` `#neural-networks`
 
 ## Cites (Key Papers)
 
@@ -69,6 +69,10 @@ You care about this because it solves a central problem in neural network interp
 ## Abstract
 
 We introduce methods for discovering and applying sparse feature circuits. These are causally implicated subnetworks of human-interpretable features for explaining language model behaviors. Circuits identified in prior work consist of polysemantic and difficult-to-interpret units like attention heads or neurons, rendering them unsuitable for many downstream applications. In contrast, sparse feature circuits enable detailed understanding of unanticipated mechanisms in neural networks. Because they are based on fine-grained units, sparse feature circuits are useful for downstream tasks: We introduce SHIFT, where we improve the generalization of a classifier by ablating features that a human judges to be taskirrelevant. Finally, we demonstrate an entirely unsupervised and scalable interpretability pipeline by discovering thousands of sparse feature circuits for automatically discovered model behaviors.
+
+## Source Text
+
+[[Marks et al (2025) - Sparse Feature Circuits - Discovering And Editing - Source]]
 
 ## Full Citation List
 

@@ -7,7 +7,18 @@ doi: "10.18653/v1/P19-1283"
 arxiv: "2406.11944"
 type: "paper"
 status: "unread"
-added: "2026-02-26"
+added: "2026-02-27"
+tags:
+  - transcoders
+  - sparse-autoencoders
+  - MLP-circuits
+  - mechanistic-interpretability
+  - input-invariant-analysis
+  - feature-sparsity
+  - faithfulness
+  - neural-network-decomposition
+  - large-language-models
+  - circuit-analysis
 ---
 
 # Transcoders Find Interpretable LLM Feature Circuits
@@ -15,32 +26,52 @@ added: "2026-02-26"
 **Dunefsky, Jacob et al.** • 2024
 
 > [!quote] Memorable Quote
-> ""
+> "To our knowledge, the transcoder-based circuit analysis method presented here is the only such approach that cleanly disentangles input-invariant information from input-dependent information."
 
 ## Quick Refresh
 
-
+Transcoders are sparse, interpretable approximations of MLP (feedforward) layers in transformers—wider networks with fewer active features than the original dense layers. The researchers show that transcoders can be trained to faithfully approximate MLP behavior while discovering sparse features, and crucially, they enable input-invariant circuit analysis that cleanly separates general model properties from input-specific effects. When evaluated on models ranging from 120M to 1.4B parameters, transcoders match or outperform sparse autoencoders (SAEs) on sparsity, faithfulness, and interpretability, while enabling new techniques for understanding how LLM computations flow through MLP layers.
 
 ## Why You Cared
 
-
+You were researching mechanistic interpretability—the goal of understanding how neural networks actually compute their outputs—and hit a major obstacle: MLP layers are opaque because features (important concepts) emerge as dense combinations of many neurons. This paper directly addresses that bottleneck by proposing a method that makes MLP features interpretable while preserving input-invariance—the ability to make general claims about model behavior that apply across different inputs, not just on single examples. You can apply transcoders to reverse-engineer circuits in your own models and understand behaviors without relying on limited single-input analyses.
 
 ## Key Concepts
 
-
+`#transcoders` `#sparse-autoencoders` `#MLP-circuits` `#mechanistic-interpretability` `#input-invariant-analysis` `#feature-sparsity` `#faithfulness` `#neural-network-decomposition` `#large-language-models` `#circuit-analysis`
 
 ## Cites (Key Papers)
 
 - [[Batson J., Chen B. & Jones A. (2024) - Using features for easy circuit identification]]
+  > Methodsconnectingcircuit analysistoSAEsincludeHeetal.[27],Batsonetal.[1]andMarksetal.[34].
+  > References [1] Batson, J., Chen, B., and Jones, A.
 - [[Biderman S., Schoelkopf H., Anthony Q., Bradley H., O'brien K., Hallahan E., Khan M. A., Purohit S., Prashanth U. S., Raff E., Skowron A. & Sutawika L. (2023) - A Suite for Analyzing Large Language Models Across Training ...]]
+  > 4.2.2 Results WetrainedSAEsandtranscodersonactivationsfromGPT2-small[44],Pythia-410M,andPythia- 1.4B[2].
+  > [2] Biderman,S.,Schoelkopf,H.,Anthony,Q.,Bradley,H.,O’Brien,K.,Hallahan,E.,Khan,M.A., Purohit,S.,Prashanth,U.S.,Raff,E.,Skowron,A.,Sutawika,L.,andvanderWal,O.
 - [[Bills S., Cammarata N., Mossing D., Tillman H., Gao L., Goh G., Sutskever I., Leike J., Wu J. & Saunders W. (2023) - Language models can explain neurons in language models]]
+  > Acoreprobleminfine-grainedcircuitanalysisisincorporatingMLPsublayers[32,38].Attemptingto analyzeMLPneuronsdirectlysuffersfrom“polysemanticity”[3,16,24,40]:thetendencyofneurons toactivateonmanyunrelatedconcepts.
+  > [3] Bills, S., Cammarata, N., Mossing, D., Tillman, H., Gao, L., Goh, G., Sutskever, I., Leike, J., Wu, J., and Saunders, W.
 - [[Bloom J. (2024) - Open Source Sparse Autoencoders for all Residual Stream Laye...]]
+  > Transcoder MLP-inSAE #interpretable 41 38 #maybe 8 8 #uninterpretable 1 4 Becauseofthesesimilarities,SAEscanbequantitativelyevaluated(forsparsityandfidelity)and qualitativelyevaluated(forfeatureinterpretability)inpreciselythesamewayastranscoders,using standardSAEevaluationmethods [4,29].
+  > [4] Bloom,J.
 - [[JSaelensBloom Training 2024]]
+  > Notablecontributions includetoolsforexploringSAEfeatures,suchasSAElens[5];applicationsofSAEstoattention sublayers [29]; scaling up SAEs to Claude 3 Sonnet [48] and improved SAE architectures [45].
+  > [5] Bloom,J.
 - [[Bolukbasi T., Pearce A., Yuan A., Coenen A., Reif E., Viégas F. & Wattenberg M. (2021) - An interpretability illusion for bert]]
+  > Whileimperfect[6],thisisstillareasonableproxyforaninherentlyqualitativeconcept.
+  > [6] Bolukbasi,T.,Pearce,A.,Yuan,A.,Coenen,A.,Reif,E.,Viégas,F.,andWattenberg,M.
 - [[Bricken T., Templeton A., Batson J., Chen B., Jermyn A., Conerly T., Turner N., Anil C., Denison C., Askell A., Lasenby R., Wu Y., Kravec S., Schiefer N., Maxwell T., Joseph N., Hatfield-Dodds Z., Tamkin A., Nguyen K., Mclean B., Burke J. E., Hume T., Carter S., Henighan T. & Olah C. (2023) - Towards Monosemanticity: Decomposing Language Models With Di...]]
+  > Toaddressthis,sparseautoencoders(SAEs)[7,12,51] havebeenusedtoperformfine-grainedcircuitanalysisbyinsteadlookingatfeatures—vectorsinthe model’srepresentationspace—insteadofindividualneurons[14,34].
+  > Asaqualitativeproxymeasurefortheinterpretabilityofafeature,wefollowBrickenetal.[7]in assumingthatinterpretablefeaturesshoulddemonstrateinterpretablepatternsintheexamplesthat causethemtoactivate.
 - [[Brown T. B., Mann B., Ryder N., Subbiah M., Kaplan J., Dhariwal P., Neelakantan A., Shyam P., Sastry G., Askell A., Agarwal S., Herbert-Voss A., Krueger G., Henighan T., Child R., Ramesh A., Ziegler D. M., Wu J., Winter C., Hesse C., Chen M., Sigler E., Litwin M., Gray S., Chess B., Clark J., Berner C., Mccandlish S., Radford A., Sutskever I. & Amodei D. (2020) - Language Models are Few-Shot Learners]]
+  > 1 Introduction Inrecentyears,transformer-basedlargelanguagemodels(LLMs)havedisplayedoutstandingperfor- manceonawidevarietyoftasks[8,43,46].However,themechanismsbywhichLLMsperformthese tasksareopaquebydefault[10,33].
+  > [8] Brown,T.B.,Mann,B.,Ryder,N.,Subbiah,M.,Kaplan,J.,Dhariwal,P.,Neelakantan,A., Shyam,P.,Sastry,G.,Askell,A.,Agarwal,S.,Herbert-Voss,A.,Krueger,G.,Henighan,T., Child, R., Ramesh, A., Ziegler, D.
 - [[Olah C. (2022) - Mechanistic Interpretability, Variables, and the Importance ...]]
+  > Thefieldofmechanisticinterpretablity[9]seekstounderstand these mechanisms, and doing so relies on decomposing a model into circuits [41]: interpretable subcomputationsresponsibleforspecificmodelbehaviors[15,32,42,50].
+  > [9] ChrisOlah.
 - [[Chrupała G. & Alishahi A. (2019) - Correlating neural and symbolic representations of language]]
+  > 1 Introduction Inrecentyears,transformer-basedlargelanguagemodels(LLMs)havedisplayedoutstandingperfor- manceonawidevarietyoftasks[8,43,46].However,themechanismsbywhichLLMsperformthese tasksareopaquebydefault[10,33].
+  > 11 [10] Chrupała,G.andAlishahi,A.
 
 *(42 more citations below)*
 
@@ -58,6 +89,10 @@ added: "2026-02-26"
 ## Abstract
 
 A key goal in mechanistic interpretability is circuit analysis: finding sparse subgraphs of models corresponding to specific behaviors or capabilities. However, MLP sublayers make fine-grained circuit analysis on transformer-based language models difficult. In particular, interpretable features-such as those found by sparse autoencoders (SAEs)-are typically linear combinations of extremely many neurons, each with its own nonlinearity to account for. Circuit analysis in this setting thus either yields intractably large circuits or fails to disentangle local and global behavior. To address this we explore transcoders, which seek to faithfully approximate a densely activating MLP layer with a wider, sparsely-activating MLP layer. We introduce a novel method for using transcoders to perform weights-based circuit analysis through MLP sublayers. The resulting circuits neatly factorize into input-dependent and input-invariant terms. We then successfully train transcoders on language models with 120M, 410M, and 1.4B parameters, and find them to perform at least on par with SAEs in terms of sparsity, faithfulness, and humaninterpretability. Finally, we apply transcoders to reverse-engineer unknown circuits in the model, and we obtain novel insights regarding the "greater-than circuit" in GPT2-small. Our results suggest that transcoders can prove effective in decomposing model computations involving MLPs into interpretable circuits. Code is available at https://github.com/jacobdunefsky/transcoder_circuits/.
+
+## Source Text
+
+[[Dunefsky et al (2024) - Transcoders Find Interpretable LLM Feature Circuits - Source]]
 
 ## Full Citation List
 

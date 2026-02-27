@@ -8,16 +8,16 @@ type: "paper"
 status: "unread"
 added: "2026-02-26"
 tags:
-  - transformer-architecture
-  - self-attention-mechanism
+  - transformer
   - multi-head-attention
+  - self-attention
   - scaled-dot-product-attention
-  - encoder-decoder-architecture
-  - positional-encoding
-  - machine-translation
-  - parallel-processing
   - sequence-transduction
-  - neural-networks
+  - positional-encoding
+  - encoder-decoder
+  - parallelization
+  - neural-machine-translation
+  - attention-mechanism
 ---
 
 # Attention Is All You Need
@@ -25,32 +25,48 @@ tags:
 **Vaswani, Ashish et al.** • 2023
 
 > [!quote] Memorable Quote
-> "In this work we propose the Transformer, a model architecture eschewing recurrence and instead relying entirely on an attention mechanism to draw global dependencies between input and output."
+> "The Transformer allows for significantly more parallelization and can reach a new state of the art in translation quality after being trained for as little as twelve hours on eight P100 GPUs."
 
 ## Quick Refresh
 
-This paper introduces the Transformer, a neural network architecture that replaces recurrent layers with multi-head self-attention (parallel attention mechanisms focusing on different relationships in the input) to process entire sequences in parallel rather than sequentially. The model achieves state-of-the-art results on machine translation tasks—28.4 BLEU on WMT 2014 English-to-German (outperforming previous best by over 2 points) and 41.8 BLEU on English-to-French—while training in 3.5 days instead of weeks. The core contribution is demonstrating that attention alone, without recurrence or convolution, is sufficient for sequence transduction and actually outperforms more complex architectures.
+This paper introduces the Transformer, a neural network architecture that replaces the recurrent and convolutional layers previously used in sequence-to-sequence models with pure multi-head self-attention (parallel attention mechanisms that focus on different representation spaces). The model processes input sequences entirely in parallel rather than sequentially, dramatically reducing training time while achieving state-of-the-art performance on machine translation tasks—reaching 28.4 BLEU on English-to-German translation, surpassing all previous models including ensembles. The key contribution is demonstrating that attention mechanisms alone, combined with positional encoding (information about token positions), are sufficient for complex sequence transduction tasks.
 
 ## Why You Cared
 
-You were researching sequence-to-sequence models and translation quality, and this paper tackles a fundamental architectural limitation: RNNs (Recurrent Neural Networks—models that process sequences step by step) cannot parallelize across a sequence, making them slow to train on long texts. The Transformer solves this by having every token attend to every other token simultaneously, which not only speeds up training but actually improves translation quality. You would cite this when showing how architectural innovation can beat complexity, and apply the self-attention mechanism to any sequence modeling task you encounter.
+You were investigating how to improve both the efficiency and capability of neural machine translation systems, and this paper shows a radically simpler architecture that's faster to train and performs better. The shift from sequential RNN-based processing to fully parallel attention-based processing has profound implications for scaling: the Transformer trains in 12 hours on modest hardware, compared to weeks for competing approaches. You'll reference this work whenever you discuss modern NLP foundations, since this architecture became the basis for BERT, GPT, and nearly every large language model developed afterward.
 
 ## Key Concepts
 
-`#transformer-architecture` `#self-attention-mechanism` `#multi-head-attention` `#scaled-dot-product-attention` `#encoder-decoder-architecture` `#positional-encoding` `#machine-translation` `#parallel-processing` `#sequence-transduction` `#neural-networks`
+`#transformer` `#multi-head-attention` `#self-attention` `#scaled-dot-product-attention` `#sequence-transduction` `#positional-encoding` `#encoder-decoder` `#parallelization` `#neural-machine-translation` `#attention-mechanism`
 
 ## Cites (Key Papers)
 
 - [[JimmyLei Ba JamieRyan Kiros GeoffreyEHinton arXiv:1607.06450 2016 Layer normaliz...]]
+  > 3202 guA 2 ]LC.sc[ 7v26730.6071:viXra 1 Introduction Recurrentneuralnetworks,longshort-termmemory[13]andgatedrecurrent[7]neuralnetworks inparticular,havebeenfirmlyestablishedasstateoftheartapproachesinsequencemodelingand transductionproblemssuchaslanguagemodelingandmachinetranslation[35,2,5].
+  > Weemployaresidualconnection[11]aroundeachof the two sub-layers, followed by layer normalization [1].
 - [[Bahdanau D., Cho K. & Bengio Y. (2014) - Neural machine translation by jointly learning to align and ...]]
+  > 3202 guA 2 ]LC.sc[ 7v26730.6071:viXra 1 Introduction Recurrentneuralnetworks,longshort-termmemory[13]andgatedrecurrent[7]neuralnetworks inparticular,havebeenfirmlyestablishedasstateoftheartapproachesinsequencemodelingand transductionproblemssuchaslanguagemodelingandmachinetranslation[35,2,5].
+  > Attentionmechanismshavebecomeanintegralpartofcompellingsequencemodelingandtransduc- tionmodelsinvarioustasks,allowingmodelingofdependencieswithoutregardtotheirdistancein theinputoroutputsequences[2,19].
 - [[Britz D., Goldie A., Luong M., Quoc V. & Le (2017) - Massive exploration of neural machine translation architectu...]]
+  > Whileforsmallvaluesofd thetwomechanismsperformsimilarly,additiveattentionoutperforms k dotproductattentionwithoutscalingforlargervaluesofd [3].
+  > Sentenceswereencodedusingbyte-pairencoding[3],whichhasasharedsource- targetvocabularyofabout37000tokens.
 - [[Cheng J., Dong L. & Lapata M. (2016) - Long short-term memory-networks for machine reading]]
+  > Self-attentionhasbeen usedsuccessfullyinavarietyoftasksincludingreadingcomprehension,abstractivesummarization, textualentailmentandlearningtask-independentsentencerepresentations[4,27,28,22].
 - [[Cho K., Van Merrienboer B., Gulcehre C., Bougares F., Schwenk H. & Bengio Y. (2014) - Learning phrase representations using rnn encoder-decoder fo...]]
+  > 3202 guA 2 ]LC.sc[ 7v26730.6071:viXra 1 Introduction Recurrentneuralnetworks,longshort-termmemory[13]andgatedrecurrent[7]neuralnetworks inparticular,havebeenfirmlyestablishedasstateoftheartapproachesinsequencemodelingand transductionproblemssuchaslanguagemodelingandmachinetranslation[35,2,5].
+  > 3 ModelArchitecture Mostcompetitiveneuralsequencetransductionmodelshaveanencoder-decoderstructure[5,2,35].
 - [[Chollet F. (2016) - Xception: Deep learning with depthwise separable convolution...]]
+  > Separable convolutions [6], however, decrease the complexity considerably, toO(k·n·d+n·d2).
 - [[Chung J., Gülçehre Ç., Cho K. & Bengio Y. (2014) - Empirical evaluation of gated recurrent neural networks on s...]]
+  > 3202 guA 2 ]LC.sc[ 7v26730.6071:viXra 1 Introduction Recurrentneuralnetworks,longshort-termmemory[13]andgatedrecurrent[7]neuralnetworks inparticular,havebeenfirmlyestablishedasstateoftheartapproachesinsequencemodelingand transductionproblemssuchaslanguagemodelingandmachinetranslation[35,2,5].
 - [[Dyer C., Kuncoro A., Ballesteros M. & Smith N. A. (2016) - Recurrent neural network grammars]]
+  > (2016)[8] WSJonly,discriminative 91.7 Transformer(4layers) WSJonly,discriminative 91.3 Zhuetal.
+  > (2016)[8] generative 93.3 increasedthemaximumoutputlengthtoinputlength+300.
 - [[Gehring J., Auli M., Grangier D., Yarats D. & Dauphin Y. N. (2017) - Convolutional sequence to sequence learning]]
+  > 2 Background ThegoalofreducingsequentialcomputationalsoformsthefoundationoftheExtendedNeuralGPU [16],ByteNet[18]andConvS2S[9],allofwhichuseconvolutionalneuralnetworksasbasicbuilding block,computinghiddenrepresentationsinparallelforallinputandoutputpositions.Inthesemodels, thenumberofoperationsrequiredtorelatesignalsfromtwoarbitraryinputoroutputpositionsgrows inthedistancebetweenpositions,linearlyforConvS2SandlogarithmicallyforByteNet.
+  > Inthefollowingsections,wewilldescribetheTransformer,motivate self-attentionanddiscussitsadvantagesovermodelssuchas[17,18]and[9].
 - [[Graves A. (2013) - Generating sequences with recurrent neural networks]]
+  > Ateachstepthemodelisauto-regressive 1 m [10],consumingthepreviouslygeneratedsymbolsasadditionalinputwhengeneratingthenext.
 
 *(30 more citations below)*
 
@@ -73,6 +89,10 @@ The dominant sequence transduction models are based on complex recurrent or conv
 † Work performed while at Google Brain.
 
 ‡ Work performed while at Google Research.
+
+## Source Text
+
+[[Vaswani et al (2023) - Attention Is All You Need - Source]]
 
 ## Full Citation List
 
