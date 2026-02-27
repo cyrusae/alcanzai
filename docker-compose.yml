@@ -25,8 +25,10 @@ services:
     # Keep container running even if it crashes
     restart: unless-stopped
     
-    # Mount custom config to skip unused models and enable lazy model loading.
-    # grobid.yaml uses Dropwizard config — env var overrides don't work reliably.
+    # Mount custom config forcing all models to engine: "wapiti" (no DeLFT/TensorFlow).
+    # Required on Apple Silicon: grobid/grobid:0.8.2 is AMD64-only; TensorFlow in that
+    # image requires AVX instructions which QEMU doesn't emulate, causing a hard crash.
+    # All wapiti + modelPreload:false = fast startup, no TF ever loaded.
     volumes:
       - ./grobid.yaml:/opt/grobid/grobid-home/config/grobid.yaml:ro
 
