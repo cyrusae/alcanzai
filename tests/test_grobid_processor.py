@@ -166,3 +166,74 @@ class TestGrobidCitationExtraction:
 
         if len(metadata.citations) > 0:
             assert isinstance(metadata.citations[0], Citation)
+
+
+# ---------------------------------------------------------------------------
+# Body text extraction — unit tests (no GROBID service required)
+# ---------------------------------------------------------------------------
+
+SAMPLE_TEI = """<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader/>
+  <text>
+    <body>
+      <div>
+        <head>Introduction</head>
+        <p>The Transformer <ref type="bibr" target="#b0">[1]</ref> eliminates recurrence.</p>
+        <p>Self-attention allows parallel computation across all positions.</p>
+      </div>
+      <div>
+        <head>Methods</head>
+        <p>We use multi-head attention <ref type="bibr" target="#b1">[2]</ref> with eight heads.</p>
+      </div>
+    </body>
+  </text>
+</TEI>
+"""
+
+
+class TestExtractBodyText:
+    """Unit tests for _extract_body_text() — no GROBID service needed."""
+
+    @pytest.fixture
+    def processor(self):
+        return GrobidProcessor("http://localhost:8070")
+
+    @pytest.fixture
+    def root(self):
+        from lxml import etree
+        return etree.fromstring(SAMPLE_TEI.encode("utf-8"))
+
+    def test_returns_non_empty_string(self, processor, root):
+        text = processor._extract_body_text(root)
+        assert isinstance(text, str)
+        assert len(text) > 0
+
+    def test_preserves_citation_markers(self, processor, root):
+        """[N] markers inside <ref> elements must appear in the output."""
+        text = processor._extract_body_text(root)
+        assert "[1]" in text
+        assert "[2]" in text
+
+    def test_includes_paragraph_text(self, processor, root):
+        text = processor._extract_body_text(root)
+        assert "eliminates recurrence" in text
+        assert "parallel computation" in text
+        assert "multi-head attention" in text
+
+    def test_includes_section_headings(self, processor, root):
+        text = processor._extract_body_text(root)
+        assert "Introduction" in text
+        assert "Methods" in text
+
+    def test_no_body_returns_empty_string(self, processor):
+        from lxml import etree
+        empty_tei = b"""<?xml version="1.0"?>
+        <TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader/><text/></TEI>"""
+        root = etree.fromstring(empty_tei)
+        assert processor._extract_body_text(root) == ""
+
+    def test_collapses_whitespace(self, processor, root):
+        text = processor._extract_body_text(root)
+        # No double spaces in paragraph text
+        assert "  " not in text

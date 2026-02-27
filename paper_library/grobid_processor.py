@@ -195,7 +195,8 @@ class GrobidProcessor:
             volume, issue, pages = self._extract_publication_info(root)
             doi = self._extract_doi(root)
             citations = self._extract_citations(root)
-            
+            body_text = self._extract_body_text(root)
+
             # Create PaperMetadata object
             # We require title, authors, and year
             # Everything else is optional
@@ -203,7 +204,7 @@ class GrobidProcessor:
                 raise GrobidError(
                     "Could not extract required fields (title, authors, year) from GROBID output"
                 )
-            
+
             return PaperMetadata(
                 title=title,
                 authors=authors,
@@ -215,6 +216,7 @@ class GrobidProcessor:
                 pages=pages,
                 doi=doi,
                 citations=citations,
+                body_text=body_text or None,
                 source="grobid"
             )
             
@@ -730,6 +732,44 @@ class GrobidProcessor:
         
         return min(100, score)
     
+    def _extract_body_text(self, root: etree._Element) -> str:
+        """
+        Extract clean body text from TEI XML <body> element.
+
+        GROBID correctly reconstructs reading order from 2-column PDFs, so the
+        extracted text has proper word spacing and correct sentence flow (unlike
+        pdfplumber, which reads across the full page width and merges columns).
+
+        Citation markers like [1], [3, 5] are preserved because GROBID encodes
+        them as <ref type="bibr">[1]</ref> elements whose text content is the
+        bracket notation — itertext() naturally includes them.
+
+        Args:
+            root: XML root element
+
+        Returns:
+            Clean body text as a single string, or empty string if no body found.
+        """
+        import re
+
+        body = root.find('.//tei:text/tei:body', self.NS)
+        if body is None:
+            return ""
+
+        parts = []
+        for div in body.findall('.//tei:div', self.NS):
+            head = div.find('tei:head', self.NS)
+            if head is not None and head.text:
+                parts.append(f"\n{head.text.strip()}\n")
+
+            for p in div.findall('tei:p', self.NS):
+                text = "".join(p.itertext()).strip()
+                text = re.sub(r'\s+', ' ', text)
+                if text:
+                    parts.append(text)
+
+        return "\n\n".join(parts)
+
     def _extract_citations(self, root: etree._Element) -> list[Citation]:
         """
         Extract bibliography/citations from XML.

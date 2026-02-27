@@ -120,7 +120,11 @@ class PaperMetadata(BibliographicEntry):
     
     # File paths
     pdf_path: Optional[str] = None
-    
+
+    # Full body text extracted by GROBID (clean, 2-column-aware).
+    # Preferred over pdfplumber output for synthesis and citation context matching.
+    body_text: Optional[str] = None
+
     # Processing metadata
     # These track when and how the paper was processed
     processed_at: Optional[datetime] = None

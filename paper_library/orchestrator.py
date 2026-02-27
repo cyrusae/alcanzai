@@ -328,16 +328,27 @@ class PaperProcessor:
         metadata = self._merge_metadata(metadata, grobid_metadata)
         print(f"  ✓ Extracted {len(metadata.citations)} citations")
 
-        # Step 3: Text extraction (pdfplumber)
-        print("\nStep 3: Extracting text from PDF...")
-        text = self._extract_text(pdf_path)
-        print(f"  ✓ Extracted {len(text)} characters")
-        if len(text) < 1000:
+        # Step 3: Text extraction
+        # Prefer GROBID body text: it correctly handles 2-column layout and
+        # preserves [N] citation markers. Fall back to pdfplumber only when
+        # GROBID body extraction yields too little text (e.g. scanned PDFs).
+        print("\nStep 3: Extracting text for synthesis...")
+        text = grobid_metadata.body_text or ""
+        if len(text) >= 1000:
+            print(f"  ✓ Using GROBID body text ({len(text)} characters)")
+        else:
             print(
-                f"  ⚠ Warning: very short text ({len(text)} chars) — "
-                f"PDF may be scanned/image-only. "
-                f"Synthesis will rely on model's prior knowledge rather than paper content."
+                f"  → GROBID body text short ({len(text)} chars), "
+                f"falling back to pdfplumber..."
             )
+            text = self._extract_text(pdf_path)
+            print(f"  ✓ pdfplumber extracted {len(text)} characters")
+            if len(text) < 1000:
+                print(
+                    f"  ⚠ Warning: very short text ({len(text)} chars) — "
+                    f"PDF may be scanned/image-only. "
+                    f"Synthesis will rely on model's prior knowledge rather than paper content."
+                )
 
         # Step 3.5: Citation context extraction
         print("\nStep 3.5: Extracting citation contexts...")
