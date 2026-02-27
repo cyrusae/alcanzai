@@ -24,10 +24,11 @@ Python concepts:
 - Graceful error handling with context
 """
 
+import re
 import requests
 from pathlib import Path
 from typing import Optional, Tuple
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from datetime import datetime
 from markdownify import markdownify as md
 
@@ -343,6 +344,17 @@ class WebFetcher:
         content_html = self._extract_article_content(soup)
         
         if not content_html:
+            # Before giving up entirely, check if this is a landing page with a
+            # PDF download link (PhilArchive, SSRN, etc. with no article body).
+            pdf_link = self._find_pdf_link_on_page(soup, url)
+            if pdf_link:
+                print(f"  → Landing page detected, trying PDF link: {pdf_link}")
+                try:
+                    pdf_content_type, pdf_bytes = self._fetch_with_type_detection(pdf_link)
+                    if "application/pdf" in pdf_content_type:
+                        return self._handle_pdf_from_url(pdf_link, pdf_bytes)
+                except WebFetchError:
+                    pass
             raise TooShortError(
                 f"Could not extract article content from {url}\n"
                 f"Is this a real article? Try saving as PDF instead."
@@ -354,8 +366,19 @@ class WebFetcher:
         # Clean up markdown
         content_md = self._clean_markdown(content_md)
         
-        # Check length
+        # Check length — before giving up, look for a PDF download link.
+        # Abstract/repository pages (PhilArchive, SSRN, ACL Anthology…) serve
+        # minimal HTML but link to the full PDF.
         if len(content_md) < self.MIN_CONTENT_LENGTH:
+            pdf_link = self._find_pdf_link_on_page(soup, url)
+            if pdf_link:
+                print(f"  → Landing page detected, trying PDF link: {pdf_link}")
+                try:
+                    pdf_content_type, pdf_bytes = self._fetch_with_type_detection(pdf_link)
+                    if "application/pdf" in pdf_content_type:
+                        return self._handle_pdf_from_url(pdf_link, pdf_bytes)
+                except WebFetchError:
+                    pass  # fall through to TooShortError
             raise TooShortError(
                 f"Extracted content too short ({len(content_md)} chars, need {self.MIN_CONTENT_LENGTH}). "
                 f"This might be paywalled, a listing page, or not an article. "
@@ -687,6 +710,60 @@ class WebFetcher:
         
         return False
     
+    def _find_pdf_link_on_page(self, soup, base_url: str) -> Optional[str]:
+        """
+        Scan an HTML page for a PDF download link.
+
+        Used when a landing/abstract page (PhilArchive, SSRN, ACL Anthology,
+        etc.) doesn't serve full article text itself but links to the PDF.
+
+        Scoring:
+          3 pts — href ends in .pdf
+          2 pts — href path contains /pdf/, /download/, or 'pdf' before any '?'
+          1 pt  — link text matches download/PDF pattern
+
+        Returns the absolute URL of the best candidate, or None if nothing
+        plausible is found.  The caller is responsible for verifying the link
+        is actually a PDF (e.g. via content-type header).
+        """
+        _PDF_TEXT = re.compile(
+            r'\b(download(\s+pdf)?|full[\s\-]?text(\s+pdf)?|view\s+pdf|get\s+pdf|pdf)\b',
+            re.IGNORECASE,
+        )
+
+        candidates: list[tuple[int, str]] = []
+
+        for a_tag in soup.find_all('a', href=True):
+            href = a_tag.get('href', '').strip()
+            if not href or href.startswith('#') or href.startswith('javascript:'):
+                continue
+
+            abs_url = urljoin(base_url, href)
+            if not abs_url.startswith(('http://', 'https://')):
+                continue
+
+            href_lower = href.lower()
+            path_part = href_lower.split('?')[0]  # ignore query string for path checks
+
+            if path_part.endswith('.pdf'):
+                candidates.append((3, abs_url))
+            elif '/pdf/' in path_part or '/download/' in path_part or path_part.endswith('/pdf'):
+                candidates.append((2, abs_url))
+            elif 'pdf' in path_part:
+                candidates.append((1, abs_url))
+            else:
+                link_text = a_tag.get_text(strip=True)
+                if _PDF_TEXT.search(link_text):
+                    candidates.append((1, abs_url))
+
+        if not candidates:
+            return None
+
+        # Stable descending sort: highest score first, document order preserved
+        # among ties.
+        candidates.sort(key=lambda x: -x[0])
+        return candidates[0][1]
+
     def _generate_pdf_filename_from_url(self, url: str) -> str:
         """
         Generate a filename for a PDF downloaded from URL.

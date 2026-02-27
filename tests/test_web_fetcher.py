@@ -178,6 +178,164 @@ class TestHtmlParsing:
 
 
 # ---------------------------------------------------------------------------
+# PDF landing page link finder
+# ---------------------------------------------------------------------------
+
+class TestPdfLinkFinder:
+    """Tests for _find_pdf_link_on_page — no network calls needed."""
+
+    @pytest.fixture
+    def fetcher(self):
+        return WebFetcher()
+
+    def _soup(self, html: str):
+        from bs4 import BeautifulSoup
+        return BeautifulSoup(html, "html.parser")
+
+    def test_href_ending_in_pdf_is_found(self, fetcher):
+        soup = self._soup(
+            '<html><body><a href="/files/paper.pdf">Full paper</a></body></html>'
+        )
+        url = fetcher._find_pdf_link_on_page(soup, "https://philarchive.org/abstract/SMITH")
+        assert url == "https://philarchive.org/files/paper.pdf"
+
+    def test_absolute_pdf_href_is_returned_unchanged(self, fetcher):
+        soup = self._soup(
+            '<html><body><a href="https://cdn.example.com/paper.pdf">Download</a></body></html>'
+        )
+        url = fetcher._find_pdf_link_on_page(soup, "https://example.com/abstract")
+        assert url == "https://cdn.example.com/paper.pdf"
+
+    def test_link_text_download_pdf_is_found(self, fetcher):
+        soup = self._soup(
+            '<html><body><a href="/get?id=42">Download PDF</a></body></html>'
+        )
+        url = fetcher._find_pdf_link_on_page(soup, "https://papers.ssrn.com/abstract=42")
+        assert url == "https://papers.ssrn.com/get?id=42"
+
+    def test_link_text_pdf_alone_is_found(self, fetcher):
+        soup = self._soup(
+            '<html><body><a href="/view/42">PDF</a></body></html>'
+        )
+        url = fetcher._find_pdf_link_on_page(soup, "https://example.com/abstract/42")
+        assert url is not None
+
+    def test_href_with_pdf_in_path_is_found(self, fetcher):
+        """ACL Anthology style: /pdf/2021.acl-long.1"""
+        soup = self._soup(
+            '<html><body><a href="/pdf/2021.acl-long.1">PDF</a></body></html>'
+        )
+        url = fetcher._find_pdf_link_on_page(soup, "https://aclanthology.org/2021.acl-long.1")
+        assert url == "https://aclanthology.org/pdf/2021.acl-long.1"
+
+    def test_no_pdf_links_returns_none(self, fetcher):
+        soup = self._soup(
+            '<html><body><a href="/about">About</a><a href="/contact">Contact</a></body></html>'
+        )
+        assert fetcher._find_pdf_link_on_page(soup, "https://example.com") is None
+
+    def test_anchor_only_links_are_skipped(self, fetcher):
+        soup = self._soup(
+            '<html><body><a href="#section">PDF mention</a></body></html>'
+        )
+        assert fetcher._find_pdf_link_on_page(soup, "https://example.com") is None
+
+    def test_javascript_links_are_skipped(self, fetcher):
+        soup = self._soup(
+            '<html><body><a href="javascript:void(0)">Download PDF</a></body></html>'
+        )
+        assert fetcher._find_pdf_link_on_page(soup, "https://example.com") is None
+
+    def test_direct_pdf_href_outscores_link_text_only(self, fetcher):
+        """Href ending in .pdf should win over a link that only has matching text."""
+        soup = self._soup(
+            '''<html><body>
+                <a href="/generic-link">Download PDF</a>
+                <a href="/paper.pdf">Full paper</a>
+            </body></html>'''
+        )
+        url = fetcher._find_pdf_link_on_page(soup, "https://example.com/abstract")
+        assert url is not None and url.endswith(".pdf")
+
+    def test_query_string_not_confused_with_pdf_path(self, fetcher):
+        """A ?format=pdf query param should still be found (path without .pdf, but 'pdf' in full href)."""
+        soup = self._soup(
+            '<html><body><a href="/download?format=pdf&id=99">Download PDF</a></body></html>'
+        )
+        url = fetcher._find_pdf_link_on_page(soup, "https://example.com/abstract")
+        # Should be found via link text, not confused by query string
+        assert url is not None
+
+
+# ---------------------------------------------------------------------------
+# Landing page → PDF pipeline integration (mocked)
+# ---------------------------------------------------------------------------
+
+class TestLandingPageToPdfRouting:
+    """Verify that _handle_html() routes to the PDF pipeline on short content."""
+
+    def _mock_head(self, content_type="text/html; charset=utf-8"):
+        resp = Mock()
+        resp.headers = {"content-type": content_type}
+        resp.status_code = 200
+        return resp
+
+    def _mock_get(self, content, content_type="text/html"):
+        resp = Mock()
+        resp.content = content
+        resp.headers = {"content-type": content_type}
+        resp.encoding = "utf-8"
+        resp.raise_for_status = Mock()
+        return resp
+
+    @patch("paper_library.web_fetcher.requests.head")
+    @patch("paper_library.web_fetcher.requests.get")
+    def test_landing_page_with_pdf_link_returns_pdf_metadata(self, mock_get, mock_head):
+        """A short page containing a PDF link should produce pdf_from_web metadata."""
+        landing_html = b"""
+        <html>
+          <head><title>Paper Abstract</title></head>
+          <body>
+            <p>Abstract: This paper studies attention mechanisms.</p>
+            <a href="/papers/attention.pdf">Download PDF</a>
+          </body>
+        </html>
+        """
+        pdf_bytes = b"%PDF-1.4\n%dummy pdf content"
+
+        # Sequence: HEAD for landing page, GET for landing page,
+        # HEAD for PDF link, GET for PDF link
+        mock_head.side_effect = [
+            self._mock_head("text/html"),          # landing page HEAD
+            self._mock_head("application/pdf"),    # PDF link HEAD
+        ]
+        mock_get.side_effect = [
+            self._mock_get(landing_html, "text/html"),   # landing page GET
+            self._mock_get(pdf_bytes, "application/pdf"), # PDF GET
+        ]
+
+        metadata, content = WebFetcher().fetch("https://example.com/abstract/42")
+
+        assert metadata.source == "pdf_from_web"
+        assert content == ""
+
+    @patch("paper_library.web_fetcher.requests.head")
+    @patch("paper_library.web_fetcher.requests.get")
+    def test_short_page_without_pdf_link_still_raises(self, mock_get, mock_head):
+        """A short page with no PDF link should still raise TooShortError."""
+        short_html = b"""
+        <html><head><title>Stub</title></head>
+        <body><p>Very little content here.</p></body>
+        </html>
+        """
+        mock_head.return_value = self._mock_head("text/html")
+        mock_get.return_value = self._mock_get(short_html, "text/html")
+
+        with pytest.raises(TooShortError):
+            WebFetcher().fetch("https://example.com/stub")
+
+
+# ---------------------------------------------------------------------------
 # PDF handling
 # ---------------------------------------------------------------------------
 
