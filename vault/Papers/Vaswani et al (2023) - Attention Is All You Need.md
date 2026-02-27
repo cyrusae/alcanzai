@@ -6,39 +6,40 @@ venue: "Neural computation"
 arxiv: "1706.03762"
 type: "paper"
 status: "unread"
-added: "2026-01-08"
+added: "2026-02-26"
 tags:
-  - transformer-architecture
   - self-attention
   - multi-head-attention
-  - sequence-transduction
-  - scaled-dot-product-attention
-  - machine-translation
-  - encoder-decoder
   - positional-encoding
-  - parallel-computation
-  - natural-language-processing
+  - sequence-to-sequence
+  - encoder-decoder
+  - scaled-dot-product-attention
+  - parallelization
+  - machine-translation
+  - long-range-dependencies
+  - neural-architecture
   - deep-learning
-  - artificial-intelligence
+  - natural-language-processing
 ---
+
 # Attention Is All You Need
 
 **Vaswani, Ashish et al.** • 2023
 
 > [!quote] Memorable Quote
-> "In the Transformer this is reduced to a constant number of operations, albeit at the cost of reduced effective resolution due to averaging attention-weighted positions, an effect we counteract with Multi-Head Attention as described in section 3.2."
+> "The Transformer allows for significantly more parallelization and can reach a new state of the art in translation quality after being trained for as little as twelve hours on eight P100 GPUs."
 
 ## Quick Refresh
 
-This paper introduces the Transformer, a neural network architecture that replaces recurrent neural networks (RNNs) entirely with attention mechanisms for sequence-to-sequence tasks like machine translation. Instead of processing sequences one step at a time (which is inherently sequential), the Transformer uses "self-attention" to allow all positions in a sequence to relate to each other in parallel, making training much faster. The model achieved state-of-the-art results on English-to-German and English-to-French translation tasks, outperforming previous best models while training in a fraction of the time (3.5 days on 8 GPUs versus weeks for competitors).
+This paper introduces the Transformer, a neural sequence-to-sequence architecture based entirely on multi-head self-attention (parallel attention mechanisms that focus on different word relationships) rather than recurrent or convolutional layers. The authors replace the sequential processing of RNNs (Recurrent Neural Networks) with parallel attention mechanisms, enabling substantially faster training while improving translation quality. On machine translation benchmarks (WMT 2014 English-German and English-French), the Transformer achieves new state-of-the-art results, reaching 28.4 BLEU on EN-DE translation after just 12 hours of training on 8 GPUs—a fraction of the cost and time required by previous models.
 
 ## Why You Cared
 
-RNNs (Recurrent Neural Networks) were the dominant architecture for language tasks, but their sequential nature made them slow to train on long sequences—a fundamental bottleneck. This paper shows that you don't need recurrence at all; pure attention mechanisms can be faster, more parallelizable, and achieve better results. If you care about machine learning efficiency, language models, or understanding what powers modern LLMs (Large Language Models), this is the foundational paper—the Transformer architecture is the backbone of nearly all state-of-the-art language models today. It's a rare case where a single architectural innovation reshapes an entire field.
+You were interested in this because it fundamentally changed how neural sequence models work. The core insight—that attention mechanisms alone can handle the full computational load without recurrence—opened the door to much more parallelizable architectures. This work is foundational if you are working with transformer-based models in any capacity, whether in NLP, computer vision, or other domains. You cited this paper when explaining why transformers dominated modern NLP after 2017, and understanding the original design choices helps you reason about variants and improvements.
 
 ## Key Concepts
 
-`#transformer-architecture` `#self-attention` `#multi-head-attention` `#sequence-transduction` `#scaled-dot-product-attention` `#machine-translation` `#encoder-decoder` `#positional-encoding` `#parallel-computation` `#natural-language-processing` `#deep-learning` `#artificial-intelligence`
+`#self-attention` `#multi-head-attention` `#positional-encoding` `#sequence-to-sequence` `#encoder-decoder` `#scaled-dot-product-attention` `#parallelization` `#machine-translation` `#long-range-dependencies` `#neural-architecture` `#deep-learning` `#natural-language-processing`
 
 ## Cites (Key Papers)
 
@@ -87,7 +88,7 @@ The dominant sequence transduction models are based on complex recurrent or conv
 10. Graves A. (2013). Generating sequences with recurrent neural networks.
 11. He K., Zhang X., Ren S. et al. (2016). Deep residual learning for image recognition.
 12. Hochreiter S., Bengio Y., Frasconi P. et al. (2001). Gradient flow in recurrent nets: the difficulty of learning long-term dependencies.
-13. Hochreiter S. & Schmidhuber J. (1997). Long short-term memory.
+13. Hochreiter S. & Schmidhuber J. (1997). Long short-term memory. Neural computation, Vol. 9(8), pp. 1735-1780.
 14. Huang Z. & Harper M. (2009). Self-training PCFG grammars with latent annotations across languages.
 15. Jozefowicz R., Vinyals O., Schuster M. et al. (2016). Exploring the limits of language modeling.
 16. Kaiser Ł. & Bengio S. (2016). Can active memory replace attention?.
@@ -99,7 +100,7 @@ The dominant sequence transduction models are based on complex recurrent or conv
 22. Lin Z., Feng M., Nogueira Dos Santos C. et al. (2017). A structured self-attentive sentence embedding.
 23. Luong M., Le Q. V., Sutskever I. et al. (2015). Multi-task sequence to sequence learning.
 24. Luong M., Pham H. & Manning C. D. (2015). Effective approaches to attentionbased neural machine translation.
-25. Mitchell P Marcus M., Marcinkiewicz A. & Santorini B. (1993). Building a large annotated corpus of english: The penn treebank.
+25. Mitchell P Marcus M., Marcinkiewicz A. & Santorini B. (1993). Building a large annotated corpus of english: The penn treebank. Computational linguistics, Vol. 19(2), pp. 313-330.
 26. Mcclosky D., Charniak E. & Johnson M. (2006). Effective self-training for parsing.
 27. Parikh A., Täckström O., Das D. et al. (2016). A decomposable attention model.
 28. Paulus R., Xiong C. & Socher R. (2017). A deep reinforced model for abstractive summarization.
@@ -107,7 +108,7 @@ The dominant sequence transduction models are based on complex recurrent or conv
 30. Using the output embedding to improve language models arXiv:1608.05859 2016 Ofir Press and Lior Wolf arXiv preprint
 31. Sennrich R., Haddow B. & Birch A. (2015). Neural machine translation of rare words with subword units.
 32. Shazeer N., Mirhoseini A., Maziarz K. et al. (2017). Outrageously large neural networks: The sparsely-gated mixture-of-experts layer.
-33. Srivastava N., Hinton G. E., Krizhevsky A. et al. (2014). Dropout: a simple way to prevent neural networks from overfitting.
+33. Srivastava N., Hinton G. E., Krizhevsky A. et al. (2014). Dropout: a simple way to prevent neural networks from overfitting. Journal of Machine Learning Research, Vol. 15(1), pp. 1929-1958.
 34. Sukhbaatar S., Szlam A., Weston J. et al. (2015). End-to-end memory networks.
 35. Sutskever I., Vinyals O. & Le Q. (2014). Sequence to sequence learning with neural networks.
 36. Szegedy C., Vanhoucke V., Ioffe S. et al. (2015). Rethinking the inception architecture for computer vision.

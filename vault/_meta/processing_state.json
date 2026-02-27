@@ -1,22 +1,25 @@
 {
   "processed_dois": [],
   "processed_arxiv_ids": [
-    "2309.12288",
-    "2404.05405",
+    "2112.00861",
     "2412.14093",
-    "2309.14316",
-    "https://arxiv.org/abs/2309.14402",
     "2311.08379",
+    "2309.14316",
     "1706.03762",
-    "2406.10162",
-    "https://arxiv.org/abs/2309.14316",
-    "2310.02207",
+    "2309.12288",
     "2402.05405",
-    "2112.00861"
+    "https://arxiv.org/abs/2309.14316",
+    "https://arxiv.org/abs/2309.14402",
+    "2404.05405",
+    "2310.02207",
+    "2406.10162"
   ],
-  "processed_urls": [],
+  "processed_urls": [
+    "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html",
+    "https://www.anthropic.com/research/values-wild"
+  ],
   "failed": {
-    "1706.03762": "name 'self' is not defined",
+    "1706.03762": "GROBID request failed: 500 Server Error: Server Error for url: http://localhost:8070/api/processFulltextDocument",
     "2412.14093": "GROBID request failed: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
     "2311.08379": "1 validation error for Citation\nyear\n  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/int_type",
     "2406.10162": "2 validation errors for Citation\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type\nyear\n  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/int_type",
@@ -25,7 +28,13 @@
     "https://arxiv.org/abs/2309.14402": "2 validation errors for Citation\ntitle\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type",
     "2404.05405": "1 validation error for Citation\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type",
     "2112.00861": "2 validation errors for Citation\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type\nyear\n  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/int_type",
-    "2309.12288": "2 validation errors for Citation\ntitle\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type"
+    "2309.12288": "2 validation errors for Citation\ntitle\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nauthors\n  Input should be a valid list [type=list_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type",
+    "https://www.anthropic.com/research/values-wild": "'ArticleMetadata' object has no attribute 'year'",
+    "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html": "'ArticleMetadata' object has no attribute 'year'",
+    "https://arxiv.org/pdf/2406.11944": "GROBID request timed out for arxiv_2406.11944.pdf",
+    "https://arxiv.org/pdf/2403.19647": "GROBID request failed: ('Connection aborted.', TimeoutError('timed out'))",
+    "https://transformer-circuits.pub/2024/crosscoders/index.html": "Failed to fetch URL: Extracted content too short (324 chars, need 500). This might be paywalled, a listing page, or not an article. URL: https://transformer-circuits.pub/2024/crosscoders/index.html",
+    "https://arxiv.org/pdf/2402.16837": "GROBID request timed out for arxiv_2402.16837.pdf"
   },
-  "last_updated": "2026-01-09T22:16:10.917382"
+  "last_updated": "2026-02-26T20:04:58.333802"
 }
