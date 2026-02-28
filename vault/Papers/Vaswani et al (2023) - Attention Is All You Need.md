@@ -6,18 +6,17 @@ venue: "Neural computation"
 arxiv: "1706.03762"
 type: "paper"
 status: "unread"
-added: "2026-02-26"
+added: "2026-02-27"
 tags:
-  - transformer
   - multi-head-attention
-  - self-attention
   - scaled-dot-product-attention
-  - sequence-transduction
   - positional-encoding
-  - encoder-decoder
-  - parallelization
-  - neural-machine-translation
-  - attention-mechanism
+  - encoder-decoder-architecture
+  - self-attention
+  - transformer-architecture
+  - machine-translation
+  - parallel-processing
+  - deep-learning
 ---
 
 # Attention Is All You Need
@@ -29,44 +28,42 @@ tags:
 
 ## Quick Refresh
 
-This paper introduces the Transformer, a neural network architecture that replaces the recurrent and convolutional layers previously used in sequence-to-sequence models with pure multi-head self-attention (parallel attention mechanisms that focus on different representation spaces). The model processes input sequences entirely in parallel rather than sequentially, dramatically reducing training time while achieving state-of-the-art performance on machine translation tasks—reaching 28.4 BLEU on English-to-German translation, surpassing all previous models including ensembles. The key contribution is demonstrating that attention mechanisms alone, combined with positional encoding (information about token positions), are sufficient for complex sequence transduction tasks.
+This paper introduces the Transformer, a neural network architecture that replaces recurrent layers entirely with multi-head self-attention mechanisms (parallel attention processes that focus on different word relationships). Rather than processing sequences step-by-step like traditional RNNs (Recurrent Neural Networks), the Transformer processes all input tokens simultaneously, dramatically speeding up training while achieving state-of-the-art results on machine translation benchmarks. The core innovation is using scaled dot-product attention—a computationally efficient compatibility function—and combining multiple attention heads to capture dependencies across different representation subspaces.
 
 ## Why You Cared
 
-You were investigating how to improve both the efficiency and capability of neural machine translation systems, and this paper shows a radically simpler architecture that's faster to train and performs better. The shift from sequential RNN-based processing to fully parallel attention-based processing has profound implications for scaling: the Transformer trains in 12 hours on modest hardware, compared to weeks for competing approaches. You'll reference this work whenever you discuss modern NLP foundations, since this architecture became the basis for BERT, GPT, and nearly every large language model developed afterward.
+You cared because sequence-to-sequence models based on RNNs and convolutions faced a fundamental constraint: they had to process inputs sequentially, making them slow to train and poor at capturing long-range dependencies in text. This paper solves that bottleneck with an elegantly simple approach that became foundational for modern NLP. You can apply the architectural patterns (residual connections, layer normalization, positional encoding) to problems beyond translation, and the attention mechanism design choices explain why this became the basis for models you use today.
 
 ## Key Concepts
 
-`#transformer` `#multi-head-attention` `#self-attention` `#scaled-dot-product-attention` `#sequence-transduction` `#positional-encoding` `#encoder-decoder` `#parallelization` `#neural-machine-translation` `#attention-mechanism`
+`#multi-head-attention` `#scaled-dot-product-attention` `#positional-encoding` `#encoder-decoder-architecture` `#self-attention` `#transformer-architecture` `#machine-translation` `#parallel-processing` `#deep-learning`
 
 ## Cites (Key Papers)
 
 - [[JimmyLei Ba JamieRyan Kiros GeoffreyEHinton arXiv:1607.06450 2016 Layer normaliz...]]
-  > 3202 guA 2 ]LC.sc[ 7v26730.6071:viXra 1 Introduction Recurrentneuralnetworks,longshort-termmemory[13]andgatedrecurrent[7]neuralnetworks inparticular,havebeenfirmlyestablishedasstateoftheartapproachesinsequencemodelingand transductionproblemssuchaslanguagemodelingandmachinetranslation[35,2,5].
-  > Weemployaresidualconnection[11]aroundeachof the two sub-layers, followed by layer normalization [1].
+  > We employ a residual connection [11] around each of the two sub-layers, followed by layer normalization [1].
 - [[Bahdanau D., Cho K. & Bengio Y. (2014) - Neural machine translation by jointly learning to align and ...]]
-  > 3202 guA 2 ]LC.sc[ 7v26730.6071:viXra 1 Introduction Recurrentneuralnetworks,longshort-termmemory[13]andgatedrecurrent[7]neuralnetworks inparticular,havebeenfirmlyestablishedasstateoftheartapproachesinsequencemodelingand transductionproblemssuchaslanguagemodelingandmachinetranslation[35,2,5].
-  > Attentionmechanismshavebecomeanintegralpartofcompellingsequencemodelingandtransduc- tionmodelsinvarioustasks,allowingmodelingofdependencieswithoutregardtotheirdistancein theinputoroutputsequences[2,19].
+  > Introduction Recurrent neural networks, long short-term memory [13] and gated recurrent [7] neural networks in particular, have been firmly established as state of the art approaches in sequence modeling and transduction problems such as language modeling and machine translation [35,2,5].
+  > Attention mechanisms have become an integral part of compelling sequence modeling and transduction models in various tasks, allowing modeling of dependencies without regard to their distance in the input or output sequences [2,19].
 - [[Britz D., Goldie A., Luong M., Quoc V. & Le (2017) - Massive exploration of neural machine translation architectu...]]
-  > Whileforsmallvaluesofd thetwomechanismsperformsimilarly,additiveattentionoutperforms k dotproductattentionwithoutscalingforlargervaluesofd [3].
-  > Sentenceswereencodedusingbyte-pairencoding[3],whichhasasharedsource- targetvocabularyofabout37000tokens.
+  > While for small values of d k the two mechanisms perform similarly, additive attention outperforms dot product attention without scaling for larger values of d k [3].
+  > Sentences were encoded using byte-pair encoding [3], which has a shared sourcetarget vocabulary of about 37000 tokens.
 - [[Cheng J., Dong L. & Lapata M. (2016) - Long short-term memory-networks for machine reading]]
-  > Self-attentionhasbeen usedsuccessfullyinavarietyoftasksincludingreadingcomprehension,abstractivesummarization, textualentailmentandlearningtask-independentsentencerepresentations[4,27,28,22].
+  > Self-attention has been used successfully in a variety of tasks including reading comprehension, abstractive summarization, textual entailment and learning task-independent sentence representations [4,27,28,22].
 - [[Cho K., Van Merrienboer B., Gulcehre C., Bougares F., Schwenk H. & Bengio Y. (2014) - Learning phrase representations using rnn encoder-decoder fo...]]
-  > 3202 guA 2 ]LC.sc[ 7v26730.6071:viXra 1 Introduction Recurrentneuralnetworks,longshort-termmemory[13]andgatedrecurrent[7]neuralnetworks inparticular,havebeenfirmlyestablishedasstateoftheartapproachesinsequencemodelingand transductionproblemssuchaslanguagemodelingandmachinetranslation[35,2,5].
-  > 3 ModelArchitecture Mostcompetitiveneuralsequencetransductionmodelshaveanencoder-decoderstructure[5,2,35].
+  > Introduction Recurrent neural networks, long short-term memory [13] and gated recurrent [7] neural networks in particular, have been firmly established as state of the art approaches in sequence modeling and transduction problems such as language modeling and machine translation [35,2,5].
+  > Model Architecture Most competitive neural sequence transduction models have an encoder-decoder structure [5,2,35].
 - [[Chollet F. (2016) - Xception: Deep learning with depthwise separable convolution...]]
-  > Separable convolutions [6], however, decrease the complexity considerably, toO(k·n·d+n·d2).
+  > Separable convolutions [6], however, decrease the complexity considerably, to O(k Even with k = n, however, the complexity of a separable convolution is equal to the combination of a self-attention layer and a point-wise feed-forward layer, the approach we take in our model.
 - [[Chung J., Gülçehre Ç., Cho K. & Bengio Y. (2014) - Empirical evaluation of gated recurrent neural networks on s...]]
-  > 3202 guA 2 ]LC.sc[ 7v26730.6071:viXra 1 Introduction Recurrentneuralnetworks,longshort-termmemory[13]andgatedrecurrent[7]neuralnetworks inparticular,havebeenfirmlyestablishedasstateoftheartapproachesinsequencemodelingand transductionproblemssuchaslanguagemodelingandmachinetranslation[35,2,5].
+  > Introduction Recurrent neural networks, long short-term memory [13] and gated recurrent [7] neural networks in particular, have been firmly established as state of the art approaches in sequence modeling and transduction problems such as language modeling and machine translation [35,2,5].
 - [[Dyer C., Kuncoro A., Ballesteros M. & Smith N. A. (2016) - Recurrent neural network grammars]]
-  > (2016)[8] WSJonly,discriminative 91.7 Transformer(4layers) WSJonly,discriminative 91.3 Zhuetal.
-  > (2016)[8] generative 93.3 increasedthemaximumoutputlengthtoinputlength+300.
+  > Our results in Table 4 show that despite the lack of task-specific tuning our model performs surprisingly well, yielding better results than all previously reported models with the exception of the Recurrent Neural Network Grammar [8].
 - [[Gehring J., Auli M., Grangier D., Yarats D. & Dauphin Y. N. (2017) - Convolutional sequence to sequence learning]]
-  > 2 Background ThegoalofreducingsequentialcomputationalsoformsthefoundationoftheExtendedNeuralGPU [16],ByteNet[18]andConvS2S[9],allofwhichuseconvolutionalneuralnetworksasbasicbuilding block,computinghiddenrepresentationsinparallelforallinputandoutputpositions.Inthesemodels, thenumberofoperationsrequiredtorelatesignalsfromtwoarbitraryinputoroutputpositionsgrows inthedistancebetweenpositions,linearlyforConvS2SandlogarithmicallyforByteNet.
-  > Inthefollowingsections,wewilldescribetheTransformer,motivate self-attentionanddiscussitsadvantagesovermodelssuchas[17,18]and[9].
+  > Background The goal of reducing sequential computation also forms the foundation of the Extended Neural GPU [16], ByteNet [18] and ConvS2S [9], all of which use convolutional neural networks as basic building block, computing hidden representations in parallel for all input and output positions.
+  > In the following sections, we will describe the Transformer, motivate self-attention and discuss its advantages over models such as [17,18] and [9].
 - [[Graves A. (2013) - Generating sequences with recurrent neural networks]]
-  > Ateachstepthemodelisauto-regressive 1 m [10],consumingthepreviouslygeneratedsymbolsasadditionalinputwhengeneratingthenext.
+  > At each step the model is auto-regressive [10], consuming the previously generated symbols as additional input when generating the next.
 
 *(30 more citations below)*
 
@@ -89,10 +86,6 @@ The dominant sequence transduction models are based on complex recurrent or conv
 † Work performed while at Google Brain.
 
 ‡ Work performed while at Google Research.
-
-## Source Text
-
-[[Vaswani et al (2023) - Attention Is All You Need - Source]]
 
 ## Full Citation List
 
