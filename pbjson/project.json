@@ -83,7 +83,9 @@
     "2026-02-26 - citation_context.py fixes (commit 73aed53) - replaced sentence-split search with full-text re.finditer(); new _extract_char_context() walks character offsets backward/forward from match; deduplication via match.start()//50 bucket; fixes 0/n match rate caused by sentence splitter breaking 'et al.' patterns",
     "2026-02-26 - web_fetcher.py quality fixes (commit 73aed53) - strip data-URI <img> tags before markdownify (was producing giant base64 blobs); expanded _extract_authors() to add meta[name=author], JSON-LD schema.org, d-byline (Distill), rel=author, more CSS classes",
     "2026-02-26 - web_fetcher._find_pdf_link_on_page() (commit f1e39e1) - scans <a> tags for PDF download links on landing/abstract pages; scores href ending in .pdf=3, /pdf/ path=2, matching link text=1; called from both content-extraction failure paths in _handle_html(); 12 new unit tests",
-    "2026-02-26 - Source note split (commit 9d6dcfd) - raw PDF text and web article content written to vault/Sources/<filename> - Source.md with minimal frontmatter; MarkdownWriter.source_note_markdown() added; paper_to_markdown() and article_to_markdown() now take optional source_note_name wikilink param; orchestrator creates Sources/ dir automatically"
+    "2026-02-26 - Source note split (commit 9d6dcfd) - raw PDF text and web article content written to vault/Sources/<filename> - Source.md with minimal frontmatter; MarkdownWriter.source_note_markdown() added; paper_to_markdown() and article_to_markdown() now take optional source_note_name wikilink param; orchestrator creates Sources/ dir automatically",
+    "2026-02-27 - Switch to GROBID body text for synthesis; pdfplumber was garbling 2-column PDFs",
+    "2026-02-27 - v0.2.0 milestone doc written (docs/milestone-v0.2.0.md) - full pipeline complete, 148 tests, 39-paper batch clean"
   ],
   "what_we_need_to_decide": [
     "2026-01-08 - Batch file format sophistication - markdown bullet handling, inline comments, multi-format support (Obsidian notes as input?)",
@@ -137,7 +139,8 @@
     "2026-02-27 - grobid/grobid:0.8.2 is AMD64-only, crashes on Apple Silicon under QEMU due to TF AVX instructions. Workaround: grobid.yaml with all models as engine:wapiti mounted into container. Bug filed.",
     "2026-02-27 - transformer-circuits.pub and distill.pub use Distill framework with d-article custom elements - required adding to web_fetcher content extraction",
     "2026-02-27 - PhilArchive and similar sites have abstract pages with PDF download links but no direct PDF URL - PDF link finder now implemented in WebFetcher._find_pdf_link_on_page()",
-    "2026-02-27 - CROSSREF_EMAIL in .env enables polite pool for Crossref REST API and Unpaywall - optional but recommended"
+    "2026-02-27 - CROSSREF_EMAIL in .env enables polite pool for Crossref REST API and Unpaywall - optional but recommended",
+    "2026-02-27 - v0.2.0 tagged 2026-02-27: full pipeline complete. v0.3.0 scope: detailed summary CLI trigger, OCR pipeline, OTel. Hard Mode batch cluster (OCR/humanities/annotations/versioning/acquisition) needs design session before implementation."
   ],
   "what_we_resolved": [
     "2026-01-06 - Paper ingestion pipeline architecture \u00e2\u2020\u2019 Decided: GROBID full processing with OCRmyPDF preprocessing for scanned materials, citation extraction deferred to Phase 2",
