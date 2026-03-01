@@ -6,7 +6,7 @@ services:
   # Extracts structured data (title, authors, citations) from academic PDFs
   grobid:
     # Pre-built GROBID image from Docker Hub
-    image: lfoppiano/grobid:0.8.0
+    image: grobid/grobid:0.8.2
     
     # Expose GROBID's API on port 8070
     # You'll send PDFs to http://localhost:8070/api/processFulltextDocument
@@ -25,11 +25,12 @@ services:
     # Keep container running even if it crashes
     restart: unless-stopped
     
-    # Environment variables for GROBID
-    environment:
-      # Number of concurrent requests GROBID can handle
-      # Set based on your CPU cores (typically cores - 1)
-      - GROBID_POOL_SIZE=4 # TODO: Logical or physical cores? 8 logical cores = can probably go up to 6-7?
+    # Mount custom config forcing all models to engine: "wapiti" (no DeLFT/TensorFlow).
+    # Required on Apple Silicon: grobid/grobid:0.8.2 is AMD64-only; TensorFlow in that
+    # image requires AVX instructions which QEMU doesn't emulate, causing a hard crash.
+    # All wapiti + modelPreload:false = fast startup, no TF ever loaded.
+    volumes:
+      - ./grobid.yaml:/opt/grobid/grobid-home/config/grobid.yaml:ro
 
 # Optional: Add CouchDB for Obsidian Livesync
 # Uncomment when ready to set up sync

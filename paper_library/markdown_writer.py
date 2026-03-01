@@ -34,9 +34,38 @@ class MarkdownWriter:
     """
     
     @staticmethod
+    def source_note_markdown(title: str, content: str, source_type: str) -> str:
+        """
+        Generate a standalone source note containing raw extracted content.
+
+        These notes live in vault/Sources/ and are linked from the main note.
+        Keeping raw content separate prevents main notes from becoming unwieldy
+        and gives an unmodified backup of what was sent to Claude.
+
+        Args:
+            title: The paper/article title (used in frontmatter)
+            content: Raw extracted text (PDF text or web article markdown)
+            source_type: "pdf_text" or "web_content"
+
+        Returns:
+            Markdown string for the source note
+        """
+        title_escaped = title.replace('"', '\\"')
+        frontmatter = "\n".join([
+            "---",
+            f'title: "{title_escaped} - Source"',
+            'type: "source"',
+            f'source_type: "{source_type}"',
+            f'added: "{datetime.now().strftime("%Y-%m-%d")}"',
+            "---",
+        ])
+        return frontmatter + "\n\n" + content
+
+    @staticmethod
     def paper_to_markdown(
         metadata: PaperMetadata,
-        synthesis: Synthesis
+        synthesis: Synthesis,
+        source_note_name: Optional[str] = None,
     ) -> str:
         """
         Convert paper metadata + synthesis to Obsidian markdown.
@@ -115,6 +144,9 @@ class MarkdownWriter:
             for citation in metadata.citations[:10]:
                 citation_link = MarkdownWriter._format_citation_wikilink(citation)
                 sections.append(f"- {citation_link}")
+                # Show up to 2 extracted context sentences as blockquotes
+                for ctx in citation.contexts[:2]:
+                    sections.append(f"  > {ctx}")
             
             if len(metadata.citations) > 10:
                 sections.append(f"")
@@ -140,6 +172,13 @@ class MarkdownWriter:
             sections.append(f"{metadata.abstract}")
             sections.append("")
         
+        # Link to source text note (if written separately)
+        if source_note_name:
+            sections.append("## Source Text")
+            sections.append("")
+            sections.append(f"[[{source_note_name}]]")
+            sections.append("")
+
         # Full citation list (if we have more than what we showed)
         if metadata.citations:
             sections.append("## Full Citation List")
@@ -160,21 +199,22 @@ class MarkdownWriter:
     def article_to_markdown(
         metadata: ArticleMetadata,
         synthesis: Synthesis,
-        content: str
+        source_note_name: Optional[str] = None,
     ) -> str:
         """
         Convert article metadata + synthesis to Obsidian markdown.
-        
+
         Similar to paper format but:
         - No citations section (web content doesn't have bibliography)
-        - Includes original content at bottom
+        - Links to a separate source note rather than embedding full content
         - Different frontmatter fields
-        
+
         Args:
             metadata: Article metadata from web fetcher
             synthesis: AI-generated synthesis
-            content: Original article content as markdown
-            
+            source_note_name: Wikilink name of the source note (without brackets or .md).
+                              If None, the source text section is omitted.
+
         Returns:
             Formatted markdown string
         """
@@ -217,12 +257,12 @@ class MarkdownWriter:
         # Related Papers (placeholder)
         sections.append("## Related Papers\n")
         sections.append("*Papers referenced in this article will appear here.*\n")
-        
-        # Original content
-        sections.append("## Original Content\n")
-        sections.append(content)
-        sections.append("")
-        
+
+        # Link to source text note
+        if source_note_name:
+            sections.append("## Source Text\n")
+            sections.append(f"[[{source_note_name}]]\n")
+
         # Combine
         markdown = frontmatter + "\n" + "\n".join(sections)
         

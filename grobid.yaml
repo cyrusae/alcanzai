@@ -1,0 +1,193 @@
+# Custom GROBID config for alcanzai
+# Mounted into container at /opt/grobid/grobid-home/config/grobid.yaml
+#
+# Purpose: force ALL models to engine: "wapiti" (CRF) so that DeLFT/TensorFlow
+# is never loaded. The default grobid/grobid:0.8.2 config uses engine: "delft"
+# for 8 models; on Apple Silicon (AMD64 image under QEMU), TensorFlow crashes
+# immediately because it requires AVX instructions that QEMU doesn't emulate.
+#
+# Other changes from default:
+#   - modelPreload: false  → models load on first request, not all at startup
+#   - concurrency: 4       → reasonable for a dev machine
+
+grobid:
+  grobidHome: "grobid-home"
+  temp: "tmp"
+  nativelibrary: "lib"
+
+  pdf:
+    pdfalto:
+      path: "pdfalto"
+      memoryLimitMb: 6096
+      timeoutSec: 120
+    blocksMax: 200000
+    tokensMax: 1000000
+
+  consolidation:
+    service: "crossref"
+    glutton:
+      url: "http://localhost:8080"
+    crossref:
+      mailto:
+      token:
+
+  proxy:
+    host:
+    port:
+
+  corsAllowedOrigins: "*"
+  corsAllowedMethods: "OPTIONS,GET,PUT,POST,DELETE,HEAD"
+  corsAllowedHeaders: "X-Requested-With,Content-Type,Accept,Origin"
+
+  languageDetectorFactory: "org.grobid.core.lang.impl.CybozuLanguageDetectorFactory"
+  sentenceDetectorFactory: "org.grobid.core.lang.impl.OpenNLPSentenceDetectorFactory"
+
+  concurrency: 4
+  poolMaxWait: 1
+
+  delft:
+    install: "../delft"
+    pythonVirtualEnv:
+
+  wapiti:
+    nbThreads: 0
+
+  models:
+    - name: "segmentation"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.0000001
+        window: 50
+        nbMaxIterations: 2000
+
+    - name: "segmentation-article-light"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.0000001
+        window: 50
+        nbMaxIterations: 2000
+
+    - name: "segmentation-article-light-ref"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.0000001
+        window: 50
+        nbMaxIterations: 2000
+
+    - name: "fulltext"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.0001
+        window: 20
+        nbMaxIterations: 1500
+
+    - name: "header"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.000001
+        window: 30
+        nbMaxIterations: 1500
+
+    - name: "header-article-light"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.000001
+        window: 30
+        nbMaxIterations: 1500
+
+    - name: "header-article-light-ref"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.000001
+        window: 30
+        nbMaxIterations: 1500
+
+    - name: "reference-segmenter"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.00001
+        window: 20
+
+    - name: "name-header"
+      engine: "wapiti"
+
+    - name: "name-citation"
+      engine: "wapiti"
+
+    - name: "date"
+      engine: "wapiti"
+
+    - name: "figure"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.00001
+        window: 20
+
+    - name: "table"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.00001
+        window: 20
+
+    - name: "affiliation-address"
+      engine: "wapiti"
+
+    - name: "citation"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.00001
+        window: 50
+        nbMaxIterations: 3000
+
+    - name: "patent-citation"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.0001
+        window: 20
+
+    - name: "funding-acknowledgement"
+      engine: "wapiti"
+      wapiti:
+        epsilon: 0.00001
+        window: 50
+        nbMaxIterations: 2000
+
+    - name: "copyright"
+      engine: "wapiti"
+
+    - name: "license"
+      engine: "wapiti"
+
+  # false = load models on first request instead of all at startup.
+  # Startup is instant; first PDF request pays the wapiti load cost instead.
+  modelPreload: false
+
+server:
+  type: custom
+  applicationConnectors:
+    - type: http
+      port: 8070
+  adminConnectors:
+    - type: http
+      port: 8071
+  registerDefaultExceptionMappers: false
+  requestLog:
+    appenders: []
+
+logging:
+  level: INFO
+  loggers:
+    org.apache.pdfbox.pdmodel.font.PDSimpleFont: "OFF"
+    org.glassfish.jersey.internal: "OFF"
+    com.squarespace.jersey2.guice.JerseyGuiceUtils: "OFF"
+  appenders:
+    - type: console
+      threshold: WARN
+      timeZone: UTC
+    - type: file
+      currentLogFilename: logs/grobid-service.log
+      threshold: INFO
+      archive: true
+      archivedLogFilenamePattern: logs/grobid-service-%d.log
+      archivedFileCount: 5
+      timeZone: UTC

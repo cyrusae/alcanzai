@@ -24,10 +24,11 @@ Python concepts:
 - Graceful error handling with context
 """
 
+import re
 import requests
 from pathlib import Path
 from typing import Optional, Tuple
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from datetime import datetime
 from markdownify import markdownify as md
 
@@ -287,18 +288,19 @@ class WebFetcher:
             # Save PDF
             pdf_path.write_bytes(pdf_content)
             print(f"  ✓ Saved to {filename}")
-        
-        # Create minimal metadata
-        # We don't have rich metadata, but we have the URL
-        # The orchestrator can treat this as a local PDF for GROBID processing
+
+        # Create minimal metadata.
+        # pdf_path is set when vault_path was provided; the orchestrator
+        # uses it to route this item through GROBID instead of the article path.
         metadata = ArticleMetadata(
             title="PDF from URL",  # Will be overwritten by GROBID
             authors=["Unknown"],
             url=url,
             published_date=datetime.now(),
             publisher=None,
-            content="[PDF content - will be processed by GROBID]" if not pdf_path else f"[PDF saved to {pdf_path}]",
-            source="pdf_from_web"
+            content=None,
+            pdf_path=str(pdf_path) if pdf_path else None,
+            source="pdf_from_web",
         )
         
         # Return empty content string (GROBID will extract this)
@@ -342,6 +344,17 @@ class WebFetcher:
         content_html = self._extract_article_content(soup)
         
         if not content_html:
+            # Before giving up entirely, check if this is a landing page with a
+            # PDF download link (PhilArchive, SSRN, etc. with no article body).
+            pdf_link = self._find_pdf_link_on_page(soup, url)
+            if pdf_link:
+                print(f"  → Landing page detected, trying PDF link: {pdf_link}")
+                try:
+                    pdf_content_type, pdf_bytes = self._fetch_with_type_detection(pdf_link)
+                    if "application/pdf" in pdf_content_type:
+                        return self._handle_pdf_from_url(pdf_link, pdf_bytes)
+                except WebFetchError:
+                    pass
             raise TooShortError(
                 f"Could not extract article content from {url}\n"
                 f"Is this a real article? Try saving as PDF instead."
@@ -353,8 +366,19 @@ class WebFetcher:
         # Clean up markdown
         content_md = self._clean_markdown(content_md)
         
-        # Check length
+        # Check length — before giving up, look for a PDF download link.
+        # Abstract/repository pages (PhilArchive, SSRN, ACL Anthology…) serve
+        # minimal HTML but link to the full PDF.
         if len(content_md) < self.MIN_CONTENT_LENGTH:
+            pdf_link = self._find_pdf_link_on_page(soup, url)
+            if pdf_link:
+                print(f"  → Landing page detected, trying PDF link: {pdf_link}")
+                try:
+                    pdf_content_type, pdf_bytes = self._fetch_with_type_detection(pdf_link)
+                    if "application/pdf" in pdf_content_type:
+                        return self._handle_pdf_from_url(pdf_link, pdf_bytes)
+                except WebFetchError:
+                    pass  # fall through to TooShortError
             raise TooShortError(
                 f"Extracted content too short ({len(content_md)} chars, need {self.MIN_CONTENT_LENGTH}). "
                 f"This might be paywalled, a listing page, or not an article. "
@@ -429,38 +453,96 @@ class WebFetcher:
     def _extract_authors(self, soup) -> list[str]:
         """
         Extract author names from page.
-        
+
         Tries in order:
-        1. article:author meta tags
-        2. Common author CSS classes (byline, author-name)
-        3. Schema.org author data
-        4. Returns empty list if not found
+        1. <meta name="author"> (standard HTML, widely used)
+        2. article:author Open Graph meta tags
+        3. JSON-LD schema.org author field
+        4. <d-byline> Distill-framework element (transformer-circuits.pub, distill.pub)
+        5. <a rel="author"> link elements
+        6. Common author CSS classes (byline, author-name, etc.)
         """
+        import json as _json
+
         authors = []
-        
-        # Meta tags
-        author_metas = soup.find_all('meta', property='article:author')
-        authors.extend([m.get('content', '').strip() for m in author_metas if m.get('content')])
-        
-        # Common byline patterns
+
+        # 1. Standard HTML meta author
+        meta_author = soup.find('meta', attrs={'name': 'author'})
+        if meta_author and meta_author.get('content', '').strip():
+            authors.append(meta_author['content'].strip())
+
+        # 2. Open Graph article:author
         if not authors:
-            byline = soup.find(class_=['byline', 'author-name', 'author', 'author-info'])
+            for m in soup.find_all('meta', property='article:author'):
+                if m.get('content', '').strip():
+                    authors.append(m['content'].strip())
+
+        # 3. JSON-LD schema.org (covers many academic/blog sites)
+        if not authors:
+            for script in soup.find_all('script', type='application/ld+json'):
+                try:
+                    data = _json.loads(script.string or '')
+                    # May be a single object or a list
+                    items = data if isinstance(data, list) else [data]
+                    for item in items:
+                        raw = item.get('author', [])
+                        if isinstance(raw, dict):
+                            raw = [raw]
+                        for a in raw:
+                            name = a.get('name', '').strip() if isinstance(a, dict) else str(a).strip()
+                            if name:
+                                authors.append(name)
+                    if authors:
+                        break
+                except Exception:
+                    continue
+
+        # 4. Distill framework <d-byline> (transformer-circuits.pub, distill.pub)
+        if not authors:
+            byline = soup.find('d-byline')
             if byline:
-                text = byline.get_text(strip=True)
-                # Try to extract just the name (before "•", "Posted", etc.)
-                author_text = text.split('•')[0].split('Posted')[0].strip()
-                if author_text and len(author_text) < 100:  # Sanity check
-                    authors.append(author_text)
-        
-        # Remove duplicates while preserving order
-        seen = set()
-        unique_authors = []
-        for author in authors:
-            if author and author not in seen:
-                seen.add(author)
-                unique_authors.append(author)
-        
-        return unique_authors or ["Unknown"]
+                # Authors are in <div class="authors-affiliations"> > <p class="author">
+                for p in byline.find_all('p', class_='author'):
+                    name = p.get_text(strip=True)
+                    if name:
+                        authors.append(name)
+                # Fallback: any <a> inside d-byline
+                if not authors:
+                    for a in byline.find_all('a'):
+                        name = a.get_text(strip=True)
+                        if name and len(name) < 60:
+                            authors.append(name)
+
+        # 5. rel="author" links
+        if not authors:
+            for a in soup.find_all('a', rel='author'):
+                name = a.get_text(strip=True)
+                if name and len(name) < 80:
+                    authors.append(name)
+
+        # 6. Common CSS class patterns
+        if not authors:
+            for cls in ['byline', 'author-name', 'post-author', 'entry-author', 'author']:
+                el = soup.find(class_=cls)
+                if el:
+                    text = el.get_text(strip=True)
+                    # Trim trailing noise ("• date", "Posted by", etc.)
+                    for sep in ('•', '|', 'Posted', 'by ', '\n'):
+                        text = text.split(sep)[0]
+                    text = text.strip()
+                    if text and len(text) < 100:
+                        authors.append(text)
+                        break
+
+        # Deduplicate preserving order
+        seen: set[str] = set()
+        unique: list[str] = []
+        for a in authors:
+            if a and a not in seen:
+                seen.add(a)
+                unique.append(a)
+
+        return unique or ["Unknown"]
     
     def _extract_published_date(self, soup) -> Optional[datetime]:
         """
@@ -531,12 +613,25 @@ class WebFetcher:
         # Remove script/style tags (they're not content)
         for tag in soup(['script', 'style', 'nav', 'header', 'footer', 'aside']):
             tag.decompose()
+
+        # Strip data-URI images — they produce massive base64 blobs in markdown.
+        # Keep img tags with real URLs so alt text and captions are preserved.
+        for img in soup.find_all('img'):
+            src = img.get('src', '')
+            if src.startswith('data:'):
+                img.decompose()
         
         # Try semantic <article> tag first
         article = soup.find('article')
         if article:
             return str(article)
-        
+
+        # Try Distill framework custom elements (distill.pub, transformer-circuits.pub)
+        for tag_name in ['d-article', 'd-body']:
+            distill_article = soup.find(tag_name)
+            if distill_article:
+                return str(distill_article)
+
         # Try common article container classes
         common_containers = [
             {'class': 'article-content'},
@@ -615,6 +710,60 @@ class WebFetcher:
         
         return False
     
+    def _find_pdf_link_on_page(self, soup, base_url: str) -> Optional[str]:
+        """
+        Scan an HTML page for a PDF download link.
+
+        Used when a landing/abstract page (PhilArchive, SSRN, ACL Anthology,
+        etc.) doesn't serve full article text itself but links to the PDF.
+
+        Scoring:
+          3 pts — href ends in .pdf
+          2 pts — href path contains /pdf/, /download/, or 'pdf' before any '?'
+          1 pt  — link text matches download/PDF pattern
+
+        Returns the absolute URL of the best candidate, or None if nothing
+        plausible is found.  The caller is responsible for verifying the link
+        is actually a PDF (e.g. via content-type header).
+        """
+        _PDF_TEXT = re.compile(
+            r'\b(download(\s+pdf)?|full[\s\-]?text(\s+pdf)?|view\s+pdf|get\s+pdf|pdf)\b',
+            re.IGNORECASE,
+        )
+
+        candidates: list[tuple[int, str]] = []
+
+        for a_tag in soup.find_all('a', href=True):
+            href = a_tag.get('href', '').strip()
+            if not href or href.startswith('#') or href.startswith('javascript:'):
+                continue
+
+            abs_url = urljoin(base_url, href)
+            if not abs_url.startswith(('http://', 'https://')):
+                continue
+
+            href_lower = href.lower()
+            path_part = href_lower.split('?')[0]  # ignore query string for path checks
+
+            if path_part.endswith('.pdf'):
+                candidates.append((3, abs_url))
+            elif '/pdf/' in path_part or '/download/' in path_part or path_part.endswith('/pdf'):
+                candidates.append((2, abs_url))
+            elif 'pdf' in path_part:
+                candidates.append((1, abs_url))
+            else:
+                link_text = a_tag.get_text(strip=True)
+                if _PDF_TEXT.search(link_text):
+                    candidates.append((1, abs_url))
+
+        if not candidates:
+            return None
+
+        # Stable descending sort: highest score first, document order preserved
+        # among ties.
+        candidates.sort(key=lambda x: -x[0])
+        return candidates[0][1]
+
     def _generate_pdf_filename_from_url(self, url: str) -> str:
         """
         Generate a filename for a PDF downloaded from URL.

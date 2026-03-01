@@ -86,7 +86,12 @@ class Citation(BibliographicEntry):
     """
     # How many times this citation is mentioned in the parent paper
     mention_count: int = 1
-    
+
+    # Context sentences extracted from the body of the citing paper.
+    # Each string is 1-3 sentences showing how this citation was used.
+    # Populated by CitationContextExtractor during processing.
+    contexts: list[str] = Field(default_factory=list)
+
     # Future fields for citation graph (Phase 2):
     # citation_key: Optional[str] = None  # For Pandoc/BibTeX integration
     # processed: bool = False             # Have we processed this paper?
@@ -115,7 +120,11 @@ class PaperMetadata(BibliographicEntry):
     
     # File paths
     pdf_path: Optional[str] = None
-    
+
+    # Full body text extracted by GROBID (clean, 2-column-aware).
+    # Preferred over pdfplumber output for synthesis and citation context matching.
+    body_text: Optional[str] = None
+
     # Processing metadata
     # These track when and how the paper was processed
     processed_at: Optional[datetime] = None
@@ -140,7 +149,12 @@ class ArticleMetadata(BaseModel):
     
     # The converted markdown content
     content: Optional[str] = None
-    
+
+    # Local path if the article was a PDF downloaded from a URL.
+    # Set by WebFetcher when it saves the file; used by orchestrator
+    # to route the item through GROBID instead of the HTML article path.
+    pdf_path: Optional[str] = None
+
     # Processing metadata
     processed_at: Optional[datetime] = None
     source: str = "web"

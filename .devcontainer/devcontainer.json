@@ -1,0 +1,38 @@
+{
+  "name": "alcanzai-dev",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "charliermarsh.ruff",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter",
+          "editor.formatOnSave": true
+        },
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["tests"]
+      }
+    }
+  },
+
+  "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+  "remoteUser": "vscode",
+
+  "forwardPorts": [8070, 5984],
+  "portsAttributes": {
+    "8070": {"label": "GROBID", "onAutoForward": "notify"},
+    "5984": {"label": "CouchDB", "onAutoForward": "notify"}
+  }
+}

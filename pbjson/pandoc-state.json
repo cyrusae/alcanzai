@@ -1,0 +1,20 @@
+{
+  "subsystem": "pandoc",
+  "what_we_decided": [
+    "2026-01-10 - Dual-track citation format: maintain both [[Wikilinks]] for Obsidian graph AND @citekeys for Pandoc export - best of both ecosystems"
+  ],
+  "what_we_built": [],
+  "what_we_need_to_decide": [
+    "2026-01-10 - Citation key generation scheme: authorYYYY vs author-YYYY vs custom? Handle collisions (smith2023a/b)?",
+    "2026-01-10 - BibTeX vs CSL JSON as primary format? BibTeX more universal, CSL JSON more structured - or maintain both?",
+    "2026-01-10 - Literature review generation: template-based or LLM-assisted synthesis from tagged notes?"
+  ],
+  "what_we_resolved": [],
+  "important_files": [],
+  "context": [
+    "2026-01-10 - Pandoc integration planned for v0.2 - dual-track citations (wikilinks + @citekeys) for Obsidian graph view AND academic publishing workflows",
+    "2026-01-10 - GROBID already extracts citations - can convert to BibTeX/CSL JSON without re-processing papers",
+    "2026-01-10 - Target formats: PDF (formatted papers), HTML (web viewing), DOCX (collaborator sharing), with citation style switching (APA/Chicago/IEEE)",
+    "2026-01-10 - Quarto (.qmd) compatibility is a goal - same ecosystem as R Markdown, supports executable code blocks for reproducible research"
+  ]
+}

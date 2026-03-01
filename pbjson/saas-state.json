@@ -1,0 +1,25 @@
+{
+  "subsystem": "saas",
+  "what_we_decided": [
+    "2026-01-10 - Dual-license strategy: MIT/Apache open-source core + closed-source managed service (following GitLab/Discourse model)",
+    "2026-01-10 - Three-tier pricing strategy: Free (clean inputs, 5-10/mo), Paid T1 (OCR/janky PDFs, 50-100/mo, $5-8), Paid T2 (+ Whisper transcription, unlimited papers + 10hr audio/mo, $15-20)",
+    "2026-01-10 - Hybrid rollout model: Year 1 technical users (self-hosted) -> Year 1-2 processing-as-a-service API -> Year 2+ full SaaS with web UI",
+    "2026-01-10 - Vault sync progression: Download-based (v0.3.0) -> Agent-based (v0.4.0) -> Push-based premium tier (v0.5.0)",
+    "2026-01-10 - Obsidian plugin approach: API-client based (TypeScript plugin calling backend API), not local processing or hybrid initially",
+    "2026-01-10 - Vault hosting strategy: Option C (managed research library with web UI + Obsidian export), not competing with Obsidian Sync/Publish",
+    "2026-01-10 - Infrastructure progression: K3s homelab (v0.1-0.2) -> Redis+Celery on K3s (v0.2) -> AWS learning/hybrid (v0.3-0.4) -> full cloud if needed (v0.5+)"
+  ],
+  "what_we_built": [],
+  "what_we_need_to_decide": [],
+  "what_we_resolved": [
+    "2026-01-10 - What would Obsidian plugin integration look like as first-class citizen? Native UI vs API calls vs hybrid? \u00e2\u2020\u2019 Decided: API-client based TypeScript plugin - phased v0.4.0 (beta manual install) -> v0.5.0 (community directory + enhanced features)",
+    "2026-01-10 - Hosting user vaults directly - is this feasible/desirable? What would architecture look like? (Nightmare territory but interesting) \u00e2\u2020\u2019 Decided: Not competing with Obsidian Sync/Publish - instead offer managed research library with web UI + export to Obsidian"
+  ],
+  "important_files": [],
+  "context": [
+    "2026-01-10 - Currently in exploratory/planning phase - v0.1.0 just achieved, looking at infrastructure scaling and SaaS viability",
+    "2026-01-10 - Target timeline aligns with grad school: Year 1-2 build + incubator applications, Year 2+ potential full service launch as life stabilizes",
+    "2026-01-10 - Obsidian plugin distribution: manual install for beta (v0.4.0) -> community plugin directory submission (v0.5.0, ~2-4 week review)",
+    "2026-01-10 - Student incubator application target: v0.2.0 working (with plugin beta) - demonstrates clear problem, working prototype, technical depth, market validation"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "what_we_decided": [
+    "2026-01-10 - Adopt Agent Skills architecture for synthesis/interaction at v0.2+ refactor - skills as markdown files in /mnt/skills/user/ for modularity, version control, and A/B testing. Keep Python prompts for v0.1.x (rapid iteration), migrate when 3rd interaction type added or prompt duplication becomes painful.",
+    "2026-01-11 - Register (tone/formality/jargon-density) is orthogonal to domain - separate these into independent parameters. Register = how to explain (casual vs formal vs ELI5), Domain lens = what to emphasize (STEM methodology vs humanities argumentation)",
+    "2026-01-11 - Decompose register into axes: (1) jargon-density (none/selective/heavy), (2) sentence-structure (conversational/mixed/formal), (3) explanation-depth (assume-knowledge/balanced/hand-holding). Users can mix: 'heavy jargon + conversational structure' or 'no jargon + formal structure'",
+    "2026-01-11 - First multi-step task priority: detailed summaries (section-by-section breakdown) for LLM papers - immediate value for learning new field, provides structured reading guide, lets user generate shareable notes with methodology details",
+    "2026-01-11 - Jargon handling strategy: 'selective' mode keeps technical terms AND glosses them inline ('alveolar fricative (hissing sound like s or z)'), not replaces. Benefits: builds vocabulary through exposure, preserves precise terminology, supports learning. 'None' mode still glosses but deprioritizes technical term itself.",
+    "2026-01-12 - Skill writing order: (1) Core skills (domain-agnostic foundation), (2) Output tasks (what to generate), (3) Domain lenses (responsive to testing feedback). Core and tasks are prerequisites, lenses are tunable based on real paper evaluation",
+    "2026-01-12 - Complete register skills next (9 files: 3 jargon \u00d7 3 structure \u00d7 3 depth) - this provides complete skill set for loader testing with no placeholders, enables v0.2 integration readiness",
+    "2026-01-12 - All 9 register skills complete - ready for skill loader implementation and integration testing"
+  ],
+  "what_we_built": [
+    "2026-01-12 - Core skills complete (3 files, ~1150 lines total): understand-academic-text.md, extract-arguments.md, identify-terminology.md - foundation for all synthesis tasks with checklists, examples, register integration",
+    "2026-01-12 - Output task skills complete (3 files, ~1000 lines): quick-summary.md (current working prompt formalized), detailed-summary.md (multi-step with caching), glossary-extraction.md (systematic term extraction) - all with checklists, examples, register integration",
+    "2026-01-12 - Jargon density skills complete (3 files, ~750 lines total): none.md (accessible-first), selective.md (keep+gloss learning mode), heavy.md (expert efficiency) - all with checklists, domain examples, integration notes",
+    "2026-01-12 - Sentence structure skills complete (3 files, ~950 lines total): conversational.md (coffee chat tone), mixed.md (professional-but-clear default), formal.md (academic register) - all with examples, integration notes, checklists",
+    "2026-01-12 - Explanation depth skills complete (3 files, ~1050 lines total): hand-holding.md (teach me this field), balanced.md (standard lit review), assume-knowledge.md (expert efficiency) - all with examples, integration notes, checklists",
+    "2026-01-12 - Skill loader complete (skill_loader.py ~260 lines): loads and composes markdown skills with register configuration, file caching, validation. Plus register_config.py (~240 lines): TOML config management, preset system (learning/partner/litreview/scan/default)"
+  ],
+  "what_we_need_to_decide": [
+    "2026-01-11 - Can Claude reliably infer domain/field from paper content, or do we need explicit domain tagging? Test: process socioling paper without domain hints, evaluate if synthesis matches field conventions"
+  ],
+  "what_we_resolved": [],
+  "important_files": [],
+  "context": [
+    "2026-01-10 - Migration trigger: When adding 3rd distinct interaction type (quick synthesis, detailed summary, chat, cross-paper synthesis, etc.) - that's when skill overhead pays off vs Python prompt sprawl",
+    "2026-01-11 - Domain expansion roadmap: (1) Sociolinguistics (next test, good PDFs available), (2) Linguistics general (gap year refresh), (3) Humanities cluster later (critical theory, history, comp lit, religious studies, phenomenology, philosophy) - wait for robust pipeline due to PDF quality issues",
+    "2026-01-11 - User preference targets: (1) Current: casual/conversational + explicit explanation (burnout recovery, field hiatus awareness), (2) Partner-shareable (smart non-expert audience), (3) Future: efficient jargon-heavy for active lit review. System must support all three modes",
+    "2026-01-11 - Anecdotal evidence: Claude handled molecular chemistry paper summary well despite wrong arXiv ID - suggests domain auto-detection is robust. Still need systematic testing with socioling papers to validate.",
+    "2026-01-12 - Skill loader = Python utility that reads .md files from /mnt/skills/user/, composes them according to dependencies, and returns complete prompt text for Claude API calls. Handles: file I/O, dependency resolution, skill composition, caching hints",
+    "2026-01-12 - Skill format preferences: Include checklists (from skill API best practices), full detail with examples (200-300 lines), leverage Claude's expertise in agent skills to create robust foundation for testing"
+  ],
+  "subsystem": "claude-api"
+}

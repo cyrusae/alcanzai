@@ -1,0 +1,93 @@
+# Files to Copy Back to Your Project
+
+## PYTEST TEST FILES (Replace old test_*.py files)
+tests/test_arxiv_fetcher.py
+tests/test_grobid_processor.py
+tests/test_synthesis_generator.py
+tests/test_markdown_writer.py
+
+## NEW CLI ENTRY POINT
+paper_library/cli.py
+
+## CONFIGURATION FILES (New)
+.pre-commit-config.yaml
+.devcontainer/devcontainer.json
+.devcontainer/postCreateCommand.sh
+
+## UPDATED CONFIGURATION
+pyproject.toml  (added [project.scripts] and pre-commit to dev dependencies)
+
+## DOCUMENTATION
+DEVELOPER.md
+SETUP_SUMMARY.md
+ARCHITECTURE_VISUAL.md
+quickstart.sh
+
+## REFERENCE/EXAMPLE (Don't copy - just reference)
+test_example_conversions.py  (Shows before/after test patterns)
+
+---
+
+## HOW TO GET THESE FILES
+
+Option 1: Copy from /mnt/user-data/outputs/ (all files are there)
+
+Option 2: From the original files I created:
+- Tests: /mnt/project/tests/test_*.py
+- CLI: /mnt/project/paper_library/cli.py
+- Config: /mnt/project/.pre-commit-config.yaml, .devcontainer/*, pyproject.toml
+- Docs: /mnt/project/DEVELOPER.md
+
+---
+
+## SETUP INSTRUCTIONS
+
+1. Copy all files above into your project
+
+2. For .devcontainer/postCreateCommand.sh:
+   chmod +x .devcontainer/postCreateCommand.sh
+
+3. Update pyproject.toml with:
+   [project.scripts]
+   alcanzai = "paper_library.cli:cli"
+   
+   [project.optional-dependencies]
+   dev = [
+       "pytest>=8.0.0",
+       "black>=24.0.0",
+       "ruff>=0.6.0",
+       "pre-commit>=3.0.0",
+       "pyyaml>=6.0",
+   ]
+
+4. Delete old test files:
+   rm test_arxiv.py test_grobid.py test_synthesis.py test_markdown.py test_pipeline.py
+
+5. Run quickstart:
+   bash quickstart.sh
+
+6. OR manually:
+   uv sync --all-extras
+   pre-commit install
+   source .venv/bin/activate
+   pytest tests/ -m "not integration"
+
+---
+
+## VERIFICATION
+
+After copying files, verify:
+
+✓ pytest works:
+  pytest tests/ -m "not integration"
+
+✓ CLI works:
+  alcanzai validate
+  alcanzai ingest 1706.03762
+
+✓ Pre-commit hooks work:
+  pre-commit install
+  pre-commit run --all-files
+
+✓ Dev container ready (optional):
+  Open in VS Code → Ctrl+Shift+P → "Reopen in Container"
