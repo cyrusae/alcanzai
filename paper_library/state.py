@@ -17,6 +17,9 @@ from typing import Optional
 
 from paper_library.config import config
 from paper_library.models import ProcessingState
+from paper_library.telemetry import get_logger
+
+logger = get_logger(__name__)
 
 
 class StateManager:
@@ -87,8 +90,8 @@ class StateManager:
             )
         except Exception as e:
             # If something goes wrong, start fresh
-            print(f"Warning: Could not load state file: {e}")
-            print("Starting with empty state")
+            logger.warning("could_not_load_state_file", error=str(e))
+            logger.info("starting_with_empty_state")
             self._state = ProcessingState()
     
     def save(self) -> None:

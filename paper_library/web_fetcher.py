@@ -31,6 +31,11 @@ from typing import Optional, Tuple
 from urllib.parse import urlparse, urljoin
 from datetime import datetime
 from markdownify import markdownify as md
+from opentelemetry import trace
+from opentelemetry.trace import SpanKind, StatusCode
+from paper_library.telemetry import tracer, get_logger
+
+logger = get_logger(__name__)
 
 try:
     from bs4 import BeautifulSoup
@@ -151,8 +156,6 @@ class WebFetcher:
             PaywallError: If content appears paywalled
             WebFetchError: For other fetching issues
         """
-        print(f"↳ Fetching web content from {url}")
-        
         # Validate URL format
         try:
             parsed = urlparse(url)
@@ -160,35 +163,55 @@ class WebFetcher:
                 raise WebFetchError(f"Invalid URL: {url}")
         except Exception as e:
             raise WebFetchError(f"Could not parse URL: {e}")
-        
-        # Check for explicitly unsupported hosts
-        hostname = parsed.netloc.lower()
-        for unsupported_host, description in self.UNSUPPORTED_HOSTS.items():
-            if hostname.endswith(unsupported_host.replace('www.', '')):
-                raise UnsupportedSourceError(
-                    f"Cannot process {description} yet (v0.2 feature). "
-                    f"URL: {url}\n"
-                    f"Try: Take a screenshot, save as PDF, or use a dedicated archiver."
-                )
-        
-        # Detect content type and fetch
-        content_type, content = self._fetch_with_type_detection(url)
-        
-        if content_type == "application/pdf":
-            # Route to PDF handler
-            return self._handle_pdf_from_url(url, content)
-        
-        elif content_type.startswith("text/html"):
-            # Parse as HTML article
-            return self._handle_html(url, content)
-        
-        else:
-            # Unknown content type
-            raise WebFetchError(
-                f"Unknown content type: {content_type}\n"
-                f"Supported: HTML articles, PDFs\n"
-                f"URL: {url}"
-            )
+
+        with tracer.start_as_current_span(
+            'fetch_web',
+            kind=SpanKind.CLIENT,
+            attributes={
+                'web.url': url,
+                'web.domain': parsed.netloc,
+            }
+        ) as span:
+            try:
+                logger.info("fetching_web", url=url)
+                
+                # Check for explicitly unsupported hosts
+                hostname = parsed.netloc.lower()
+                for unsupported_host, description in self.UNSUPPORTED_HOSTS.items():
+                    if hostname.endswith(unsupported_host.replace('www.', '')):
+                        raise UnsupportedSourceError(
+                            f"Cannot process {description} yet (v0.2 feature). "
+                            f"URL: {url}\n"
+                            f"Try: Take a screenshot, save as PDF, or use a dedicated archiver."
+                        )
+                
+                # Detect content type and fetch
+                content_type, content = self._fetch_with_type_detection(url)
+                span.set_attribute('web.content_type', 'pdf' if content_type == "application/pdf" else 'html')
+                
+                if content_type == "application/pdf":
+                    # Route to PDF handler
+                    metadata, content_str = self._handle_pdf_from_url(url, content)
+                elif content_type.startswith("text/html"):
+                    # Parse as HTML article
+                    metadata, content_str = self._handle_html(url, content)
+                else:
+                    # Unknown content type
+                    raise WebFetchError(
+                        f"Unknown content type: {content_type}\n"
+                        f"Supported: HTML articles, PDFs\n"
+                        f"URL: {url}"
+                    )
+                
+                span.set_attribute('web.content_length_chars', len(content_str))
+                span.set_attribute('web.title', metadata.title or '')
+                span.set_status(StatusCode.OK)
+                return metadata, content_str
+                
+            except Exception as e:
+                span.set_status(StatusCode.ERROR, str(e))
+                span.record_exception(e)
+                raise
     
     def _fetch_with_type_detection(self, url: str) -> Tuple[str, bytes]:
         """
@@ -276,7 +299,7 @@ class WebFetcher:
         """
         from paper_library.models import ArticleMetadata
         
-        print(f"  ✓ Detected PDF at {url}")
+        logger.info("pdf_detected", url=url)
         
         # Optionally save to vault
         pdf_path = None
@@ -287,7 +310,7 @@ class WebFetcher:
             
             # Save PDF
             pdf_path.write_bytes(pdf_content)
-            print(f"  ✓ Saved to {filename}")
+            logger.info("pdf_saved", filename=filename)
 
         # Create minimal metadata.
         # pdf_path is set when vault_path was provided; the orchestrator
@@ -348,7 +371,7 @@ class WebFetcher:
             # PDF download link (PhilArchive, SSRN, etc. with no article body).
             pdf_link = self._find_pdf_link_on_page(soup, url)
             if pdf_link:
-                print(f"  → Landing page detected, trying PDF link: {pdf_link}")
+                logger.info("landing_page_pdf_link_found", url=pdf_link)
                 try:
                     pdf_content_type, pdf_bytes = self._fetch_with_type_detection(pdf_link)
                     if "application/pdf" in pdf_content_type:
@@ -372,7 +395,7 @@ class WebFetcher:
         if len(content_md) < self.MIN_CONTENT_LENGTH:
             pdf_link = self._find_pdf_link_on_page(soup, url)
             if pdf_link:
-                print(f"  → Landing page detected, trying PDF link: {pdf_link}")
+                logger.info("landing_page_pdf_link_found", url=pdf_link)
                 try:
                     pdf_content_type, pdf_bytes = self._fetch_with_type_detection(pdf_link)
                     if "application/pdf" in pdf_content_type:
@@ -395,9 +418,9 @@ class WebFetcher:
         # Truncate if too long
         if len(content_md) > self.MAX_CONTENT_LENGTH:
             content_md = content_md[:self.MAX_CONTENT_LENGTH]
-            print(f"  ⚠ Content truncated to {self.MAX_CONTENT_LENGTH} chars")
+            logger.warning("content_truncated", max_length=self.MAX_CONTENT_LENGTH)
         
-        print(f"  ✓ Extracted {len(content_md)} chars of content")
+        logger.info("content_extracted", length=len(content_md))
         
         # Create metadata
         metadata = ArticleMetadata(
@@ -630,6 +653,9 @@ class WebFetcher:
         for tag_name in ['d-article', 'd-body']:
             distill_article = soup.find(tag_name)
             if distill_article:
+                span = trace.get_current_span()
+                if span.is_recording():
+                    span.set_attribute('web.is_distill', True)
                 return str(distill_article)
 
         # Try common article container classes

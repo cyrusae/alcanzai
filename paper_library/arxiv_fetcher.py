@@ -18,8 +18,12 @@ import requests
 from pathlib import Path
 from typing import Optional, Tuple
 from lxml import etree
-
+from opentelemetry import trace
+from opentelemetry.trace import SpanKind, StatusCode
+from paper_library.telemetry import tracer, get_logger
 from paper_library.models import PaperMetadata
+
+logger = get_logger(__name__)
 
 
 class ArxivError(Exception):
@@ -88,20 +92,37 @@ class ArxivFetcher:
         if not clean_id:
             raise ArxivError(f"Invalid arXiv ID: {arxiv_id}")
         
-        print(f"→ Fetching arXiv {clean_id}...")
-        
-        # Fetch metadata from API
-        metadata = self._fetch_metadata(clean_id)
-        
-        # Download PDF
-        pdf_path = self._download_pdf(clean_id)
-        
-        # Store PDF path in metadata
-        metadata.pdf_path = str(pdf_path)
-        metadata.arxiv_id = clean_id
-        metadata.source = "arxiv"
-        
-        return pdf_path, metadata
+        with tracer.start_as_current_span(
+            'fetch_arxiv',
+            kind=SpanKind.CLIENT,
+            attributes={
+                'arxiv.id': clean_id,
+            }
+        ) as span:
+            try:
+                logger.info("fetching_arxiv", arxiv_id=clean_id)
+                
+                # Fetch metadata from API
+                metadata = self._fetch_metadata(clean_id)
+                
+                # Download PDF
+                pdf_path = self._download_pdf(clean_id)
+                
+                # Store PDF path in metadata
+                metadata.pdf_path = str(pdf_path)
+                metadata.arxiv_id = clean_id
+                metadata.source = "arxiv"
+                
+                span.set_attribute('arxiv.title', metadata.title or '')
+                span.set_attribute('arxiv.author_count', len(metadata.authors))
+                span.set_attribute('arxiv.pdf_size_bytes', pdf_path.stat().st_size if pdf_path else 0)
+                span.set_status(StatusCode.OK)
+                
+                return pdf_path, metadata
+            except Exception as e:
+                span.set_status(StatusCode.ERROR, str(e))
+                span.record_exception(e)
+                raise
     
     def parse_arxiv_id(self, text: str) -> Optional[str]:
         """
@@ -332,11 +353,11 @@ class ArxivFetcher:
         
         # Skip if already downloaded
         if pdf_path.exists():
-            print(f"  ✓ PDF already exists: {pdf_filename}")
+            logger.info("pdf_already_exists", filename=pdf_filename)
             return pdf_path
         
         try:
-            print(f"  → Downloading PDF from arXiv...")
+            logger.info("downloading_pdf", arxiv_id=arxiv_id)
             
             # Stream the download (PDFs can be large)
             # stream=True means we download in chunks
@@ -349,7 +370,7 @@ class ArxivFetcher:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
             
-            print(f"  ✓ PDF downloaded: {pdf_filename}")
+            logger.info("pdf_downloaded", filename=pdf_filename)
             return pdf_path
             
         except requests.RequestException as e:

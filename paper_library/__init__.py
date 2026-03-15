@@ -14,7 +14,7 @@ Main workflow:
     processor.process("2312.12345")  # arXiv ID
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.5"
 
 # Core components available at package level
 from paper_library.config import config

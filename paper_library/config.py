@@ -17,6 +17,10 @@ from pathlib import Path
 from typing import Optional
 from dotenv import load_dotenv
 
+from paper_library.telemetry import get_logger
+
+logger = get_logger(__name__)
+
 # Load environment variables from .env file into os.environ
 # This happens automatically when this module is imported
 load_dotenv()
@@ -45,6 +49,10 @@ class Config:
     # Optional email for Crossref and Unpaywall polite pools.
     # Omitting it still works but may get slower/throttled responses.
     crossref_email: Optional[str] = os.getenv("CROSSREF_EMAIL")
+    
+    # Token budget for paper text sent to Claude.
+    # Haiku 4.5 has 200K context. Default 150K leaves headroom for skills + output.
+    SYNTHESIS_TOKEN_BUDGET: int = int(os.getenv("ALCANZAI_SYNTHESIS_TOKEN_BUDGET", "150000"))
     
     # File paths
     # Path() creates a pathlib Path object, better than string manipulation
@@ -95,7 +103,7 @@ class Config:
         
         # Check that vault exists (create it if needed)
         if not self.vault_path.exists():
-            print(f"Creating vault directory at {self.vault_path}")
+            logger.info("creating_vault_directory", path=str(self.vault_path))
             self.vault_path.mkdir(parents=True, exist_ok=True)
 
 

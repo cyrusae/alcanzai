@@ -13,9 +13,12 @@ Python concepts:
 
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from paper_library.models import PaperMetadata, ArticleMetadata, Synthesis, Citation
+from paper_library.telemetry import tracer, get_logger
+
+logger = get_logger(__name__)
 
 
 class MarkdownWriter:
@@ -622,8 +625,8 @@ class MarkdownWriter:
         title = title.replace('"', '').replace("'", '')
         
         # Replace periods with dashes (all of them - safer for cross-platform filenames)
-        # "Part 3.1" â†’ "Part 3-1"
-        # "U.S.A." â†’ "U-S-A-"  
+        # "Part 3.1" -> "Part 3-1"
+        # "U.S.A." -> "U-S-A-"  
         title = title.replace('.', '-')
         
         # Replace colons with dashes (more filename-friendly)
@@ -669,3 +672,30 @@ class MarkdownWriter:
         filename = re.sub(r'[^\w\s\-().]', '', filename)
         
         return filename
+
+    @staticmethod
+    def write_markdown(
+        output_path: Path,
+        content: str,
+        metadata: Union[PaperMetadata, ArticleMetadata],
+        output_type: str = "paper"
+    ) -> None:
+        """
+        Write markdown content to file with telemetry instrumentation.
+        """
+        with tracer.start_as_current_span(
+            'write_markdown',
+            attributes={'output.type': output_type}
+        ) as span:
+            # Ensure directory exists
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Write file
+            output_path.write_text(content, encoding="utf-8")
+            
+            # Set telemetry attributes
+            span.set_attribute('output.path', str(output_path))
+            span.set_attribute('output.size_bytes', output_path.stat().st_size)
+            span.set_attribute('output.citation_count', len(getattr(metadata, 'citations', [])))
+            
+            logger.info("markdown_written", path=str(output_path), type=output_type)

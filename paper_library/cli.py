@@ -14,12 +14,18 @@ from pathlib import Path
 from paper_library.config import config
 from paper_library.state import StateManager
 from paper_library.orchestrator import PaperProcessor
+from paper_library.telemetry import init_telemetry
 
 
 @click.group()
-def cli():
+@click.option("--diagnostics", is_flag=True, default=False, help="Enable detailed token/cost diagnostics (sets log level to DEBUG)")
+@click.pass_context
+def cli(ctx, diagnostics):
     """alcanzai - Your personal research librarian"""
-    pass
+    log_level = "DEBUG" if diagnostics else None
+    init_telemetry(log_level_override=log_level)
+    ctx.ensure_object(dict)
+    ctx.obj["diagnostics"] = diagnostics
 
 
 @cli.command()

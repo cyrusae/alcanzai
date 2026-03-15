@@ -18,10 +18,14 @@ DOI formats handled:
 import re
 import requests
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 from datetime import datetime
-
+from opentelemetry import trace
+from opentelemetry.trace import SpanKind, StatusCode
+from paper_library.telemetry import tracer, get_logger
 from paper_library.models import PaperMetadata
+
+logger = get_logger(__name__)
 
 
 class DoiFetchError(Exception):
@@ -117,28 +121,55 @@ class DoiFetcher:
         Raises:
             DoiFetchError: If Crossref lookup fails entirely.
         """
-        print(f"  → Looking up DOI: {doi}")
+        with tracer.start_as_current_span(
+            'fetch_doi',
+            kind=SpanKind.CLIENT,
+            attributes={'doi.identifier': doi}
+        ) as span:
+            try:
+                logger.info("doi_lookup", doi=doi)
 
-        metadata = self._fetch_crossref(doi)
-        print(f"  ✓ Crossref: {metadata.title[:70]}")
+                metadata = self._fetch_crossref(doi)
+                span.set_attribute('doi.crossref_found', True)
+                logger.info("crossref_metadata_found", title=metadata.title)
 
-        pdf_path = None
-        pdf_url = self._find_oa_pdf_url(doi)
-        if pdf_url:
-            print(f"  ✓ OA PDF: {pdf_url[:70]}")
-            pdf_path = self._download_pdf(pdf_url, doi)
-            if pdf_path:
-                print(f"  ✓ Downloaded: {pdf_path.name}")
-            else:
-                print(f"  ⚠ PDF download failed — using abstract only")
-        else:
-            print(f"  ⚠ No OA PDF found — synthesis will use abstract only")
+                pdf_path = None
+                resolution_path: List[str] = ["crossref"]
+                
+                # Unpaywall
+                pdf_url = self._fetch_unpaywall(doi)
+                if pdf_url:
+                    span.set_attribute('doi.unpaywall_oa_found', True)
+                    resolution_path.append("unpaywall")
+                else:
+                    span.set_attribute('doi.unpaywall_oa_found', False)
+                    # Semantic Scholar
+                    pdf_url = self._fetch_semantic_scholar(doi)
+                    if pdf_url:
+                        span.set_attribute('doi.semantic_scholar_oa_found', True)
+                        resolution_path.append("semantic_scholar")
+                    else:
+                        span.set_attribute('doi.semantic_scholar_oa_found', False)
 
-        return metadata, pdf_path
+                span.set_attribute('doi.resolution_path', "+".join(resolution_path))
 
-    # ------------------------------------------------------------------
-    # Crossref
-    # ------------------------------------------------------------------
+                if pdf_url:
+                    logger.info("oa_pdf_found", url=pdf_url)
+                    pdf_path = self._download_pdf(pdf_url, doi)
+                    if pdf_path:
+                        logger.info("pdf_downloaded", filename=pdf_path.name)
+                    else:
+                        logger.warning("pdf_download_failed")
+                else:
+                    logger.info("no_oa_pdf_found")
+
+                span.set_attribute('doi.pdf_acquired', bool(pdf_path))
+                span.set_status(StatusCode.OK)
+                return metadata, pdf_path
+            except Exception as e:
+                span.set_status(StatusCode.ERROR, str(e))
+                span.record_exception(e)
+                raise
 
     def _fetch_crossref(self, doi: str) -> PaperMetadata:
         """Fetch bibliographic metadata from the Crossref REST API."""
