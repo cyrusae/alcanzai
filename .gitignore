@@ -205,3 +205,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+# ExoMonad - track config and source, ignore runtime artifacts
+.exo/*
+!.exo/config.toml
+!.exo/roles/
+!.exo/lib/
+!.exo/rules/

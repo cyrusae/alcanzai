@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "exomonad": {
+      "command": "",
+      "args": [
+        "exomonad mcp-stdio"
+      ]
+    }
+  }
+}
