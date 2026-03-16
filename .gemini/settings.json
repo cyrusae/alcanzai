@@ -6,5 +6,8 @@
         "exomonad mcp-stdio"
       ]
     }
+  },
+  "general": {
+    "preferredEditor": "neovim"
   }
 }
