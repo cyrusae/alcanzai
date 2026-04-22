@@ -1,0 +1,18 @@
+[
+  {
+    "hash": "7329175aade728ef35e3960f35d9b7a3723b6267",
+    "short_hash": "7329175",
+    "author": "Cyrus",
+    "date": "2026-04-22T00:02:15-07:00",
+    "message": "Add issue templates for epic / feature / bug / design-question\n\nBare-bones issue-tracking scaffolding to support the pbjson-for-why /\ndeciduous-for-what / issues-for-how-and-when memory model. Templates\nnudge each new issue toward its canonical shape: design questions\ninclude options + blocked-by; epics include sub-issue checklists + open\nquestions; features include a parent-epic link.\n\nconfig.yml disables blank issues and surfaces the live decision graph\nviewer as a contact link.\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>",
+    "files_changed": 5
+  },
+  {
+    "hash": "1c75b7d59b7e8472afa170209a491c444cf547b8",
+    "short_hash": "1c75b7d",
+    "author": "Cyrus",
+    "date": "2026-04-21T21:01:38-07:00",
+    "message": "Install deciduous decision-graph harness and GitHub Pages deploy\n\nPreviously landed via local install but never committed. Adds:\n- CLAUDE.md block documenting the graph workflow (inside deciduous\n  start/end markers so future regenerations stay idempotent)\n- .claude/ with commands (decision, recover, work, document, sync-graph,\n  sync, serve-ui, build-test, decision-graph), hooks (require-action-node,\n  post-commit-reminder), skills (pulse, narratives, archaeology),\n  and an agents.toml scaffold\n- .github/workflows for GitHub Pages deploy and decision-graph cleanup\n- docs/ viewer assets (index.html + graph-data.json) for the live graph\n- .gitignore: .deciduous/ (local DB), .claude/settings.local.json\n  (machine-specific exomonad paths), and finally .DS_Store\n\nNo project-code changes.\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>",
+    "files_changed": 23
+  }
+]

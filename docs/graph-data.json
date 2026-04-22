@@ -604,6 +604,138 @@
       "created_at": "2026-03-24T11:02:43.809287-07:00",
       "updated_at": "2026-03-24T11:02:47.300802-07:00",
       "metadata_json": "{\"branch\":\"claude\"}"
+    },
+    {
+      "id": 56,
+      "change_id": "7cd0f6f9-83e9-48ab-a58f-67f84e59493c",
+      "node_type": "goal",
+      "title": "Re-engage with alcanzai: v0.3.0 planning, notes-shape refactor, telemetry validation, issues-based workflow",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-21T21:00:18.069360-07:00",
+      "updated_at": "2026-04-21T21:00:18.069360-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":85,\"prompt\":\"I'm returning to this project after some time away. I want to refamiliarize myself with it and figure out where to tune back in for development. This seemed like a good excuse to introduce you to the codebase, document the process, and maybe figure out a proper issues-based workflow for agentic development. How do you want to approach exploring it?\\n\\n[Follow-ups clarified:]\\n- Deciduous install from previous session should be committed\\n- Point of session: re-engage + roadmap Hard Mode cluster (everything on the table)\\n- \\\"Refactor notes that get produced\\\" on agenda early — prior undocumented conversation\\n  was about moving sections of output notes around, adding a methodology section,\\n  and other structured-recall stuff; pedagogical best-practices research was done\\n  but no full redesign finalized\\n- Memory architecture: pbjson = \\\"why\\\" (architecture/design), deciduous = \\\"what\\\"\\n  (coding sessions), GitHub issues = \\\"how/when\\\" (execution)\\n- Exomonad compatibility must be preserved (orchestrator that lets Claude delegate\\n  to Gemini subagents; not currently in an exomonad session)\\n- Telemetry infra built in v0.2.5 but never set up/tested — user has forgotten\\n  how it works; \\\"reacquaint with telemetry + get it running live\\\" is HIGH PRIORITY\\n- Brainstorming conversations viable in this session since logging tools available\"}"
+    },
+    {
+      "id": 57,
+      "change_id": "fe04a5f9-ef0d-4e81-8256-d4de957f3fd7",
+      "node_type": "action",
+      "title": "Commit deciduous harness install (CLAUDE.md block, .gitignore update, .claude/ agent config, .github/workflows, docs/ viewer)",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-21T21:00:22.452358-07:00",
+      "updated_at": "2026-04-21T21:00:22.452358-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":95,\"files\":[\"CLAUDE.md\",\".gitignore\",\".claude/agents.toml\",\".claude/settings.json\",\".github/workflows/deploy-pages.yml\",\".github/workflows/cleanup-decision-graphs.yml\",\"docs/.nojekyll\",\"docs/graph-data.json\",\"docs/index.html\"]}"
+    },
+    {
+      "id": 58,
+      "change_id": "4bd4ae5a-d5c8-4782-8307-718cf046398c",
+      "node_type": "observation",
+      "title": "Memory architecture consensus: pbjson = 'why' (architecture conversations, design decisions, web-syncable), deciduous = 'what' (coding session flow, graph), GitHub issues = 'how/when' (execution queue). pbjson/project.json currently stale at v0.2.0 — needs catch-up pass to stay useful under this model.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-21T21:00:27.712447-07:00",
+      "updated_at": "2026-04-21T21:00:27.712447-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":80}"
+    },
+    {
+      "id": 59,
+      "change_id": "b620d249-326c-47f9-90f7-c6d6eaa4e787",
+      "node_type": "observation",
+      "title": "Telemetry infrastructure (OTel + structlog + token_utils, shipped v0.2.5 commit 4315aa3) was built but never validated end-to-end with real collector/backend. User has forgotten the wiring. Treat as high-priority reacquaint-and-verify task BEFORE adding new v0.3.0 features that would benefit from tracing.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-21T21:00:30.891415-07:00",
+      "updated_at": "2026-04-21T21:00:30.891415-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":85}"
+    },
+    {
+      "id": 60,
+      "change_id": "83258054-a36c-4d94-948a-f5d32a8b29da",
+      "node_type": "observation",
+      "title": "Exomonad compatibility is a cross-cutting constraint: it's an orchestrator hooked into Claude Code via settings.local.json that lets Claude delegate to Gemini instances as subagents. Hooks on every lifecycle event (SessionStart/End, PreToolUse, PostToolUse, UserPromptSubmit, SubagentStart/Stop, Notification, PermissionRequest, PreCompact, Stop). Any workflow/tooling changes must preserve this integration.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-21T21:00:34.077658-07:00",
+      "updated_at": "2026-04-21T21:00:34.077658-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":90}"
+    },
+    {
+      "id": 61,
+      "change_id": "cc261249-a446-4931-af1e-5d59a6e2572b",
+      "node_type": "outcome",
+      "title": "Clean working tree: deciduous harness committed as 1c75b7d, .DS_Store tracking killed, settings.local.json protected via .gitignore. 23 files / 3899 lines, zero project-code changes.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-21T21:01:42.877293-07:00",
+      "updated_at": "2026-04-21T21:01:42.877293-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"commit\":\"1c75b7d\",\"confidence\":95}"
+    },
+    {
+      "id": 62,
+      "change_id": "4b9caf71-1f1c-4fe2-bead-82d02bb97df8",
+      "node_type": "action",
+      "title": "Read telemetry/token_utils/orchestrator OTel instrumentation; produce reacquaint briefing; scaffold GitHub issues + epic for 'working telemetry'",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-21T21:12:33.959330-07:00",
+      "updated_at": "2026-04-21T21:12:33.959330-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":85,\"files\":[\"paper_library/telemetry.py\",\"paper_library/token_utils.py\",\"paper_library/orchestrator.py\",\"paper_library/synthesis_generator.py\"]}"
+    },
+    {
+      "id": 63,
+      "change_id": "fedffb15-1907-46df-8ae3-b099db584846",
+      "node_type": "observation",
+      "title": "Latent bug: paper_library/telemetry.py registers MeterProvider.shutdown() at atexit but NOT TracerProvider.shutdown(). BatchSpanProcessor is async-buffered; short-lived CLI processes may lose last-batch spans. Fix as part of Issue 4 (instrumentation hardening).",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-21T22:07:02.044571-07:00",
+      "updated_at": "2026-04-21T22:07:02.044571-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":90,\"files\":[\"paper_library/telemetry.py\"]}"
+    },
+    {
+      "id": 64,
+      "change_id": "c116f2e3-2ab1-4dc3-a1af-7bd873aa853c",
+      "node_type": "observation",
+      "title": "Test-suite audit wanted (user flagged): no systematic review of whether existing tests are well-formed. Should be an Opus-driven audit session, delegated via exomonad to Gemini for rewrite/triage to preserve budget. Filing as low-priority issue for tracker visibility.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-21T22:07:04.367516-07:00",
+      "updated_at": "2026-04-21T22:07:04.367516-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":85}"
+    },
+    {
+      "id": 65,
+      "change_id": "85ef4295-1b48-47f7-bf3e-a92485743dd4",
+      "node_type": "outcome",
+      "title": "7 issues filed on GitHub: epic #2, #3 local validation, #4 design-question (Tailscale routing), #5 cluster deploy, #6 dashboards, #7 hardening; #8 standalone test audit. All under milestone v0.2.6 (except #8). Cross-refs initially off-by-one due to PR #1 occupying issue-number space; fixed via sed swap + gh issue edit.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-22T00:01:54.619124-07:00",
+      "updated_at": "2026-04-22T00:01:54.619124-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":95}"
+    },
+    {
+      "id": 66,
+      "change_id": "a2f4d62d-ee22-4f97-ac4c-e98ca29e5b41",
+      "node_type": "outcome",
+      "title": "Issue templates committed as 7329175 on claude branch: epic / feature / bug / design-question + config.yml. Scaffolding done; issue workflow ready for use.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-22T00:02:30.726171-07:00",
+      "updated_at": "2026-04-22T00:02:30.726171-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"commit\":\"7329175\",\"confidence\":95}"
+    },
+    {
+      "id": 67,
+      "change_id": "c1e1e570-29a8-4d70-97a8-32de7a078f67",
+      "node_type": "action",
+      "title": "Autonomous test-suite audit (issue #8): read every tests/*.py + corresponding module, categorize every test as keep-as-is / improve / rewrite / delete with rationale, produce structured findings doc (docs/test-audit-2026-04.md) for downstream Gemini-delegated fix session.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-22T00:08:10.634674-07:00",
+      "updated_at": "2026-04-22T00:08:10.634674-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":85,\"files\":[\"tests/test_arxiv_fetcher.py\",\"tests/test_doi_fetcher.py\",\"tests/test_web_fetcher.py\",\"tests/test_markdown_writer.py\",\"tests/test_citation_context.py\",\"tests/test_grobid_processor.py\",\"tests/test_telemetry.py\",\"tests/test_token_utils.py\",\"tests/test_synthesis_generator.py\",\"tests/conftest.py\",\"tests/test_pipeline.py\"]}"
     }
   ],
   "edges": [
@@ -1321,6 +1453,138 @@
       "weight": 1.0,
       "rationale": "file-based loader superseded by native Skills API — same SKILL.md content migrated over",
       "created_at": "2026-03-24T11:02:47.333026-07:00"
+    },
+    {
+      "id": 66,
+      "from_node_id": 56,
+      "to_node_id": 57,
+      "from_change_id": "7cd0f6f9-83e9-48ab-a58f-67f84e59493c",
+      "to_change_id": "fe04a5f9-ef0d-4e81-8256-d4de957f3fd7",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "First concrete action of the re-engagement session: clean working tree",
+      "created_at": "2026-04-21T21:00:24.975689-07:00"
+    },
+    {
+      "id": 67,
+      "from_node_id": 56,
+      "to_node_id": 58,
+      "from_change_id": "7cd0f6f9-83e9-48ab-a58f-67f84e59493c",
+      "to_change_id": "4bd4ae5a-d5c8-4782-8307-718cf046398c",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Architectural observation surfaced during re-engagement",
+      "created_at": "2026-04-21T21:00:37.121035-07:00"
+    },
+    {
+      "id": 68,
+      "from_node_id": 56,
+      "to_node_id": 59,
+      "from_change_id": "7cd0f6f9-83e9-48ab-a58f-67f84e59493c",
+      "to_change_id": "b620d249-326c-47f9-90f7-c6d6eaa4e787",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Telemetry gap surfaced during re-engagement — elevated to high priority",
+      "created_at": "2026-04-21T21:00:37.667173-07:00"
+    },
+    {
+      "id": 69,
+      "from_node_id": 56,
+      "to_node_id": 60,
+      "from_change_id": "7cd0f6f9-83e9-48ab-a58f-67f84e59493c",
+      "to_change_id": "83258054-a36c-4d94-948a-f5d32a8b29da",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Cross-cutting constraint for any workflow changes",
+      "created_at": "2026-04-21T21:00:38.344358-07:00"
+    },
+    {
+      "id": 70,
+      "from_node_id": 57,
+      "to_node_id": 61,
+      "from_change_id": "fe04a5f9-ef0d-4e81-8256-d4de957f3fd7",
+      "to_change_id": "cc261249-a446-4931-af1e-5d59a6e2572b",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Commit landed clean with explicit file staging; .DS_Store reverted; settings.local.json protected",
+      "created_at": "2026-04-21T21:01:46.381741-07:00"
+    },
+    {
+      "id": 71,
+      "from_node_id": 56,
+      "to_node_id": 62,
+      "from_change_id": "7cd0f6f9-83e9-48ab-a58f-67f84e59493c",
+      "to_change_id": "4b9caf71-1f1c-4fe2-bead-82d02bb97df8",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "First concrete work-thread: telemetry reacquaint + exercise issue-tracking workflow on it",
+      "created_at": "2026-04-21T21:12:35.423133-07:00"
+    },
+    {
+      "id": 72,
+      "from_node_id": 62,
+      "to_node_id": 63,
+      "from_change_id": "4b9caf71-1f1c-4fe2-bead-82d02bb97df8",
+      "to_change_id": "fedffb15-1907-46df-8ae3-b099db584846",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Surfaced during telemetry reacquaint",
+      "created_at": "2026-04-21T22:07:05.995595-07:00"
+    },
+    {
+      "id": 73,
+      "from_node_id": 56,
+      "to_node_id": 64,
+      "from_change_id": "7cd0f6f9-83e9-48ab-a58f-67f84e59493c",
+      "to_change_id": "c116f2e3-2ab1-4dc3-a1af-7bd873aa853c",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Meta task surfaced during this session",
+      "created_at": "2026-04-21T22:07:06.007013-07:00"
+    },
+    {
+      "id": 74,
+      "from_node_id": 62,
+      "to_node_id": 65,
+      "from_change_id": "4b9caf71-1f1c-4fe2-bead-82d02bb97df8",
+      "to_change_id": "85ef4295-1b48-47f7-bf3e-a92485743dd4",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Issues filed successfully; action node 62 fulfilled",
+      "created_at": "2026-04-22T00:02:00.613849-07:00"
+    },
+    {
+      "id": 75,
+      "from_node_id": 62,
+      "to_node_id": 66,
+      "from_change_id": "4b9caf71-1f1c-4fe2-bead-82d02bb97df8",
+      "to_change_id": "a2f4d62d-ee22-4f97-ac4c-e98ca29e5b41",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Scaffolding commit completes action 62",
+      "created_at": "2026-04-22T00:02:30.735514-07:00"
+    },
+    {
+      "id": 76,
+      "from_node_id": 56,
+      "to_node_id": 67,
+      "from_change_id": "7cd0f6f9-83e9-48ab-a58f-67f84e59493c",
+      "to_change_id": "c1e1e570-29a8-4d70-97a8-32de7a078f67",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Autonomous workstream for overnight",
+      "created_at": "2026-04-22T00:08:10.644788-07:00"
+    },
+    {
+      "id": 77,
+      "from_node_id": 64,
+      "to_node_id": 67,
+      "from_change_id": "c116f2e3-2ab1-4dc3-a1af-7bd873aa853c",
+      "to_change_id": "c1e1e570-29a8-4d70-97a8-32de7a078f67",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Acts on the observation that surfaced the audit need",
+      "created_at": "2026-04-22T00:08:10.651945-07:00"
     }
   ]
 }
