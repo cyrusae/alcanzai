@@ -736,6 +736,17 @@
       "created_at": "2026-04-22T00:08:10.634674-07:00",
       "updated_at": "2026-04-22T00:08:10.634674-07:00",
       "metadata_json": "{\"branch\":\"claude\",\"confidence\":85,\"files\":[\"tests/test_arxiv_fetcher.py\",\"tests/test_doi_fetcher.py\",\"tests/test_web_fetcher.py\",\"tests/test_markdown_writer.py\",\"tests/test_citation_context.py\",\"tests/test_grobid_processor.py\",\"tests/test_telemetry.py\",\"tests/test_token_utils.py\",\"tests/test_synthesis_generator.py\",\"tests/conftest.py\",\"tests/test_pipeline.py\"]}"
+    },
+    {
+      "id": 68,
+      "change_id": "b1613142-4dcf-4f58-bcda-814f82664049",
+      "node_type": "outcome",
+      "title": "Test-suite audit complete: docs/test-audit-2026-04.md written, issue #8 updated with summary. 11 active test files + 4 legacy reviewed; ~170 tests categorized. 3 files need major rework (test_pipeline, test_telemetry, test_synthesis_generator), 4 legacy files to delete, 5 modules have zero direct coverage (models, state, skills_manager, config, cli). Ready-to-delegate action queue (A1-A4 H-priority, B1-B8 M-priority, C1-C3 L-priority) with commit-message-ready prescriptions for each item.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-22T00:16:34.078547-07:00",
+      "updated_at": "2026-04-22T00:16:34.078547-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":95,\"files\":[\"docs/test-audit-2026-04.md\"]}"
     }
   ],
   "edges": [
@@ -1585,6 +1596,17 @@
       "weight": 1.0,
       "rationale": "Acts on the observation that surfaced the audit need",
       "created_at": "2026-04-22T00:08:10.651945-07:00"
+    },
+    {
+      "id": 78,
+      "from_node_id": 67,
+      "to_node_id": 68,
+      "from_change_id": "c1e1e570-29a8-4d70-97a8-32de7a078f67",
+      "to_change_id": "b1613142-4dcf-4f58-bcda-814f82664049",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Audit findings produced as structured doc for downstream Gemini-delegated fix session",
+      "created_at": "2026-04-22T00:16:34.086476-07:00"
     }
   ]
 }
