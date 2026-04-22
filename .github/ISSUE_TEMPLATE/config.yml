@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Decision Graph
+    url: https://cyrusae.github.io/alcanzai/
+    about: Browse architectural context and decision history before filing. New design questions should link into this.
