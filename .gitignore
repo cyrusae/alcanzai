@@ -211,3 +211,13 @@ __marimo__/
 !.exo/roles/
 !.exo/lib/
 !.exo/rules/
+
+# Deciduous database (local)
+.deciduous/
+
+# Claude Code machine-local settings (exomonad hooks, local permissions)
+.claude/settings.local.json
+
+# macOS junk
+.DS_Store
+**/.DS_Store
