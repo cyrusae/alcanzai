@@ -747,6 +747,28 @@
       "created_at": "2026-04-22T00:16:34.078547-07:00",
       "updated_at": "2026-04-22T00:16:34.078547-07:00",
       "metadata_json": "{\"branch\":\"claude\",\"confidence\":95,\"files\":[\"docs/test-audit-2026-04.md\"]}"
+    },
+    {
+      "id": 69,
+      "change_id": "56182fb3-89f3-4842-8f7c-b86e73ef3b74",
+      "node_type": "action",
+      "title": "Adversarial code review of paper_library/ + config surface: produce docs/code-review-2026-04.md (structured like test audit) + file H/M findings as small issues under a new review-followups epic. Axes: correctness, error-handling, design, operational, interface contracts, security, dead code, perf. Threshold for filing: 'almost-certainly-wrong' (~90% confident) or definite bug; softer nits stay in the doc only.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-22T19:04:33.386534-07:00",
+      "updated_at": "2026-04-22T19:04:33.386534-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":85}"
+    },
+    {
+      "id": 70,
+      "change_id": "3775ae29-02f2-480b-bf13-fc6795388b37",
+      "node_type": "outcome",
+      "title": "Adversarial code review complete: docs/code-review-2026-04.md (740 lines) written + epic #9 filed with 18 sub-issues (#10-#27). Findings: 1 H (mojibake bullet in article byline), 16 M (data-loss pair in state persistence, silent fallbacks to wrong values for year/date/source, PDF verification gaps, HEAD+GET redundancy, acronym destruction, version drift, corrupt cache crash, fake Unpaywall email, HTTP arXiv), 1 cleanup bundle (ruff + dead code). 15 L items doc-only.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-22T19:20:02.436469-07:00",
+      "updated_at": "2026-04-22T19:20:02.436469-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":95,\"files\":[\"docs/code-review-2026-04.md\"]}"
     }
   ],
   "edges": [
@@ -1607,6 +1629,28 @@
       "weight": 1.0,
       "rationale": "Audit findings produced as structured doc for downstream Gemini-delegated fix session",
       "created_at": "2026-04-22T00:16:34.086476-07:00"
+    },
+    {
+      "id": 79,
+      "from_node_id": 56,
+      "to_node_id": 69,
+      "from_change_id": "7cd0f6f9-83e9-48ab-a58f-67f84e59493c",
+      "to_change_id": "56182fb3-89f3-4842-8f7c-b86e73ef3b74",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Second autonomous workstream: pre-telemetry-implementation code review",
+      "created_at": "2026-04-22T19:04:33.400073-07:00"
+    },
+    {
+      "id": 80,
+      "from_node_id": 69,
+      "to_node_id": 70,
+      "from_change_id": "56182fb3-89f3-4842-8f7c-b86e73ef3b74",
+      "to_change_id": "3775ae29-02f2-480b-bf13-fc6795388b37",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Review doc + filed issues as structured artifact for downstream fix sessions",
+      "created_at": "2026-04-22T19:20:02.448416-07:00"
     }
   ]
 }
