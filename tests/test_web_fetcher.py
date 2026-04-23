@@ -347,6 +347,17 @@ class TestPdfHandling:
         assert name.startswith("web_example_research")
         assert name.endswith(".pdf")
 
+    def test_pdf_filename_is_deterministic(self):
+        """Regression for #15: same URL must produce the same filename across calls.
+
+        Previously a timestamp suffix made every call produce a unique filename,
+        breaking PDF cache dedup and leaving orphan files in vault/PDFs on
+        --force reprocessing."""
+        fetcher = WebFetcher()
+        url = "https://example.com/papers/attention.pdf"
+        assert fetcher._generate_pdf_filename_from_url(url) == \
+            fetcher._generate_pdf_filename_from_url(url)
+
     def test_pdf_from_url_returns_empty_content(self):
         fetcher = WebFetcher(vault_path=None)
         metadata, content = fetcher._handle_pdf_from_url(

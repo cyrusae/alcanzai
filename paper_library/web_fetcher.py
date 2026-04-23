@@ -785,29 +785,28 @@ class WebFetcher:
     def _generate_pdf_filename_from_url(self, url: str) -> str:
         """
         Generate a filename for a PDF downloaded from URL.
-        
-        Format: web_<domain>_<slug>.pdf
-        
+
+        Format: ``web_<domain>_<slug>.pdf`` — deterministic per URL, no
+        timestamp suffix. Same URL processed twice produces the same
+        filename so the cached file is reused (or overwritten on --force)
+        instead of orphaning prior downloads.
+
         Args:
             url: Original URL
-            
+
         Returns:
             Filename for PDF
         """
-        from datetime import datetime
         parsed = urlparse(url)
-        
+
         # Extract domain
         domain = parsed.netloc.replace('www.', '').split('.')[0]
-        
+
         # Extract last path component as slug (if meaningful)
         slug = parsed.path.rstrip('/').split('/')[-1]
         slug = slug[:30] if slug else "document"
-        
-        # Add timestamp for uniqueness
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        
-        return f"web_{domain}_{slug}_{timestamp}.pdf"
+
+        return f"web_{domain}_{slug}.pdf"
     
     def is_url(self, text: str) -> bool:
         """
