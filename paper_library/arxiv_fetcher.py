@@ -377,18 +377,3 @@ class ArxivFetcher:
             if pdf_path.exists():
                 pdf_path.unlink()
             raise ArxivError(f"Failed to download PDF: {e}")
-
-
-def fetch_arxiv_paper(arxiv_id: str, vault_path: Path) -> Tuple[Path, PaperMetadata]:
-    """
-    Convenience function to fetch an arXiv paper.
-    
-    Args:
-        arxiv_id: arXiv identifier
-        vault_path: Path to vault
-        
-    Returns:
-        Tuple of (pdf_path, metadata)
-    """
-    fetcher = ArxivFetcher(vault_path)
-    return fetcher.fetch(arxiv_id)
