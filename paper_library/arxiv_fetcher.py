@@ -45,7 +45,7 @@ class ArxivFetcher:
     """
     
     # arXiv API endpoint
-    API_BASE = "http://export.arxiv.org/api/query"
+    API_BASE = "https://export.arxiv.org/api/query"
     PDF_BASE = "https://arxiv.org/pdf"
     
     # XML namespace for Atom feed
