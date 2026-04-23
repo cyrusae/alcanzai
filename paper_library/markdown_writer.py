@@ -234,7 +234,7 @@ class MarkdownWriter:
         sections.append(f"# {metadata.title}\n")
         sections.append(f"**{authors_str}**")
         if metadata.published_date:
-            sections.append(f" â€¢ {metadata.published_date.strftime('%Y-%m-%d')}")
+            sections.append(f" • {metadata.published_date.strftime('%Y-%m-%d')}")
         sections.append("\n")
         
         # Source link

@@ -170,6 +170,60 @@ class TestArticleSourceNoteLink:
         assert "## Key Concepts" in md
 
 
+class TestArticleByline:
+    """Regression tests for the article byline rendering (issue #10)."""
+
+    @pytest.fixture
+    def article_with_date(self):
+        return ArticleMetadata(
+            title="Test Article",
+            authors=["Jane Doe"],
+            url="https://example.com/article",
+            published_date=datetime(2024, 3, 15),
+            publisher="Example Blog",
+        )
+
+    @pytest.fixture
+    def article_without_date(self):
+        return ArticleMetadata(
+            title="Test Article",
+            authors=["Jane Doe"],
+            url="https://example.com/article",
+            published_date=None,
+            publisher="Example Blog",
+        )
+
+    @pytest.fixture
+    def sample_synthesis(self):
+        return Synthesis(
+            summary="s",
+            why_you_cared="w",
+            key_concepts=["c"],
+            memorable_quote="q",
+            cost_usd=0.001,
+        )
+
+    def test_byline_uses_real_bullet_not_mojibake(self, article_with_date, sample_synthesis):
+        """Regression for issue #10: byline should contain a real Unicode bullet (U+2022),
+        not the Windows-1252-double-encoded mojibake pattern 'â€¢'."""
+        md = MarkdownWriter.article_to_markdown(article_with_date, sample_synthesis)
+        # The real bullet character should appear
+        assert "\u2022" in md, "expected real bullet character U+2022 in byline"
+        # The mojibake sequence must NOT appear
+        assert "\u00e2\u20ac\u00a2" not in md, "mojibake bullet sequence leaked into output"
+        # Literal 'â€¢' form also must not appear (belt-and-braces)
+        assert "â€¢" not in md
+
+    def test_byline_omits_date_separator_when_no_date(self, article_without_date, sample_synthesis):
+        """When published_date is None, no bullet+date segment should be written.
+        Guards against a future change that inadvertently stringifies None as the date."""
+        md = MarkdownWriter.article_to_markdown(article_without_date, sample_synthesis)
+        # The bullet character is only used for the date separator; absent with no date
+        assert "\u2022" not in md
+        # And we definitely don't want 'None' appearing as a date
+        assert "None" not in md.split("## Quick Refresh")[0]
+
+
 class TestMarkdownFilenameGeneration:
     """Tests for markdown filename generation"""
 
