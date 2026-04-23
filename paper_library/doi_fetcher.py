@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Optional, Tuple, List
 from datetime import datetime
 from opentelemetry.trace import SpanKind, StatusCode
+from paper_library import __version__
 from paper_library.telemetry import tracer, get_logger
 from paper_library.models import PaperMetadata
 
@@ -50,7 +51,10 @@ class DoiFetcher:
     SEMANTIC_SCHOLAR_BASE = "https://api.semanticscholar.org/graph/v1/paper"
 
     HEADERS = {
-        "User-Agent": "alcanzai/1.0 (personal research library; https://github.com/alcanzai)"
+        "User-Agent": (
+            f"alcanzai/{__version__} "
+            f"(personal research library; https://github.com/cyrusae/alcanzai)"
+        )
     }
 
     # DOI pattern: 10.XXXX/suffix

@@ -1,6 +1,6 @@
 [project]
 name = "paper-library"
-version = "0.1.0"
+version = "0.2.5"
 description = "Personal research library with AI-powered knowledge graph"
 readme = "README.md"
 requires-python = ">=3.9"
