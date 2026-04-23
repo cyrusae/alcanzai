@@ -313,7 +313,7 @@ class WebFetcher:
             title="PDF from URL",  # Will be overwritten by GROBID
             authors=["Unknown"],
             url=url,
-            published_date=datetime.now(),
+            published_date=None,  # GROBID extracts the real date; don't fake it
             publisher=None,
             content=None,
             pdf_path=str(pdf_path) if pdf_path else None,

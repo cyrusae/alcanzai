@@ -356,6 +356,15 @@ class TestPdfHandling:
         assert content == ""
         assert metadata.source == "pdf_from_web"
 
+    def test_pdf_from_url_has_no_faked_date(self):
+        """Regression for #14: published_date must be None when not extracted."""
+        fetcher = WebFetcher(vault_path=None)
+        metadata, _ = fetcher._handle_pdf_from_url(
+            "https://example.com/paper.pdf",
+            b"%PDF-1.4\n%dummy",
+        )
+        assert metadata.published_date is None
+
 
 # ---------------------------------------------------------------------------
 # Integration tests with mocked HTTP
