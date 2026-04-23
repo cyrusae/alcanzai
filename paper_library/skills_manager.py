@@ -59,9 +59,25 @@ class SkillsManager:
         self._load_cached_ids()
 
     def _load_cached_ids(self) -> None:
-        if SKILL_IDS_FILE.exists():
+        """Load cached skill IDs from disk.
+
+        Tolerates a corrupt or unreadable cache file: logs a warning, resets
+        the in-memory map to empty, and lets skills re-upload on first use.
+        Previously this raised on malformed JSON, killing the CLI at startup
+        for any command (even ones that didn't use skills).
+        """
+        if not SKILL_IDS_FILE.exists():
+            return
+        try:
             with open(SKILL_IDS_FILE) as f:
                 self._skill_ids = json.load(f)
+        except (json.JSONDecodeError, OSError) as e:
+            logger.warning(
+                "skills_cache_corrupt_resetting",
+                file=str(SKILL_IDS_FILE),
+                error=str(e),
+            )
+            self._skill_ids = {}
 
     def _save_cached_ids(self) -> None:
         SKILL_IDS_FILE.parent.mkdir(parents=True, exist_ok=True)
