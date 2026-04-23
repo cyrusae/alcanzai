@@ -262,12 +262,22 @@ class DoiFetcher:
         return self._fetch_semantic_scholar(doi)
 
     def _fetch_unpaywall(self, doi: str) -> Optional[str]:
-        """Return the best OA PDF URL from Unpaywall, or None."""
-        email = self.email or "research@example.com"
+        """Return the best OA PDF URL from Unpaywall, or None.
+
+        Unpaywall requires a real contact email per their API terms. If no
+        email is configured on this fetcher (``self.email is None``), this
+        method skips the Unpaywall call entirely and the caller falls
+        through to Semantic Scholar. Sending a fake/placeholder email
+        violates the polite-pool contract and risks getting the project
+        (or all example.com traffic) rate-limited or banned.
+        """
+        if not self.email:
+            logger.info("unpaywall_skipped_no_email", doi=doi)
+            return None
         try:
             resp = requests.get(
                 f"{self.UNPAYWALL_BASE}/{doi}",
-                params={"email": email},
+                params={"email": self.email},
                 headers=self.HEADERS,
                 timeout=10,
             )

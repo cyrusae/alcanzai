@@ -252,6 +252,14 @@ class TestOaPdfDiscovery:
         with patch("requests.get", return_value=_mock_response(200, {"best_oa_location": None})):
             assert self.fetcher._fetch_unpaywall("10.1234/test") is None
 
+    def test_unpaywall_skipped_when_no_email_configured(self):
+        """Regression for #18: no fake email to Unpaywall, no HTTP call at all."""
+        fetcher = DoiFetcher()  # no email
+        with patch("requests.get") as mock_get:
+            result = fetcher._fetch_unpaywall("10.1234/test")
+        assert result is None
+        mock_get.assert_not_called()
+
     def test_semantic_scholar_returns_pdf_url(self):
         ss_data = {"openAccessPdf": {"url": "https://arxiv.org/pdf/2301.12345.pdf"}}
         with patch("requests.get", return_value=_mock_response(200, ss_data)):
