@@ -178,13 +178,16 @@ class TestCrossrefParsing:
         meta = self.fetcher._parse_crossref(data, "10.1234/test.doi")
         assert "10.1234/test.doi" in meta.title
 
-    def test_fallback_year_when_missing(self):
+    def test_missing_year_leaves_year_none(self):
+        """Regression for R3: papers with no extractable date must NOT be
+        silently tagged with the current calendar year. meta.year should
+        flow through as None so downstream can render 'n.d.' honestly."""
         data = _make_crossref_response()["message"]
         data.pop("published-print", None)
         data.pop("published-online", None)
         data.pop("issued", None)
         meta = self.fetcher._parse_crossref(data, "10.1234/test")
-        assert meta.year is not None  # Falls back to current year
+        assert meta.year is None
 
 
 # ---------------------------------------------------------------------------

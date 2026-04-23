@@ -232,11 +232,16 @@ class ArxivFetcher:
             if abstract:
                 abstract = " ".join(abstract.split())
             
-            # Validate required fields
-            if not title or not authors or not year:
+            # Validate required fields. Title and authors are load-bearing;
+            # year is nice-to-have (arXiv virtually always has it, but we
+            # match the GROBID/DOI pipeline in not blocking on missing year).
+            if not title or not authors:
                 raise ArxivError(
-                    f"Incomplete metadata from arXiv for {arxiv_id}"
+                    f"Incomplete metadata from arXiv for {arxiv_id}: "
+                    f"missing {'title' if not title else 'authors'}"
                 )
+            if not year:
+                logger.warning("arxiv_missing_year", arxiv_id=arxiv_id)
             
             return PaperMetadata(
                 title=title,

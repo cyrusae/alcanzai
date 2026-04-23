@@ -170,6 +170,46 @@ class TestArticleSourceNoteLink:
         assert "## Key Concepts" in md
 
 
+class TestNoneYearHandling:
+    """Regression tests for R3/R4/R15: year=None should render cleanly,
+    not leak 'None' or fall back to the current calendar year."""
+
+    @pytest.fixture
+    def undated_paper(self):
+        return PaperMetadata(
+            title="An Undated Preprint",
+            authors=["Solo, One"],
+            year=None,
+        )
+
+    @pytest.fixture
+    def sample_synthesis(self):
+        return Synthesis(
+            summary="s", why_you_cared="w",
+            key_concepts=["c"], memorable_quote="q", cost_usd=0.0,
+        )
+
+    def test_paper_byline_uses_nd_for_none_year(self, undated_paper, sample_synthesis):
+        md = MarkdownWriter.paper_to_markdown(undated_paper, sample_synthesis)
+        assert "n.d." in md
+        # And definitely not the string "None"
+        assert "• None" not in md
+
+    def test_paper_frontmatter_omits_year_when_none(self, undated_paper, sample_synthesis):
+        """YAML frontmatter should not include 'year: None' — omit the key instead."""
+        md = MarkdownWriter.paper_to_markdown(undated_paper, sample_synthesis)
+        # Extract the frontmatter block
+        fm = md.split("---")[1]
+        assert "year:" not in fm, f"year key should be omitted when None; got frontmatter:\n{fm}"
+
+    def test_filename_uses_nd_for_none_year(self, undated_paper):
+        name = MarkdownWriter.generate_filename(undated_paper)
+        # Should use n.d. in the year slot, not a real year
+        assert "(n.d.)" in name
+        import datetime as dt
+        assert f"({dt.datetime.now().year})" not in name
+
+
 class TestArticleByline:
     """Regression tests for the article byline rendering (issue #10)."""
 

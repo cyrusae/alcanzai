@@ -109,10 +109,15 @@ class PaperMetadata(BibliographicEntry):
     
     For main papers, title/authors/year are REQUIRED (we validate in GROBID processor).
     """
-    # Override base class to make these required for main papers
-    title: str  # Required for papers we're processing
-    authors: list[str]  # Required
-    year: int  # Required
+    # Title and authors are required for papers we're processing.
+    # Year is optional: some legitimate inputs (preprints, working papers,
+    # institutional technical reports) don't carry a publication date in
+    # their metadata. Better to let the paper into the vault with year=None
+    # than to block ingestion on a missing field the user couldn't fill
+    # in anyway.
+    title: str
+    authors: list[str]
+    year: Optional[int] = None
     
     # Bibliography of this paper
     # Citations now have full metadata (venue, volume, etc.)

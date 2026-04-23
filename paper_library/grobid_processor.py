@@ -221,12 +221,20 @@ class GrobidProcessor:
             citations = self._extract_citations(root)
             body_text = self._extract_body_text(root)
 
-            # Create PaperMetadata object
-            # We require title, authors, and year
-            # Everything else is optional
-            if not title or not authors or not year:
+            # Create PaperMetadata object.
+            # Title and authors are required; year is nice-to-have.
+            # Preprints, working papers, and technical reports often lack an
+            # explicit publication date in their metadata — blocking ingestion
+            # on a missing year is more restrictive than useful.
+            if not title or not authors:
                 raise GrobidError(
-                    "Could not extract required fields (title, authors, year) from GROBID output"
+                    "Could not extract required fields (title, authors) from GROBID output"
+                )
+            if not year:
+                logger.warning(
+                    "grobid_missing_year",
+                    title=title,
+                    hint="paper will be ingested with year=None",
                 )
 
             return PaperMetadata(

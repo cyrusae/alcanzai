@@ -102,10 +102,14 @@ class MarkdownWriter:
         # Build sections
         sections = []
         
-        # Title + byline
+        # Title + byline — "n.d." is the standard bibliographic
+        # abbreviation for "no date" used when the year is genuinely
+        # unknown (e.g., GROBID couldn't extract it from an undated
+        # preprint).
+        year_display = metadata.year if metadata.year is not None else "n.d."
         sections.append(f"# {metadata.title}")
         sections.append("")
-        sections.append(f"**{authors_str}** • {metadata.year}")
+        sections.append(f"**{authors_str}** • {year_display}")
         sections.append("")
         
         # Memorable quote
@@ -302,9 +306,13 @@ class MarkdownWriter:
         # Format: [Author1, Author2, Author3]
         authors_yaml = ", ".join(f'"{author}"' for author in metadata.authors)
         lines.append(f"authors: [{authors_yaml}]")
-        
-        lines.append(f"year: {metadata.year}")
-        
+
+        # Year is optional now. Omit the key when the year is unknown
+        # rather than writing "year: None" (invalid YAML for a typed
+        # consumer; at best parses as a string).
+        if metadata.year is not None:
+            lines.append(f"year: {metadata.year}")
+
         # Optional fields
         if metadata.venue:
             lines.append(f'venue: "{metadata.venue}"')
@@ -616,7 +624,11 @@ class MarkdownWriter:
         else:
             author_part = first_author
         
-        year = getattr(metadata, 'year', datetime.now().year)
+        # If the paper genuinely has no year, use "n.d." in the filename.
+        # Previous code used getattr(..., datetime.now().year) as a fallback,
+        # which (a) did nothing when metadata.year existed as None, and
+        # (b) silently tagged undated papers with the current year.
+        year = getattr(metadata, 'year', None) or "n.d."
         
         # Clean title
         title = metadata.title

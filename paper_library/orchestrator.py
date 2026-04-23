@@ -257,7 +257,7 @@ class PaperProcessor:
             metadata = PaperMetadata(
                 title="[Title will be extracted from PDF]",
                 authors=["Unknown"],
-                year=2024,
+                year=None,  # Populated by GROBID via _merge_metadata
                 pdf_path=str(path),
                 source="local",
             )
@@ -281,7 +281,7 @@ class PaperProcessor:
                     paper_meta = PaperMetadata(
                         title="[Extracting from PDF]",
                         authors=["Unknown"],
-                        year=2024,
+                        year=None,  # Populated by GROBID via _merge_metadata
                         pdf_path=metadata.pdf_path,
                         source="pdf_from_web",
                     )

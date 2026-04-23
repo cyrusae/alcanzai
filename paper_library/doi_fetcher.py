@@ -19,7 +19,6 @@ import re
 import requests
 from pathlib import Path
 from typing import Optional, Tuple, List
-from datetime import datetime
 from opentelemetry.trace import SpanKind, StatusCode
 from paper_library import __version__
 from paper_library.telemetry import tracer, get_logger
@@ -243,7 +242,7 @@ class DoiFetcher:
         return PaperMetadata(
             title=title,
             authors=authors or ["Unknown"],
-            year=year or datetime.now().year,
+            year=year,  # May be None — downstream handles missing date explicitly.
             abstract=abstract or None,
             doi=doi,
             venue=venue,
