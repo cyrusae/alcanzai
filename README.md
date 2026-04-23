@@ -83,7 +83,6 @@ alcanzai/
 │   ├── doi_fetcher.py         # DOI resolution via Crossref + Unpaywall/Semantic Scholar
 │   ├── web_fetcher.py         # Web article fetching (HTML, Distill sites, PDF-from-URL)
 │   ├── citation_context.py    # CitationContextExtractor: regex citation matching + context sentences
-│   ├── batch_process.py       # Wrapper function on orchestrator to handle batched files
 │   └── orchestrator.py        # Main processing pipeline
 ├── docker-compose.yml         # GROBID service
 ├── pyproject.toml             # Package configuration

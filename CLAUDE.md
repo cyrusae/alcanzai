@@ -101,7 +101,6 @@ identifier
 | `state.py` | `StateManager` loads/saves `processing_state.json`; deduplicates by arXiv ID / DOI / URL |
 | `models.py` | Pydantic models: `BibliographicEntry` → `Citation` / `PaperMetadata`; `ArticleMetadata`; `Synthesis`; `ProcessingState`. `Citation` has `contexts: list[str]`; `ArticleMetadata` has `pdf_path: Optional[str]`. |
 | `config.py` | Loads `.env`; exposes `vault_path`, `papers_dir`, `pdfs_dir`, `grobid_url`, `anthropic_api_key`, `crossref_email` |
-| `batch_process.py` | Wrapper around `PaperProcessor` for processing lists of identifiers from a file |
 
 ### Data Models
 
