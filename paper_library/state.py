@@ -12,6 +12,9 @@ Python concepts:
 """
 
 import json
+import os
+import shutil
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -90,9 +93,26 @@ class StateManager:
                 failed=data.get("failed", {}),
             )
         except Exception as e:
-            # If something goes wrong, start fresh
-            logger.warning("could_not_load_state_file", error=str(e))
-            logger.info("starting_with_empty_state")
+            # Corrupt state file is a silent-data-loss hazard: continuing with
+            # an empty state means every already-processed paper will be
+            # reprocessed (burning API budget and producing duplicate notes).
+            # Preserve the corrupt bytes to a timestamped backup so the user
+            # can recover the processed sets manually, and log at ERROR so the
+            # situation is visible in telemetry.
+            backup = self.state_file.with_suffix(f".corrupt.{int(time.time())}")
+            try:
+                shutil.copy2(self.state_file, backup)
+                logger.error(
+                    "state_file_corrupt_backed_up",
+                    error=str(e),
+                    backup=str(backup),
+                )
+            except OSError as backup_err:
+                logger.error(
+                    "state_file_corrupt_backup_failed",
+                    error=str(e),
+                    backup_error=str(backup_err),
+                )
             self._state = ProcessingState()
     
     def save(self) -> None:
@@ -122,9 +142,16 @@ class StateManager:
             # .isoformat() converts datetime to ISO 8601 string: "2024-01-06T10:30:00"
             data["last_updated"] = data["last_updated"].isoformat()
         
-        # Write to file
-        # indent=2 makes the JSON human-readable with 2-space indentation
-        self.state_file.write_text(json.dumps(data, indent=2))
+        # Atomic write: serialize to a sibling .tmp file, then os.replace()
+        # into place. Path.write_text truncates-then-writes, which on crash
+        # or SIGINT mid-write can leave the state file empty or partial —
+        # and an unparseable state file silently wipes processed history
+        # (see corresponding backup logic in _load_state).
+        # os.replace is atomic on POSIX and Windows when src and dst are on
+        # the same filesystem, which is guaranteed here (same parent dir).
+        tmp = self.state_file.with_suffix(self.state_file.suffix + ".tmp")
+        tmp.write_text(json.dumps(data, indent=2))
+        os.replace(tmp, self.state_file)
     
     @property
     def state(self) -> ProcessingState:
