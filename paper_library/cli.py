@@ -9,7 +9,6 @@ Usage:
 """
 
 import click
-from pathlib import Path
 
 from paper_library.config import config
 from paper_library.state import StateManager
@@ -84,7 +83,7 @@ def batch(file, force: bool = False):
     processor = PaperProcessor(config, state)
     results = processor.process_batch(identifiers, force=force)
 
-    click.secho(f"\nBatch complete:", fg="blue")
+    click.secho("\nBatch complete:", fg="blue")
     click.secho(f"  ✓ Imported: {results['success']}", fg="green")
     click.secho(f"  ⊘ Skipped:  {results['skipped']}", fg="yellow")
     click.secho(f"  ✗ Failed:   {results['failed']}", fg="red")
@@ -131,7 +130,7 @@ def validate():
     else:
         click.secho(f"  Creating vault directory at {config.vault_path}", fg="yellow")
         config.vault_path.mkdir(parents=True, exist_ok=True)
-        click.secho(f"✓ Vault directory created", fg="green")
+        click.secho("✓ Vault directory created", fg="green")
 
     click.echo()
     if checks_failed == 0:

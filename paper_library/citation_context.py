@@ -14,7 +14,7 @@ Python concepts:
 """
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 from paper_library.models import Citation

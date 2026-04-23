@@ -18,7 +18,6 @@ import requests
 from pathlib import Path
 from typing import Optional, Tuple
 from lxml import etree
-from opentelemetry import trace
 from opentelemetry.trace import SpanKind, StatusCode
 from paper_library.telemetry import tracer, get_logger
 from paper_library.models import PaperMetadata

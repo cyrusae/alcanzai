@@ -63,7 +63,7 @@ def batch_process(input_file: str, force: bool = False):
     print(f"\n{'='*70}")
     print(f"BATCH PROCESSING: {len(identifiers)} papers from {input_file}")
     if force:
-        print(f"  --force enabled: Will reprocess existing papers")
+        print("  --force enabled: Will reprocess existing papers")
     print(f"{'='*70}\n")
     
     # Initialize processor
@@ -75,14 +75,14 @@ def batch_process(input_file: str, force: bool = False):
     
     # Final summary
     print(f"\n{'='*70}")
-    print(f"BATCH COMPLETE")
+    print("BATCH COMPLETE")
     print(f"{'='*70}")
     print(f"  ✓ Processed: {results['success']}")
     print(f"  ⊘ Skipped:   {results['skipped']}")
     print(f"  ✗ Failed:    {results['failed']}")
     
     if results['errors']:
-        print(f"\nErrors:")
+        print("\nErrors:")
         for identifier, error in results['errors']:
             print(f"  • {identifier}: {error}")
     

@@ -152,7 +152,7 @@ class MarkdownWriter:
                     sections.append(f"  > {ctx}")
             
             if len(metadata.citations) > 10:
-                sections.append(f"")
+                sections.append("")
                 sections.append(f"*({len(metadata.citations) - 10} more citations below)*")
             sections.append("")
         

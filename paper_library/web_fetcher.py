@@ -26,6 +26,7 @@ Python concepts:
 
 import re
 import requests
+from bs4 import BeautifulSoup
 from pathlib import Path
 from typing import Optional, Tuple
 from urllib.parse import urlparse, urljoin
@@ -33,16 +34,11 @@ from datetime import datetime
 from markdownify import markdownify as md
 from opentelemetry import trace
 from opentelemetry.trace import SpanKind, StatusCode
+
 from paper_library.telemetry import tracer, get_logger
+from paper_library.models import ArticleMetadata
 
 logger = get_logger(__name__)
-
-try:
-    from bs4 import BeautifulSoup
-except ImportError:
-    BeautifulSoup = None
-
-from paper_library.models import ArticleMetadata
 
 
 class WebFetchError(Exception):
@@ -273,7 +269,7 @@ class WebFetcher:
             elif e.response.status_code == 403:
                 raise PaywallError(f"Access forbidden (403): {url}\nMay be paywalled or restricted.")
             elif e.response.status_code == 429:
-                raise WebFetchError(f"Rate limited (429). Wait and try again.")
+                raise WebFetchError("Rate limited (429). Wait and try again.")
             else:
                 raise WebFetchError(f"HTTP error {e.response.status_code}: {url}")
         except requests.RequestException as e:
@@ -297,8 +293,6 @@ class WebFetcher:
         Returns:
             Tuple of (ArticleMetadata with pdf_path, empty_string)
         """
-        from paper_library.models import ArticleMetadata
-        
         logger.info("pdf_detected", url=url)
         
         # Optionally save to vault
@@ -352,8 +346,6 @@ class WebFetcher:
             TooShortError: If content too short
             PaywallError: If paywall detected
         """
-        from paper_library.models import ArticleMetadata
-        
         # Parse HTML
         soup = BeautifulSoup(html_content, 'html.parser')
         

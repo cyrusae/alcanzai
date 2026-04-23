@@ -21,7 +21,7 @@ Python concepts:
 """
 
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 from opentelemetry.trace import StatusCode
 
