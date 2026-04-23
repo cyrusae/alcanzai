@@ -1,5 +1,13 @@
 [
   {
+    "hash": "a18407c181119f2a50e43c1f48fb4e1f7010a655",
+    "short_hash": "a18407c",
+    "author": "Cyrus",
+    "date": "2026-04-23T10:36:11-07:00",
+    "message": "Atomic state writes + corrupt-state backup (closes #11)\n\nAddresses the \"data-loss pair\" (M4 + M5) from the 2026-04-22 adversarial\ncode review.\n\nPreviously:\n\n- StateManager.save() called Path.write_text, which truncates-then-writes.\n  An interrupt or crash mid-write could leave processing_state.json empty\n  or partial.\n- StateManager._load_state() fell back to an empty ProcessingState on ANY\n  parse failure, logging only at WARNING. A truncated state file therefore\n  silently wiped the processed-papers record, and the next run would\n  reprocess everything: API budget burned, duplicate vault notes produced.\n\nChanges:\n\n- save() serializes to a sibling .tmp file, then os.replace() into place.\n  os.replace is atomic on POSIX (and Windows, when src and dst share a\n  filesystem, which is guaranteed here since both live in the same dir).\n- _load_state() on parse failure now copies the corrupt bytes to\n  processing_state.corrupt.<epoch> and logs at ERROR so the situation is\n  surfaced in telemetry. If the backup copy itself fails, that too is\n  logged at ERROR rather than swallowed.\n\nTests (tests/test_state.py, new, 8 cases):\n\n- Atomic: save produces parseable file; no stray .tmp left behind;\n  overwrites are atomic; and — critically — if the tmp write fails mid-\n  save, the original good file is preserved byte-for-byte.\n- Backup: corrupt JSON is copied to a .corrupt.* sibling before reset;\n  load still falls back to an empty state so the pipeline keeps running;\n  missing file (first run) does NOT create a spurious backup; valid\n  round-trip doesn't either.\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>",
+    "files_changed": 2
+  },
+  {
     "hash": "a42ce47a13501d67ac8bb10a040a86fdf6c47ce3",
     "short_hash": "a42ce47",
     "author": "Cyrus",
