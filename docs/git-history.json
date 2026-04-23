@@ -1,5 +1,13 @@
 [
   {
+    "hash": "a42ce47a13501d67ac8bb10a040a86fdf6c47ce3",
+    "short_hash": "a42ce47",
+    "author": "Cyrus",
+    "date": "2026-04-22T19:27:40-07:00",
+    "message": "Delete batch_process.py; batch is now handled by alcanzai CLI (closes #27)\n\npaper_library/batch_process.py was functionally redundant with the\n`alcanzai batch` Click command in cli.py. Two code paths for the same\nfeature had drifted in style — CLI uses structlog + Click output, the\nstandalone script still used print() (missed in the v0.2.5 structlog\nsweep).\n\nVerified no external automation referenced it:\n  grep batch_process across repo → only doc/log entries + the file itself\n  No CI workflow, shell script, or cron reference.\n\nDocs updated:\n- CLAUDE.md module table: row removed\n- README.md directory tree: entry removed\n\nCloses #27 (R18: cleanup).\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>",
+    "files_changed": 3
+  },
+  {
     "hash": "7329175aade728ef35e3960f35d9b7a3723b6267",
     "short_hash": "7329175",
     "author": "Cyrus",

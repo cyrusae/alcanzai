@@ -769,6 +769,28 @@
       "created_at": "2026-04-22T19:20:02.436469-07:00",
       "updated_at": "2026-04-22T19:20:02.436469-07:00",
       "metadata_json": "{\"branch\":\"claude\",\"confidence\":95,\"files\":[\"docs/code-review-2026-04.md\"]}"
+    },
+    {
+      "id": 71,
+      "change_id": "dc7c8f66-196d-44e7-b716-28b3e4e2bd67",
+      "node_type": "action",
+      "title": "Fix issue #10 (mojibake) + #27 (R18 cleanup): one-line fix + regression test for #10, then ruff auto-fixes + E402 restructure + dead code removal + batch_process.py deletion for #27. Separate commits per logical unit.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-22T19:23:16.802030-07:00",
+      "updated_at": "2026-04-22T19:23:16.802030-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":90,\"files\":[\"paper_library/markdown_writer.py\",\"paper_library/arxiv_fetcher.py\",\"paper_library/web_fetcher.py\",\"paper_library/doi_fetcher.py\",\"paper_library/batch_process.py\",\"paper_library/cli.py\",\"paper_library/citation_context.py\",\"paper_library/orchestrator.py\",\"tests/test_markdown_writer.py\"]}"
+    },
+    {
+      "id": 72,
+      "change_id": "6153e374-d0fe-4514-b37e-6c05bbb12d0b",
+      "node_type": "outcome",
+      "title": "Issue #10 closed: mojibake bullet fixed in 4889147 with TestArticleByline regression tests (159 tests now passing, was 157). Issue #27 closed across 3 commits (2f2b30a ruff+E402, a05dc8c dead code removal, a42ce47 batch_process.py deletion + doc updates). ruff clean, 65 lines of dead code removed, 1 redundant file deleted.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-22T19:28:19.385571-07:00",
+      "updated_at": "2026-04-22T19:28:19.385571-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"commit\":\"a42ce47\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -1651,6 +1673,28 @@
       "weight": 1.0,
       "rationale": "Review doc + filed issues as structured artifact for downstream fix sessions",
       "created_at": "2026-04-22T19:20:02.448416-07:00"
+    },
+    {
+      "id": 81,
+      "from_node_id": 56,
+      "to_node_id": 71,
+      "from_change_id": "7cd0f6f9-83e9-48ab-a58f-67f84e59493c",
+      "to_change_id": "dc7c8f66-196d-44e7-b716-28b3e4e2bd67",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Concrete code work during exomonad-blocked session",
+      "created_at": "2026-04-22T19:23:16.814666-07:00"
+    },
+    {
+      "id": 82,
+      "from_node_id": 71,
+      "to_node_id": 72,
+      "from_change_id": "dc7c8f66-196d-44e7-b716-28b3e4e2bd67",
+      "to_change_id": "6153e374-d0fe-4514-b37e-6c05bbb12d0b",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Both issues closed cleanly with separate commits per logical unit",
+      "created_at": "2026-04-22T19:28:19.398114-07:00"
     }
   ]
 }
