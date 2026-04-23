@@ -226,7 +226,10 @@ class TestFetchCrossref:
 
 class TestOaPdfDiscovery:
     def setup_method(self):
-        self.fetcher = DoiFetcher()
+        # Unpaywall now requires an email; tests that verify Unpaywall behavior
+        # must provide one. Fetchers without email are covered by
+        # test_unpaywall_skipped_when_no_email_configured.
+        self.fetcher = DoiFetcher(email="test@example.com")
 
     def test_unpaywall_returns_pdf_url(self):
         unpaywall_data = {
@@ -331,7 +334,7 @@ class TestPdfDownload:
 
 class TestFetchIntegration:
     def test_fetch_with_pdf(self, tmp_path):
-        fetcher = DoiFetcher(vault_path=tmp_path)
+        fetcher = DoiFetcher(vault_path=tmp_path, email="test@example.com")
         cr_data = _make_crossref_response()
         unpaywall_data = {"best_oa_location": {"url_for_pdf": "https://oa.com/paper.pdf", "url": None}}
         pdf_bytes = b"%PDF-1.4 content"
@@ -349,7 +352,7 @@ class TestFetchIntegration:
         assert pdf_path.exists()
 
     def test_fetch_without_pdf(self, tmp_path):
-        fetcher = DoiFetcher(vault_path=tmp_path)
+        fetcher = DoiFetcher(vault_path=tmp_path, email="test@example.com")
         cr_data = _make_crossref_response()
         no_oa = {"best_oa_location": None}
 
