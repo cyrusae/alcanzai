@@ -86,6 +86,7 @@ class StateManager:
                 processed_dois=set(data.get("processed_dois", [])),
                 processed_arxiv_ids=set(data.get("processed_arxiv_ids", [])),
                 processed_urls=set(data.get("processed_urls", [])),
+                processed_local_paths=set(data.get("processed_local_paths", [])),
                 failed=data.get("failed", {}),
             )
         except Exception as e:
@@ -114,6 +115,7 @@ class StateManager:
         data["processed_dois"] = list(data["processed_dois"])
         data["processed_arxiv_ids"] = list(data["processed_arxiv_ids"])
         data["processed_urls"] = list(data["processed_urls"])
+        data["processed_local_paths"] = list(data["processed_local_paths"])
         
         # Convert datetime to string (JSON doesn't support datetime)
         if data.get("last_updated"):
@@ -163,10 +165,12 @@ class StateManager:
             "arxiv": len(self.state.processed_arxiv_ids),
             "doi": len(self.state.processed_dois),
             "web": len(self.state.processed_urls),
+            "local": len(self.state.processed_local_paths),
             "failed": len(self.state.failed),
             "total": (
                 len(self.state.processed_arxiv_ids)
                 + len(self.state.processed_dois)
                 + len(self.state.processed_urls)
+                + len(self.state.processed_local_paths)
             ),
         }
