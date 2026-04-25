@@ -288,9 +288,8 @@ class TestLandingPageToPdfRouting:
         resp.raise_for_status = Mock()
         return resp
 
-    @patch("paper_library.web_fetcher.requests.head")
     @patch("paper_library.web_fetcher.requests.get")
-    def test_landing_page_with_pdf_link_returns_pdf_metadata(self, mock_get, mock_head):
+    def test_landing_page_with_pdf_link_returns_pdf_metadata(self, mock_get):
         """A short page containing a PDF link should produce pdf_from_web metadata."""
         landing_html = b"""
         <html>
@@ -301,16 +300,11 @@ class TestLandingPageToPdfRouting:
           </body>
         </html>
         """
-        pdf_bytes = b"%PDF-1.4\n%dummy pdf content"
+        pdf_bytes = b"%PDF-1.4\n" + b"x" * 1100
 
-        # Sequence: HEAD for landing page, GET for landing page,
-        # HEAD for PDF link, GET for PDF link
-        mock_head.side_effect = [
-            self._mock_head("text/html"),          # landing page HEAD
-            self._mock_head("application/pdf"),    # PDF link HEAD
-        ]
+        # Single GET for landing page, single GET for PDF link (no HEAD calls)
         mock_get.side_effect = [
-            self._mock_get(landing_html, "text/html"),   # landing page GET
+            self._mock_get(landing_html, "text/html"),    # landing page GET
             self._mock_get(pdf_bytes, "application/pdf"), # PDF GET
         ]
 
@@ -319,16 +313,14 @@ class TestLandingPageToPdfRouting:
         assert metadata.source == "pdf_from_web"
         assert content == ""
 
-    @patch("paper_library.web_fetcher.requests.head")
     @patch("paper_library.web_fetcher.requests.get")
-    def test_short_page_without_pdf_link_still_raises(self, mock_get, mock_head):
+    def test_short_page_without_pdf_link_still_raises(self, mock_get):
         """A short page with no PDF link should still raise TooShortError."""
         short_html = b"""
         <html><head><title>Stub</title></head>
         <body><p>Very little content here.</p></body>
         </html>
         """
-        mock_head.return_value = self._mock_head("text/html")
         mock_get.return_value = self._mock_get(short_html, "text/html")
 
         with pytest.raises(TooShortError):
@@ -358,11 +350,15 @@ class TestPdfHandling:
         assert fetcher._generate_pdf_filename_from_url(url) == \
             fetcher._generate_pdf_filename_from_url(url)
 
+    # Minimal valid-looking PDF bytes: correct magic + enough padding to clear
+    # the 1024-byte minimum size check.
+    VALID_PDF = b"%PDF-1.4\n" + b"x" * 1100
+
     def test_pdf_from_url_returns_empty_content(self):
         fetcher = WebFetcher(vault_path=None)
         metadata, content = fetcher._handle_pdf_from_url(
             "https://example.com/paper.pdf",
-            b"%PDF-1.4\n%dummy",
+            self.VALID_PDF,
         )
         assert content == ""
         assert metadata.source == "pdf_from_web"
@@ -372,9 +368,29 @@ class TestPdfHandling:
         fetcher = WebFetcher(vault_path=None)
         metadata, _ = fetcher._handle_pdf_from_url(
             "https://example.com/paper.pdf",
-            b"%PDF-1.4\n%dummy",
+            self.VALID_PDF,
         )
         assert metadata.published_date is None
+
+    def test_pdf_from_url_raises_on_invalid_magic_bytes(self):
+        """HTML or other non-PDF responses must not be saved or returned."""
+        from paper_library.web_fetcher import WebFetchError
+        fetcher = WebFetcher(vault_path=None)
+        with pytest.raises(WebFetchError):
+            fetcher._handle_pdf_from_url(
+                "https://example.com/abstract",
+                b"<html><body>This is not a PDF</body></html>" + b"x" * 1100,
+            )
+
+    def test_pdf_from_url_raises_on_truncated_content(self):
+        """Too-small responses (e.g. interrupted download) must not be saved."""
+        from paper_library.web_fetcher import WebFetchError
+        fetcher = WebFetcher(vault_path=None)
+        with pytest.raises(WebFetchError):
+            fetcher._handle_pdf_from_url(
+                "https://example.com/paper.pdf",
+                b"%PDF-1.4\ntiny",
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -424,10 +440,8 @@ class TestFetchWithMockedHttp:
         resp.raise_for_status = Mock()
         return resp
 
-    @patch("paper_library.web_fetcher.requests.head")
     @patch("paper_library.web_fetcher.requests.get")
-    def test_fetch_html_article_returns_metadata_and_content(self, mock_get, mock_head):
-        mock_head.return_value = self._mock_head()
+    def test_fetch_html_article_returns_metadata_and_content(self, mock_get):
         mock_get.return_value = self._mock_get(self.GOOD_HTML)
 
         metadata, content = WebFetcher().fetch("https://example.com/article")
@@ -439,49 +453,42 @@ class TestFetchWithMockedHttp:
         assert len(content) > 500
         assert "test article" in content.lower()
 
-    @patch("paper_library.web_fetcher.requests.head")
     @patch("paper_library.web_fetcher.requests.get")
-    def test_fetch_pdf_from_url(self, mock_get, mock_head):
-        mock_head.return_value = self._mock_head("application/pdf")
-        mock_get.return_value = self._mock_get(b"%PDF-1.4\n%dummy", "application/pdf")
+    def test_fetch_pdf_from_url(self, mock_get):
+        mock_get.return_value = self._mock_get(b"%PDF-1.4\n" + b"x" * 1100, "application/pdf")
 
         metadata, content = WebFetcher().fetch("https://example.com/paper.pdf")
 
         assert metadata.source == "pdf_from_web"
         assert content == ""
 
-    @patch("paper_library.web_fetcher.requests.head")
-    def test_fetch_twitter_raises_unsupported_without_http(self, mock_head):
+    def test_fetch_twitter_raises_unsupported_without_http(self):
+        """Blocked URLs must raise before any HTTP call."""
         with pytest.raises(UnsupportedSourceError) as exc_info:
             WebFetcher().fetch("https://twitter.com/user/status/123456")
-        mock_head.assert_not_called()
         assert "Twitter" in str(exc_info.value) or "thread" in str(exc_info.value).lower()
 
-    @patch("paper_library.web_fetcher.requests.head")
     @patch("paper_library.web_fetcher.requests.get")
-    def test_fetch_too_short_content_raises(self, mock_get, mock_head):
+    def test_fetch_too_short_content_raises(self, mock_get):
         short_html = b"""
         <html><head><meta property="og:title" content="Stub"></head>
         <body><article>Hi.</article></body></html>
         """
-        mock_head.return_value = self._mock_head()
         mock_get.return_value = self._mock_get(short_html)
 
         with pytest.raises(TooShortError):
             WebFetcher().fetch("https://example.com/stub")
 
-    @patch("paper_library.web_fetcher.requests.head")
-    def test_fetch_timeout_raises_web_fetch_error(self, mock_head):
-        mock_head.side_effect = requests.Timeout("timed out")
+    @patch("paper_library.web_fetcher.requests.get")
+    def test_fetch_timeout_raises_web_fetch_error(self, mock_get):
+        mock_get.side_effect = requests.Timeout("timed out")
 
         with pytest.raises(WebFetchError) as exc_info:
             WebFetcher().fetch("https://slow.example.com/article")
         assert "timed out" in str(exc_info.value).lower()
 
-    @patch("paper_library.web_fetcher.requests.head")
     @patch("paper_library.web_fetcher.requests.get")
-    def test_fetch_404_raises_web_fetch_error(self, mock_get, mock_head):
-        mock_head.return_value = self._mock_head()
+    def test_fetch_404_raises_web_fetch_error(self, mock_get):
         resp_404 = Mock()
         resp_404.headers = {"content-type": "text/html"}
         err = requests.HTTPError()

@@ -331,8 +331,10 @@ class DoiFetcher:
 
             content = resp.content
 
-            # Verify magic bytes — some Unpaywall "pdf" URLs are landing pages
-            if not content.startswith(b"%PDF"):
+            # Verify magic bytes + minimum size.
+            # Some Unpaywall "pdf" URLs return HTML landing pages; a short
+            # or non-PDF response is silently discarded rather than saved.
+            if not content.startswith(b"%PDF") or len(content) < 1024:
                 return None
 
             safe_doi = re.sub(r"[^\w.-]", "_", doi)[:60]

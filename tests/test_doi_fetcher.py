@@ -298,7 +298,7 @@ class TestOaPdfDiscovery:
 class TestPdfDownload:
     def test_pdf_saved_to_vault(self, tmp_path):
         fetcher = DoiFetcher(vault_path=tmp_path)
-        pdf_bytes = b"%PDF-1.4 fake pdf content"
+        pdf_bytes = b"%PDF-1.4\n" + b"x" * 1100
         with patch("requests.get", return_value=_mock_response(200, content=pdf_bytes)):
             path = fetcher._download_pdf("https://example.com/paper.pdf", "10.1234/test")
         assert path is not None
@@ -310,6 +310,14 @@ class TestPdfDownload:
         html_bytes = b"<html>This is a landing page</html>"
         with patch("requests.get", return_value=_mock_response(200, content=html_bytes)):
             path = fetcher._download_pdf("https://example.com/page", "10.1234/test")
+        assert path is None
+
+    def test_truncated_pdf_returns_none(self, tmp_path):
+        """PDF with valid magic bytes but below minimum size must be rejected."""
+        fetcher = DoiFetcher(vault_path=tmp_path)
+        tiny_bytes = b"%PDF-1.4\ntiny"
+        with patch("requests.get", return_value=_mock_response(200, content=tiny_bytes)):
+            path = fetcher._download_pdf("https://example.com/paper.pdf", "10.1234/test")
         assert path is None
 
     def test_no_vault_path_returns_none(self):
@@ -324,7 +332,7 @@ class TestPdfDownload:
 
     def test_filename_uses_doi(self, tmp_path):
         fetcher = DoiFetcher(vault_path=tmp_path)
-        pdf_bytes = b"%PDF-1.4 content"
+        pdf_bytes = b"%PDF-1.4\n" + b"x" * 1100
         with patch("requests.get", return_value=_mock_response(200, content=pdf_bytes)):
             path = fetcher._download_pdf("https://example.com/paper.pdf", "10.1234/my.test.doi")
         # Dots are preserved by the sanitizer; only / and special chars become _
@@ -340,7 +348,7 @@ class TestFetchIntegration:
         fetcher = DoiFetcher(vault_path=tmp_path, email="test@example.com")
         cr_data = _make_crossref_response()
         unpaywall_data = {"best_oa_location": {"url_for_pdf": "https://oa.com/paper.pdf", "url": None}}
-        pdf_bytes = b"%PDF-1.4 content"
+        pdf_bytes = b"%PDF-1.4\n" + b"x" * 1100
 
         responses = [
             _mock_response(200, cr_data),          # Crossref

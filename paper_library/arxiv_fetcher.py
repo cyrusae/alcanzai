@@ -24,6 +24,28 @@ from paper_library.models import PaperMetadata
 
 logger = get_logger(__name__)
 
+# Minimum byte size and magic bytes required for a file to be treated as a
+# valid cached PDF. A truncated/zero-byte file from an interrupted download
+# would pass an existence check but fail this verification.
+_PDF_MIN_SIZE = 1024
+_PDF_MAGIC = b"%PDF"
+
+
+def _cached_pdf_is_valid(path: Path) -> bool:
+    """Return True if *path* looks like a complete PDF file.
+
+    Checks:
+    - File size >= _PDF_MIN_SIZE (catches empty / truncated downloads)
+    - First 4 bytes equal b"%PDF"   (catches landing-page HTML saved as .pdf)
+    """
+    try:
+        if path.stat().st_size < _PDF_MIN_SIZE:
+            return False
+        with open(path, "rb") as fh:
+            return fh.read(4) == _PDF_MAGIC
+    except OSError:
+        return False
+
 
 class ArxivError(Exception):
     """Raised when arXiv fetching fails."""
@@ -272,41 +294,75 @@ class ArxivFetcher:
             return found.text.strip()
         return None
     
+    # Honorifics stripped from the start of a name before choosing surname.
+    _NAME_HONORIFICS = frozenset({
+        "dr.", "prof.", "professor", "mr.", "mrs.", "ms.", "mx.", "sir", "lord",
+    })
+
+    # Suffixes stripped from the end of a name before choosing surname.
+    # Convention: suffix stays attached to the surname in formatted output
+    # (e.g. "Smith Jr." rather than "Smith, John Jr.") — simpler and
+    # unambiguous for citation matching.
+    _NAME_SUFFIXES = frozenset({
+        "jr.", "sr.", "ii", "iii", "iv", "v", "esq.",
+    })
+
     def _extract_authors(self, entry: etree._Element) -> list[str]:
         """
         Extract author names from entry.
-        
+
         Authors are in <author><name>Author Name</name></author> elements.
         We format them as "Lastname, Firstname" to match GROBID format.
-        
+
+        Honorifics (Dr., Prof., …) are stripped from the forename side;
+        generational suffixes (Jr., Sr., II, …) stay with the surname so
+        the formatted result is e.g. "Smith Jr., John".
+
         Args:
             entry: Entry element from arXiv API
-            
+
         Returns:
             List of formatted author names
         """
         authors = []
-        
-        # Find all author elements
+
         for author_elem in entry.findall('atom:author', self.NS):
             name_elem = author_elem.find('atom:name', self.NS)
             if name_elem is not None and name_elem.text:
                 name = name_elem.text.strip()
-                
-                # arXiv names are typically "Firstname Lastname"
-                # Convert to "Lastname, Firstname" format
                 name_parts = name.split()
+
+                if len(name_parts) < 2:
+                    # Single token — use as-is (uncommon but possible)
+                    authors.append(name)
+                    continue
+
+                # Strip leading honorifics
+                while name_parts and name_parts[0].lower() in self._NAME_HONORIFICS:
+                    name_parts = name_parts[1:]
+
+                if not name_parts:
+                    authors.append(name)
+                    continue
+
+                # Detect trailing suffix (keep it attached to the surname)
+                suffix = ""
+                if name_parts[-1].lower() in self._NAME_SUFFIXES:
+                    suffix = " " + name_parts[-1]
+                    name_parts = name_parts[:-1]
+
                 if len(name_parts) >= 2:
-                    # Assume last word is surname, rest is forenames
-                    surname = name_parts[-1]
+                    surname = name_parts[-1] + suffix
                     forenames = " ".join(name_parts[:-1])
                     formatted = f"{surname}, {forenames}"
+                elif len(name_parts) == 1:
+                    # Only a surname left after stripping
+                    formatted = name_parts[0] + suffix
                 else:
-                    # Single name (uncommon but possible)
                     formatted = name
-                
+
                 authors.append(formatted)
-        
+
         return authors
     
     def _extract_year(self, entry: etree._Element) -> Optional[int]:
@@ -355,10 +411,18 @@ class ArxivFetcher:
         pdf_filename = f"arxiv_{arxiv_id.replace('/', '_')}.pdf"
         pdf_path = self.pdfs_dir / pdf_filename
         
-        # Skip if already downloaded
+        # Return cached file if it already exists and passes integrity checks.
+        # An interrupted download can leave a zero-byte or truncated file;
+        # those are silently re-fetched rather than returned as valid cache.
         if pdf_path.exists():
-            logger.info("pdf_already_exists", filename=pdf_filename)
-            return pdf_path
+            if _cached_pdf_is_valid(pdf_path):
+                logger.info("pdf_already_exists", filename=pdf_filename)
+                return pdf_path
+            logger.warning(
+                "cached_pdf_invalid_re_downloading",
+                filename=pdf_filename,
+            )
+            pdf_path.unlink()
         
         try:
             logger.info("downloading_pdf", arxiv_id=arxiv_id)

@@ -211,56 +211,36 @@ class WebFetcher:
     
     def _fetch_with_type_detection(self, url: str) -> Tuple[str, bytes]:
         """
-        Fetch URL with content-type detection.
-        
-        Uses HEAD request first to check type, then GET if needed.
-        This saves bandwidth for PDFs (we know not to parse them).
-        
+        Fetch URL with content-type detection via a single GET request.
+
+        stream=True lets us inspect response headers (and thus content-type)
+        before reading the body, avoiding a separate HEAD round-trip.
+
         Args:
             url: URL to fetch
-            
+
         Returns:
             Tuple of (content_type_header, content_bytes)
-            
+
         Raises:
             WebFetchError: If fetch fails
         """
         try:
-            # Try HEAD first to get content type without downloading everything
-            head_response = requests.head(
+            response = requests.get(
                 url,
                 headers=self.HEADERS,
-                timeout=15,
-                allow_redirects=True
+                timeout=30,
+                allow_redirects=True,
+                stream=True,
             )
-            
-            content_type = head_response.headers.get('content-type', 'text/html').lower()
-            
-            # If it's a PDF, we know what to do
-            if 'application/pdf' in content_type:
-                # Download the PDF
-                get_response = requests.get(
-                    url,
-                    headers=self.HEADERS,
-                    timeout=30,
-                    stream=False
-                )
-                get_response.raise_for_status()
-                return 'application/pdf', get_response.content
-            
-            # Otherwise, get the full content for parsing
-            get_response = requests.get(
-                url,
-                headers=self.HEADERS,
-                timeout=30
-            )
-            get_response.raise_for_status()
-            
-            # Force UTF-8 encoding (prevents mojibake)
-            get_response.encoding = 'utf-8'
-            
-            return get_response.headers.get('content-type', 'text/html'), get_response.content
-            
+            response.raise_for_status()
+
+            content_type = response.headers.get('content-type', 'text/html').lower()
+            # Force UTF-8 decoding for text responses (prevents mojibake)
+            response.encoding = 'utf-8'
+            content = response.content
+            return content_type, content
+
         except requests.Timeout:
             raise WebFetchError(f"Request timed out: {url}")
         except requests.HTTPError as e:
@@ -294,14 +274,20 @@ class WebFetcher:
             Tuple of (ArticleMetadata with pdf_path, empty_string)
         """
         logger.info("pdf_detected", url=url)
-        
+
+        # Sanity-check the bytes before saving — a server that returns HTML
+        # with content-type: application/pdf would otherwise corrupt the cache.
+        if not pdf_content.startswith(b"%PDF") or len(pdf_content) < 1024:
+            logger.warning("pdf_content_invalid_magic_or_too_small", url=url)
+            raise WebFetchError(f"URL did not return a valid PDF: {url}")
+
         # Optionally save to vault
         pdf_path = None
         if self.vault_path:
             # Generate filename from URL
             filename = self._generate_pdf_filename_from_url(url)
             pdf_path = self.pdfs_dir / filename
-            
+
             # Save PDF
             pdf_path.write_bytes(pdf_content)
             logger.info("pdf_saved", filename=filename)
