@@ -824,6 +824,50 @@
       "created_at": "2026-04-23T10:37:20.776444-07:00",
       "updated_at": "2026-04-23T10:37:20.776444-07:00",
       "metadata_json": "{\"branch\":\"claude\",\"commit\":\"a18407c\",\"confidence\":95}"
+    },
+    {
+      "id": 76,
+      "change_id": "fdd8e382-85f8-4201-a06f-c460fd4170b8",
+      "node_type": "outcome",
+      "title": "Pushed R2 + graph sync to origin/claude (c23f468..74dba50)",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-23T10:37:38.778876-07:00",
+      "updated_at": "2026-04-23T10:37:38.778876-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"commit\":\"74dba50\",\"confidence\":95}"
+    },
+    {
+      "id": 77,
+      "change_id": "022097db-a968-4dd0-a06f-5a55b7382878",
+      "node_type": "goal",
+      "title": "Finish remaining 5 code-review issues: R7 R13 R14 R16 R17",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-24T22:49:04.449458-07:00",
+      "updated_at": "2026-04-24T22:49:04.449458-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":95,\"prompt\":\"A then B sounds great, go for it.\\n\\n(Context: \\\"A\\\" = finish the 5 remaining code-review issues from epic #9 before opening the PR to merge claude→main. Issues: #16 R7 cached PDF verification, #22 R13 single GET, #23 R14 acronym protection, #25 R16 author suffixes/honorifics, #26 R17 validate/init split.)\"}"
+    },
+    {
+      "id": 78,
+      "change_id": "a33b0a51-648d-4fd4-a2e4-f61c95eaa608",
+      "node_type": "action",
+      "title": "Implement R14, R13, R17, R16, R7 — 5 remaining code-review issues",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-24T22:55:59.567049-07:00",
+      "updated_at": "2026-04-24T22:55:59.567049-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":95}"
+    },
+    {
+      "id": 79,
+      "change_id": "e818616b-0f45-45df-9a9d-1b213ada3f6e",
+      "node_type": "outcome",
+      "title": "All 5 code-review issues fixed: R14 #23, R17 #26, R13 #22, R16 #25, R7 #16 — 218 tests passing",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-24T22:57:02.969114-07:00",
+      "updated_at": "2026-04-24T22:57:02.969114-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"commit\":\"4d117bd\",\"confidence\":98}"
     }
   ],
   "edges": [
@@ -1761,6 +1805,39 @@
       "weight": 1.0,
       "rationale": "outcome of R2",
       "created_at": "2026-04-23T10:37:20.794443-07:00"
+    },
+    {
+      "id": 86,
+      "from_node_id": 75,
+      "to_node_id": 76,
+      "from_change_id": "72feb730-c077-4d19-ad7b-aaa86c7bf9cb",
+      "to_change_id": "fdd8e382-85f8-4201-a06f-c460fd4170b8",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "push of R2 landing + graph sync",
+      "created_at": "2026-04-23T10:37:41.766364-07:00"
+    },
+    {
+      "id": 87,
+      "from_node_id": 77,
+      "to_node_id": 78,
+      "from_change_id": "022097db-a968-4dd0-a06f-5a55b7382878",
+      "to_change_id": "a33b0a51-648d-4fd4-a2e4-f61c95eaa608",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation of goal",
+      "created_at": "2026-04-24T22:55:59.587225-07:00"
+    },
+    {
+      "id": 88,
+      "from_node_id": 78,
+      "to_node_id": 79,
+      "from_change_id": "a33b0a51-648d-4fd4-a2e4-f61c95eaa608",
+      "to_change_id": "e818616b-0f45-45df-9a9d-1b213ada3f6e",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Result of implementation",
+      "created_at": "2026-04-24T22:57:02.986178-07:00"
     }
   ]
 }

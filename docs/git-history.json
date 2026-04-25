@@ -1,5 +1,21 @@
 [
   {
+    "hash": "4d117bdcb5463c3d0ae55e5c9c16d08aa6224434",
+    "short_hash": "4d117bd",
+    "author": "Cyrus",
+    "date": "2026-04-24T22:56:56-07:00",
+    "message": "Fetcher hardening: single GET, author name cleanup, PDF cache verification\n\nR13 (#22): Replace HEAD+GET with single streaming GET in web_fetcher.\n  Halves roundtrips per fetch; eliminates HEAD/GET content-type disagreement.\n\nR16 (#25): Strip honorifics and suffixes in arXiv author name parsing.\n  Dr./Prof. stripped from forenames; Jr./Sr./II-IV stay with surname.\n\nR7 (#16): Verify cached PDFs before returning them.\n  Adds _cached_pdf_is_valid() helper (magic bytes + 1 KB min size) to\n  arxiv_fetcher cache-hit path; extends existing %PDF check in doi_fetcher\n  with size guard; adds pre-write validation to web_fetcher _handle_pdf_from_url.\n  Corrupt/truncated caches are deleted and re-fetched instead of blindly trusted.\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>",
+    "files_changed": 6
+  },
+  {
+    "hash": "74dba5051e72b6cf49d6e9ba9b5ea4529260c411",
+    "short_hash": "74dba50",
+    "author": "Cyrus",
+    "date": "2026-04-23T10:37:28-07:00",
+    "message": "Sync decision graph post-R2 (75 nodes, 85 edges)\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>",
+    "files_changed": 2
+  },
+  {
     "hash": "a18407c181119f2a50e43c1f48fb4e1f7010a655",
     "short_hash": "a18407c",
     "author": "Cyrus",
