@@ -19,8 +19,12 @@ import requests
 from pathlib import Path
 from typing import Optional
 from lxml import etree
-
+from opentelemetry import trace
+from opentelemetry.trace import SpanKind, StatusCode
+from paper_library.telemetry import tracer, get_logger
 from paper_library.models import PaperMetadata, Citation
+
+logger = get_logger(__name__)
 
 
 class GrobidError(Exception):
@@ -75,16 +79,36 @@ class GrobidProcessor:
         if not pdf_path.exists():
             raise FileNotFoundError(f"PDF not found: {pdf_path}")
         
-        # Send PDF to GROBID
-        xml_content = self._call_grobid(pdf_path)
-        
-        # Parse XML response
-        metadata = self._parse_xml(xml_content)
-        
-        # Store the PDF path
-        metadata.pdf_path = str(pdf_path)
-        
-        return metadata
+        with tracer.start_as_current_span(
+            'grobid_parse',
+            kind=SpanKind.CLIENT,
+            attributes={
+                'grobid.url': self.grobid_url,
+                'grobid.pdf_size_bytes': pdf_path.stat().st_size,
+            }
+        ) as span:
+            try:
+                # Send PDF to GROBID
+                xml_content = self._call_grobid(pdf_path)
+                
+                # Parse XML response
+                metadata = self._parse_xml(xml_content)
+                
+                # Store the PDF path
+                metadata.pdf_path = str(pdf_path)
+                
+                span.set_attribute('grobid.has_abstract', bool(metadata.abstract))
+                span.set_attribute('grobid.has_venue', bool(metadata.venue))
+                span.set_attribute('grobid.author_count', len(metadata.authors))
+                span.set_attribute('grobid.body_text_chars', len(metadata.body_text or ''))
+                span.set_attribute('grobid.body_text_usable', len(metadata.body_text or '') >= 1000)
+                
+                span.set_status(StatusCode.OK)
+                return metadata
+            except Exception as e:
+                span.set_status(StatusCode.ERROR, str(e))
+                span.record_exception(e)
+                raise
     
     def _call_grobid(self, pdf_path: Path) -> str:
         """
@@ -197,12 +221,20 @@ class GrobidProcessor:
             citations = self._extract_citations(root)
             body_text = self._extract_body_text(root)
 
-            # Create PaperMetadata object
-            # We require title, authors, and year
-            # Everything else is optional
-            if not title or not authors or not year:
+            # Create PaperMetadata object.
+            # Title and authors are required; year is nice-to-have.
+            # Preprints, working papers, and technical reports often lack an
+            # explicit publication date in their metadata — blocking ingestion
+            # on a missing year is more restrictive than useful.
+            if not title or not authors:
                 raise GrobidError(
-                    "Could not extract required fields (title, authors, year) from GROBID output"
+                    "Could not extract required fields (title, authors) from GROBID output"
+                )
+            if not year:
+                logger.warning(
+                    "grobid_missing_year",
+                    title=title,
+                    hint="paper will be ingested with year=None",
                 )
 
             return PaperMetadata(
@@ -293,10 +325,10 @@ class GrobidProcessor:
         # Remove multiple spaces
         title = re.sub(r'\s+', ' ', title)
         
-        # Fix ALL-CAPS titles
-        # If more than 50% of letters are uppercase, convert to title case
-        if title.isupper() or sum(1 for c in title if c.isupper()) > len([c for c in title if c.isalpha()]) * 0.5:
-            # Simple title case - user can manually fix acronyms later
+        # Fix ALL-CAPS titles — only when the entire title is uppercase.
+        # Do NOT apply title() to mixed-case titles: acronyms like BERT, GPT,
+        # NLP push the uppercase ratio above 50% and title() would destroy them.
+        if title.isupper():
             title = title.title()
         
         return title.strip()
@@ -795,14 +827,18 @@ class GrobidProcessor:
         if listbibl is None:
             return citations
         
+        raw_count = 0
+        garbage_scores = []
+        
         # Each biblStruct is one citation
         for bibl in listbibl.findall('tei:biblStruct', self.NS):
+            raw_count += 1
             # Extract raw citation text (all text concatenated)
             raw_text = "".join(bibl.itertext()).strip()
             
             # Clean up excessive whitespace
             # Replace multiple whitespace chars (spaces, tabs, newlines) with single space
-            import re # Why are you importing re again?
+            import re
             raw_text = re.sub(r'\s+', ' ', raw_text)
             
             # Skip if too short to be a real citation
@@ -873,11 +909,32 @@ class GrobidProcessor:
             
             garbage_score = self._calculate_garbage_score(citation)
             
+            # Log borderline citations (40-60)
+            if 40 <= garbage_score <= 60:
+                logger.debug(
+                    'borderline_citation',
+                    citation_raw=citation.raw_text[:100],
+                    garbage_score=garbage_score,
+                )
+            
             # Threshold: >60 = definitely garbage, reject
             # 40-60 would be "suspicious" - for now we keep these
             if garbage_score > 60:
+                garbage_scores.append(garbage_score)
                 continue
             
             citations.append(citation)
+        
+        # Set span attributes if in an active span
+        span = trace.get_current_span()
+        if span.is_recording():
+            clean_count = len(citations)
+            span.set_attribute('grobid.citations_raw_count', raw_count)
+            span.set_attribute('grobid.citations_filtered_count', clean_count)
+            span.set_attribute('grobid.citations_garbage_removed', raw_count - clean_count)
+            if garbage_scores:
+                span.set_attribute('grobid.citations_garbage_score_avg', sum(garbage_scores) / len(garbage_scores))
+                span.set_attribute('grobid.citations_garbage_score_max', max(garbage_scores))
+                span.set_attribute('grobid.citations_garbage_score_min', min(garbage_scores))
         
         return citations

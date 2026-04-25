@@ -13,9 +13,12 @@ Python concepts:
 
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from paper_library.models import PaperMetadata, ArticleMetadata, Synthesis, Citation
+from paper_library.telemetry import tracer, get_logger
+
+logger = get_logger(__name__)
 
 
 class MarkdownWriter:
@@ -99,10 +102,14 @@ class MarkdownWriter:
         # Build sections
         sections = []
         
-        # Title + byline
+        # Title + byline — "n.d." is the standard bibliographic
+        # abbreviation for "no date" used when the year is genuinely
+        # unknown (e.g., GROBID couldn't extract it from an undated
+        # preprint).
+        year_display = metadata.year if metadata.year is not None else "n.d."
         sections.append(f"# {metadata.title}")
         sections.append("")
-        sections.append(f"**{authors_str}** • {metadata.year}")
+        sections.append(f"**{authors_str}** • {year_display}")
         sections.append("")
         
         # Memorable quote
@@ -149,7 +156,7 @@ class MarkdownWriter:
                     sections.append(f"  > {ctx}")
             
             if len(metadata.citations) > 10:
-                sections.append(f"")
+                sections.append("")
                 sections.append(f"*({len(metadata.citations) - 10} more citations below)*")
             sections.append("")
         
@@ -231,7 +238,7 @@ class MarkdownWriter:
         sections.append(f"# {metadata.title}\n")
         sections.append(f"**{authors_str}**")
         if metadata.published_date:
-            sections.append(f" â€¢ {metadata.published_date.strftime('%Y-%m-%d')}")
+            sections.append(f" • {metadata.published_date.strftime('%Y-%m-%d')}")
         sections.append("\n")
         
         # Source link
@@ -299,9 +306,13 @@ class MarkdownWriter:
         # Format: [Author1, Author2, Author3]
         authors_yaml = ", ".join(f'"{author}"' for author in metadata.authors)
         lines.append(f"authors: [{authors_yaml}]")
-        
-        lines.append(f"year: {metadata.year}")
-        
+
+        # Year is optional now. Omit the key when the year is unknown
+        # rather than writing "year: None" (invalid YAML for a typed
+        # consumer; at best parses as a string).
+        if metadata.year is not None:
+            lines.append(f"year: {metadata.year}")
+
         # Optional fields
         if metadata.venue:
             lines.append(f'venue: "{metadata.venue}"')
@@ -613,7 +624,11 @@ class MarkdownWriter:
         else:
             author_part = first_author
         
-        year = getattr(metadata, 'year', datetime.now().year)
+        # If the paper genuinely has no year, use "n.d." in the filename.
+        # Previous code used getattr(..., datetime.now().year) as a fallback,
+        # which (a) did nothing when metadata.year existed as None, and
+        # (b) silently tagged undated papers with the current year.
+        year = getattr(metadata, 'year', None) or "n.d."
         
         # Clean title
         title = metadata.title
@@ -622,8 +637,8 @@ class MarkdownWriter:
         title = title.replace('"', '').replace("'", '')
         
         # Replace periods with dashes (all of them - safer for cross-platform filenames)
-        # "Part 3.1" â†’ "Part 3-1"
-        # "U.S.A." â†’ "U-S-A-"  
+        # "Part 3.1" -> "Part 3-1"
+        # "U.S.A." -> "U-S-A-"  
         title = title.replace('.', '-')
         
         # Replace colons with dashes (more filename-friendly)
@@ -669,3 +684,30 @@ class MarkdownWriter:
         filename = re.sub(r'[^\w\s\-().]', '', filename)
         
         return filename
+
+    @staticmethod
+    def write_markdown(
+        output_path: Path,
+        content: str,
+        metadata: Union[PaperMetadata, ArticleMetadata],
+        output_type: str = "paper"
+    ) -> None:
+        """
+        Write markdown content to file with telemetry instrumentation.
+        """
+        with tracer.start_as_current_span(
+            'write_markdown',
+            attributes={'output.type': output_type}
+        ) as span:
+            # Ensure directory exists
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Write file
+            output_path.write_text(content, encoding="utf-8")
+            
+            # Set telemetry attributes
+            span.set_attribute('output.path', str(output_path))
+            span.set_attribute('output.size_bytes', output_path.stat().st_size)
+            span.set_attribute('output.citation_count', len(getattr(metadata, 'citations', [])))
+            
+            logger.info("markdown_written", path=str(output_path), type=output_type)

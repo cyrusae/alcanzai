@@ -1,0 +1,50 @@
+[
+  {
+    "hash": "4d117bdcb5463c3d0ae55e5c9c16d08aa6224434",
+    "short_hash": "4d117bd",
+    "author": "Cyrus",
+    "date": "2026-04-24T22:56:56-07:00",
+    "message": "Fetcher hardening: single GET, author name cleanup, PDF cache verification\n\nR13 (#22): Replace HEAD+GET with single streaming GET in web_fetcher.\n  Halves roundtrips per fetch; eliminates HEAD/GET content-type disagreement.\n\nR16 (#25): Strip honorifics and suffixes in arXiv author name parsing.\n  Dr./Prof. stripped from forenames; Jr./Sr./II-IV stay with surname.\n\nR7 (#16): Verify cached PDFs before returning them.\n  Adds _cached_pdf_is_valid() helper (magic bytes + 1 KB min size) to\n  arxiv_fetcher cache-hit path; extends existing %PDF check in doi_fetcher\n  with size guard; adds pre-write validation to web_fetcher _handle_pdf_from_url.\n  Corrupt/truncated caches are deleted and re-fetched instead of blindly trusted.\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>",
+    "files_changed": 6
+  },
+  {
+    "hash": "74dba5051e72b6cf49d6e9ba9b5ea4529260c411",
+    "short_hash": "74dba50",
+    "author": "Cyrus",
+    "date": "2026-04-23T10:37:28-07:00",
+    "message": "Sync decision graph post-R2 (75 nodes, 85 edges)\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>",
+    "files_changed": 2
+  },
+  {
+    "hash": "a18407c181119f2a50e43c1f48fb4e1f7010a655",
+    "short_hash": "a18407c",
+    "author": "Cyrus",
+    "date": "2026-04-23T10:36:11-07:00",
+    "message": "Atomic state writes + corrupt-state backup (closes #11)\n\nAddresses the \"data-loss pair\" (M4 + M5) from the 2026-04-22 adversarial\ncode review.\n\nPreviously:\n\n- StateManager.save() called Path.write_text, which truncates-then-writes.\n  An interrupt or crash mid-write could leave processing_state.json empty\n  or partial.\n- StateManager._load_state() fell back to an empty ProcessingState on ANY\n  parse failure, logging only at WARNING. A truncated state file therefore\n  silently wiped the processed-papers record, and the next run would\n  reprocess everything: API budget burned, duplicate vault notes produced.\n\nChanges:\n\n- save() serializes to a sibling .tmp file, then os.replace() into place.\n  os.replace is atomic on POSIX (and Windows, when src and dst share a\n  filesystem, which is guaranteed here since both live in the same dir).\n- _load_state() on parse failure now copies the corrupt bytes to\n  processing_state.corrupt.<epoch> and logs at ERROR so the situation is\n  surfaced in telemetry. If the backup copy itself fails, that too is\n  logged at ERROR rather than swallowed.\n\nTests (tests/test_state.py, new, 8 cases):\n\n- Atomic: save produces parseable file; no stray .tmp left behind;\n  overwrites are atomic; and — critically — if the tmp write fails mid-\n  save, the original good file is preserved byte-for-byte.\n- Backup: corrupt JSON is copied to a .corrupt.* sibling before reset;\n  load still falls back to an empty state so the pipeline keeps running;\n  missing file (first run) does NOT create a spurious backup; valid\n  round-trip doesn't either.\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>",
+    "files_changed": 2
+  },
+  {
+    "hash": "a42ce47a13501d67ac8bb10a040a86fdf6c47ce3",
+    "short_hash": "a42ce47",
+    "author": "Cyrus",
+    "date": "2026-04-22T19:27:40-07:00",
+    "message": "Delete batch_process.py; batch is now handled by alcanzai CLI (closes #27)\n\npaper_library/batch_process.py was functionally redundant with the\n`alcanzai batch` Click command in cli.py. Two code paths for the same\nfeature had drifted in style — CLI uses structlog + Click output, the\nstandalone script still used print() (missed in the v0.2.5 structlog\nsweep).\n\nVerified no external automation referenced it:\n  grep batch_process across repo → only doc/log entries + the file itself\n  No CI workflow, shell script, or cron reference.\n\nDocs updated:\n- CLAUDE.md module table: row removed\n- README.md directory tree: entry removed\n\nCloses #27 (R18: cleanup).\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>",
+    "files_changed": 3
+  },
+  {
+    "hash": "7329175aade728ef35e3960f35d9b7a3723b6267",
+    "short_hash": "7329175",
+    "author": "Cyrus",
+    "date": "2026-04-22T00:02:15-07:00",
+    "message": "Add issue templates for epic / feature / bug / design-question\n\nBare-bones issue-tracking scaffolding to support the pbjson-for-why /\ndeciduous-for-what / issues-for-how-and-when memory model. Templates\nnudge each new issue toward its canonical shape: design questions\ninclude options + blocked-by; epics include sub-issue checklists + open\nquestions; features include a parent-epic link.\n\nconfig.yml disables blank issues and surfaces the live decision graph\nviewer as a contact link.\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>",
+    "files_changed": 5
+  },
+  {
+    "hash": "1c75b7d59b7e8472afa170209a491c444cf547b8",
+    "short_hash": "1c75b7d",
+    "author": "Cyrus",
+    "date": "2026-04-21T21:01:38-07:00",
+    "message": "Install deciduous decision-graph harness and GitHub Pages deploy\n\nPreviously landed via local install but never committed. Adds:\n- CLAUDE.md block documenting the graph workflow (inside deciduous\n  start/end markers so future regenerations stay idempotent)\n- .claude/ with commands (decision, recover, work, document, sync-graph,\n  sync, serve-ui, build-test, decision-graph), hooks (require-action-node,\n  post-commit-reminder), skills (pulse, narratives, archaeology),\n  and an agents.toml scaffold\n- .github/workflows for GitHub Pages deploy and decision-graph cleanup\n- docs/ viewer assets (index.html + graph-data.json) for the live graph\n- .gitignore: .deciduous/ (local DB), .claude/settings.local.json\n  (machine-specific exomonad paths), and finally .DS_Store\n\nNo project-code changes.\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>",
+    "files_changed": 23
+  }
+]

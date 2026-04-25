@@ -178,13 +178,16 @@ class TestCrossrefParsing:
         meta = self.fetcher._parse_crossref(data, "10.1234/test.doi")
         assert "10.1234/test.doi" in meta.title
 
-    def test_fallback_year_when_missing(self):
+    def test_missing_year_leaves_year_none(self):
+        """Regression for R3: papers with no extractable date must NOT be
+        silently tagged with the current calendar year. meta.year should
+        flow through as None so downstream can render 'n.d.' honestly."""
         data = _make_crossref_response()["message"]
         data.pop("published-print", None)
         data.pop("published-online", None)
         data.pop("issued", None)
         meta = self.fetcher._parse_crossref(data, "10.1234/test")
-        assert meta.year is not None  # Falls back to current year
+        assert meta.year is None
 
 
 # ---------------------------------------------------------------------------
@@ -226,7 +229,10 @@ class TestFetchCrossref:
 
 class TestOaPdfDiscovery:
     def setup_method(self):
-        self.fetcher = DoiFetcher()
+        # Unpaywall now requires an email; tests that verify Unpaywall behavior
+        # must provide one. Fetchers without email are covered by
+        # test_unpaywall_skipped_when_no_email_configured.
+        self.fetcher = DoiFetcher(email="test@example.com")
 
     def test_unpaywall_returns_pdf_url(self):
         unpaywall_data = {
@@ -251,6 +257,14 @@ class TestOaPdfDiscovery:
     def test_unpaywall_no_oa_location_returns_none(self):
         with patch("requests.get", return_value=_mock_response(200, {"best_oa_location": None})):
             assert self.fetcher._fetch_unpaywall("10.1234/test") is None
+
+    def test_unpaywall_skipped_when_no_email_configured(self):
+        """Regression for #18: no fake email to Unpaywall, no HTTP call at all."""
+        fetcher = DoiFetcher()  # no email
+        with patch("requests.get") as mock_get:
+            result = fetcher._fetch_unpaywall("10.1234/test")
+        assert result is None
+        mock_get.assert_not_called()
 
     def test_semantic_scholar_returns_pdf_url(self):
         ss_data = {"openAccessPdf": {"url": "https://arxiv.org/pdf/2301.12345.pdf"}}
@@ -284,7 +298,7 @@ class TestOaPdfDiscovery:
 class TestPdfDownload:
     def test_pdf_saved_to_vault(self, tmp_path):
         fetcher = DoiFetcher(vault_path=tmp_path)
-        pdf_bytes = b"%PDF-1.4 fake pdf content"
+        pdf_bytes = b"%PDF-1.4\n" + b"x" * 1100
         with patch("requests.get", return_value=_mock_response(200, content=pdf_bytes)):
             path = fetcher._download_pdf("https://example.com/paper.pdf", "10.1234/test")
         assert path is not None
@@ -296,6 +310,14 @@ class TestPdfDownload:
         html_bytes = b"<html>This is a landing page</html>"
         with patch("requests.get", return_value=_mock_response(200, content=html_bytes)):
             path = fetcher._download_pdf("https://example.com/page", "10.1234/test")
+        assert path is None
+
+    def test_truncated_pdf_returns_none(self, tmp_path):
+        """PDF with valid magic bytes but below minimum size must be rejected."""
+        fetcher = DoiFetcher(vault_path=tmp_path)
+        tiny_bytes = b"%PDF-1.4\ntiny"
+        with patch("requests.get", return_value=_mock_response(200, content=tiny_bytes)):
+            path = fetcher._download_pdf("https://example.com/paper.pdf", "10.1234/test")
         assert path is None
 
     def test_no_vault_path_returns_none(self):
@@ -310,7 +332,7 @@ class TestPdfDownload:
 
     def test_filename_uses_doi(self, tmp_path):
         fetcher = DoiFetcher(vault_path=tmp_path)
-        pdf_bytes = b"%PDF-1.4 content"
+        pdf_bytes = b"%PDF-1.4\n" + b"x" * 1100
         with patch("requests.get", return_value=_mock_response(200, content=pdf_bytes)):
             path = fetcher._download_pdf("https://example.com/paper.pdf", "10.1234/my.test.doi")
         # Dots are preserved by the sanitizer; only / and special chars become _
@@ -323,10 +345,10 @@ class TestPdfDownload:
 
 class TestFetchIntegration:
     def test_fetch_with_pdf(self, tmp_path):
-        fetcher = DoiFetcher(vault_path=tmp_path)
+        fetcher = DoiFetcher(vault_path=tmp_path, email="test@example.com")
         cr_data = _make_crossref_response()
         unpaywall_data = {"best_oa_location": {"url_for_pdf": "https://oa.com/paper.pdf", "url": None}}
-        pdf_bytes = b"%PDF-1.4 content"
+        pdf_bytes = b"%PDF-1.4\n" + b"x" * 1100
 
         responses = [
             _mock_response(200, cr_data),          # Crossref
@@ -341,7 +363,7 @@ class TestFetchIntegration:
         assert pdf_path.exists()
 
     def test_fetch_without_pdf(self, tmp_path):
-        fetcher = DoiFetcher(vault_path=tmp_path)
+        fetcher = DoiFetcher(vault_path=tmp_path, email="test@example.com")
         cr_data = _make_crossref_response()
         no_oa = {"best_oa_location": None}
 

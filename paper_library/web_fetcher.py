@@ -26,18 +26,19 @@ Python concepts:
 
 import re
 import requests
+from bs4 import BeautifulSoup
 from pathlib import Path
 from typing import Optional, Tuple
 from urllib.parse import urlparse, urljoin
 from datetime import datetime
 from markdownify import markdownify as md
+from opentelemetry import trace
+from opentelemetry.trace import SpanKind, StatusCode
 
-try:
-    from bs4 import BeautifulSoup
-except ImportError:
-    BeautifulSoup = None
-
+from paper_library.telemetry import tracer, get_logger
 from paper_library.models import ArticleMetadata
+
+logger = get_logger(__name__)
 
 
 class WebFetchError(Exception):
@@ -151,8 +152,6 @@ class WebFetcher:
             PaywallError: If content appears paywalled
             WebFetchError: For other fetching issues
         """
-        print(f"↳ Fetching web content from {url}")
-        
         # Validate URL format
         try:
             parsed = urlparse(url)
@@ -160,88 +159,88 @@ class WebFetcher:
                 raise WebFetchError(f"Invalid URL: {url}")
         except Exception as e:
             raise WebFetchError(f"Could not parse URL: {e}")
-        
-        # Check for explicitly unsupported hosts
-        hostname = parsed.netloc.lower()
-        for unsupported_host, description in self.UNSUPPORTED_HOSTS.items():
-            if hostname.endswith(unsupported_host.replace('www.', '')):
-                raise UnsupportedSourceError(
-                    f"Cannot process {description} yet (v0.2 feature). "
-                    f"URL: {url}\n"
-                    f"Try: Take a screenshot, save as PDF, or use a dedicated archiver."
-                )
-        
-        # Detect content type and fetch
-        content_type, content = self._fetch_with_type_detection(url)
-        
-        if content_type == "application/pdf":
-            # Route to PDF handler
-            return self._handle_pdf_from_url(url, content)
-        
-        elif content_type.startswith("text/html"):
-            # Parse as HTML article
-            return self._handle_html(url, content)
-        
-        else:
-            # Unknown content type
-            raise WebFetchError(
-                f"Unknown content type: {content_type}\n"
-                f"Supported: HTML articles, PDFs\n"
-                f"URL: {url}"
-            )
+
+        with tracer.start_as_current_span(
+            'fetch_web',
+            kind=SpanKind.CLIENT,
+            attributes={
+                'web.url': url,
+                'web.domain': parsed.netloc,
+            }
+        ) as span:
+            try:
+                logger.info("fetching_web", url=url)
+                
+                # Check for explicitly unsupported hosts
+                hostname = parsed.netloc.lower()
+                for unsupported_host, description in self.UNSUPPORTED_HOSTS.items():
+                    if hostname.endswith(unsupported_host.replace('www.', '')):
+                        raise UnsupportedSourceError(
+                            f"Cannot process {description} yet (v0.2 feature). "
+                            f"URL: {url}\n"
+                            f"Try: Take a screenshot, save as PDF, or use a dedicated archiver."
+                        )
+                
+                # Detect content type and fetch
+                content_type, content = self._fetch_with_type_detection(url)
+                span.set_attribute('web.content_type', 'pdf' if content_type == "application/pdf" else 'html')
+                
+                if content_type == "application/pdf":
+                    # Route to PDF handler
+                    metadata, content_str = self._handle_pdf_from_url(url, content)
+                elif content_type.startswith("text/html"):
+                    # Parse as HTML article
+                    metadata, content_str = self._handle_html(url, content)
+                else:
+                    # Unknown content type
+                    raise WebFetchError(
+                        f"Unknown content type: {content_type}\n"
+                        f"Supported: HTML articles, PDFs\n"
+                        f"URL: {url}"
+                    )
+                
+                span.set_attribute('web.content_length_chars', len(content_str))
+                span.set_attribute('web.title', metadata.title or '')
+                span.set_status(StatusCode.OK)
+                return metadata, content_str
+                
+            except Exception as e:
+                span.set_status(StatusCode.ERROR, str(e))
+                span.record_exception(e)
+                raise
     
     def _fetch_with_type_detection(self, url: str) -> Tuple[str, bytes]:
         """
-        Fetch URL with content-type detection.
-        
-        Uses HEAD request first to check type, then GET if needed.
-        This saves bandwidth for PDFs (we know not to parse them).
-        
+        Fetch URL with content-type detection via a single GET request.
+
+        stream=True lets us inspect response headers (and thus content-type)
+        before reading the body, avoiding a separate HEAD round-trip.
+
         Args:
             url: URL to fetch
-            
+
         Returns:
             Tuple of (content_type_header, content_bytes)
-            
+
         Raises:
             WebFetchError: If fetch fails
         """
         try:
-            # Try HEAD first to get content type without downloading everything
-            head_response = requests.head(
+            response = requests.get(
                 url,
                 headers=self.HEADERS,
-                timeout=15,
-                allow_redirects=True
+                timeout=30,
+                allow_redirects=True,
+                stream=True,
             )
-            
-            content_type = head_response.headers.get('content-type', 'text/html').lower()
-            
-            # If it's a PDF, we know what to do
-            if 'application/pdf' in content_type:
-                # Download the PDF
-                get_response = requests.get(
-                    url,
-                    headers=self.HEADERS,
-                    timeout=30,
-                    stream=False
-                )
-                get_response.raise_for_status()
-                return 'application/pdf', get_response.content
-            
-            # Otherwise, get the full content for parsing
-            get_response = requests.get(
-                url,
-                headers=self.HEADERS,
-                timeout=30
-            )
-            get_response.raise_for_status()
-            
-            # Force UTF-8 encoding (prevents mojibake)
-            get_response.encoding = 'utf-8'
-            
-            return get_response.headers.get('content-type', 'text/html'), get_response.content
-            
+            response.raise_for_status()
+
+            content_type = response.headers.get('content-type', 'text/html').lower()
+            # Force UTF-8 decoding for text responses (prevents mojibake)
+            response.encoding = 'utf-8'
+            content = response.content
+            return content_type, content
+
         except requests.Timeout:
             raise WebFetchError(f"Request timed out: {url}")
         except requests.HTTPError as e:
@@ -250,7 +249,7 @@ class WebFetcher:
             elif e.response.status_code == 403:
                 raise PaywallError(f"Access forbidden (403): {url}\nMay be paywalled or restricted.")
             elif e.response.status_code == 429:
-                raise WebFetchError(f"Rate limited (429). Wait and try again.")
+                raise WebFetchError("Rate limited (429). Wait and try again.")
             else:
                 raise WebFetchError(f"HTTP error {e.response.status_code}: {url}")
         except requests.RequestException as e:
@@ -274,20 +273,24 @@ class WebFetcher:
         Returns:
             Tuple of (ArticleMetadata with pdf_path, empty_string)
         """
-        from paper_library.models import ArticleMetadata
-        
-        print(f"  ✓ Detected PDF at {url}")
-        
+        logger.info("pdf_detected", url=url)
+
+        # Sanity-check the bytes before saving — a server that returns HTML
+        # with content-type: application/pdf would otherwise corrupt the cache.
+        if not pdf_content.startswith(b"%PDF") or len(pdf_content) < 1024:
+            logger.warning("pdf_content_invalid_magic_or_too_small", url=url)
+            raise WebFetchError(f"URL did not return a valid PDF: {url}")
+
         # Optionally save to vault
         pdf_path = None
         if self.vault_path:
             # Generate filename from URL
             filename = self._generate_pdf_filename_from_url(url)
             pdf_path = self.pdfs_dir / filename
-            
+
             # Save PDF
             pdf_path.write_bytes(pdf_content)
-            print(f"  ✓ Saved to {filename}")
+            logger.info("pdf_saved", filename=filename)
 
         # Create minimal metadata.
         # pdf_path is set when vault_path was provided; the orchestrator
@@ -296,7 +299,7 @@ class WebFetcher:
             title="PDF from URL",  # Will be overwritten by GROBID
             authors=["Unknown"],
             url=url,
-            published_date=datetime.now(),
+            published_date=None,  # GROBID extracts the real date; don't fake it
             publisher=None,
             content=None,
             pdf_path=str(pdf_path) if pdf_path else None,
@@ -329,8 +332,6 @@ class WebFetcher:
             TooShortError: If content too short
             PaywallError: If paywall detected
         """
-        from paper_library.models import ArticleMetadata
-        
         # Parse HTML
         soup = BeautifulSoup(html_content, 'html.parser')
         
@@ -348,7 +349,7 @@ class WebFetcher:
             # PDF download link (PhilArchive, SSRN, etc. with no article body).
             pdf_link = self._find_pdf_link_on_page(soup, url)
             if pdf_link:
-                print(f"  → Landing page detected, trying PDF link: {pdf_link}")
+                logger.info("landing_page_pdf_link_found", url=pdf_link)
                 try:
                     pdf_content_type, pdf_bytes = self._fetch_with_type_detection(pdf_link)
                     if "application/pdf" in pdf_content_type:
@@ -372,7 +373,7 @@ class WebFetcher:
         if len(content_md) < self.MIN_CONTENT_LENGTH:
             pdf_link = self._find_pdf_link_on_page(soup, url)
             if pdf_link:
-                print(f"  → Landing page detected, trying PDF link: {pdf_link}")
+                logger.info("landing_page_pdf_link_found", url=pdf_link)
                 try:
                     pdf_content_type, pdf_bytes = self._fetch_with_type_detection(pdf_link)
                     if "application/pdf" in pdf_content_type:
@@ -395,9 +396,9 @@ class WebFetcher:
         # Truncate if too long
         if len(content_md) > self.MAX_CONTENT_LENGTH:
             content_md = content_md[:self.MAX_CONTENT_LENGTH]
-            print(f"  ⚠ Content truncated to {self.MAX_CONTENT_LENGTH} chars")
+            logger.warning("content_truncated", max_length=self.MAX_CONTENT_LENGTH)
         
-        print(f"  ✓ Extracted {len(content_md)} chars of content")
+        logger.info("content_extracted", length=len(content_md))
         
         # Create metadata
         metadata = ArticleMetadata(
@@ -630,6 +631,9 @@ class WebFetcher:
         for tag_name in ['d-article', 'd-body']:
             distill_article = soup.find(tag_name)
             if distill_article:
+                span = trace.get_current_span()
+                if span.is_recording():
+                    span.set_attribute('web.is_distill', True)
                 return str(distill_article)
 
         # Try common article container classes
@@ -767,29 +771,28 @@ class WebFetcher:
     def _generate_pdf_filename_from_url(self, url: str) -> str:
         """
         Generate a filename for a PDF downloaded from URL.
-        
-        Format: web_<domain>_<slug>.pdf
-        
+
+        Format: ``web_<domain>_<slug>.pdf`` — deterministic per URL, no
+        timestamp suffix. Same URL processed twice produces the same
+        filename so the cached file is reused (or overwritten on --force)
+        instead of orphaning prior downloads.
+
         Args:
             url: Original URL
-            
+
         Returns:
             Filename for PDF
         """
-        from datetime import datetime
         parsed = urlparse(url)
-        
+
         # Extract domain
         domain = parsed.netloc.replace('www.', '').split('.')[0]
-        
+
         # Extract last path component as slug (if meaningful)
         slug = parsed.path.rstrip('/').split('/')[-1]
         slug = slug[:30] if slug else "document"
-        
-        # Add timestamp for uniqueness
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        
-        return f"web_{domain}_{slug}_{timestamp}.pdf"
+
+        return f"web_{domain}_{slug}.pdf"
     
     def is_url(self, text: str) -> bool:
         """
@@ -803,52 +806,3 @@ class WebFetcher:
         """
         text = text.strip()
         return text.startswith(('http://', 'https://', 'www.'))
-
-
-# Optional: Wayback Machine integration helper
-class WaybackArchiveHelper:
-    """
-    Helper for creating Wayback Machine archive links.
-    
-    Note: This doesn't fetch from Wayback, just generates links.
-    In v0.2, we could add async checking for snapshot existence.
-    
-    Usage:
-        helper = WaybackArchiveHelper()
-        archive_url = helper.get_archive_url("https://example.com/article")
-        # Returns: https://web.archive.org/web/*/https://example.com/article
-    """
-    
-    WAYBACK_BASE = "https://web.archive.org/web"
-    
-    @staticmethod
-    def get_archive_url(original_url: str) -> str:
-        """
-        Generate a Wayback Machine URL for the given page.
-        
-        The /* part means "show calendar of available snapshots".
-        
-        Args:
-            original_url: Original URL
-            
-        Returns:
-            Wayback Machine URL
-        """
-        return f"{WaybackArchiveHelper.WAYBACK_BASE}/*/{original_url}"
-    
-    @staticmethod
-    def get_archive_url_for_date(original_url: str, year: int, month: int, day: int) -> str:
-        """
-        Generate a Wayback Machine URL for a specific date.
-        
-        Format: https://web.archive.org/web/YYYYMMDD/url
-        
-        Args:
-            original_url: Original URL
-            year, month, day: Date to retrieve
-            
-        Returns:
-            Wayback Machine URL for specific date
-        """
-        date_str = f"{year:04d}{month:02d}{day:02d}"
-        return f"{WaybackArchiveHelper.WAYBACK_BASE}/{date_str}/{original_url}"

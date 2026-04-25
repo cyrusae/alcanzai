@@ -22,8 +22,19 @@ from datetime import datetime
 from typing import Optional
 import anthropic
 
+from opentelemetry.trace import SpanKind, StatusCode
+from paper_library.telemetry import tracer, get_logger, meter
+from paper_library.token_utils import truncate_to_token_budget
+from paper_library.config import config
 from paper_library.models import PaperMetadata, ArticleMetadata, Synthesis
 from paper_library.skills_manager import SkillsManager
+
+logger = get_logger(__name__)
+
+# Metrics
+input_tokens_counter = meter.create_counter("alcanzai.llm.tokens.input", unit="tokens")
+output_tokens_counter = meter.create_counter("alcanzai.llm.tokens.output", unit="tokens")
+cost_counter = meter.create_counter("alcanzai.llm.cost.usd", unit="usd")
 
 # Register configuration type alias
 RegisterConfig = dict[str, str]
@@ -119,6 +130,12 @@ class SynthesisGenerator:
         """
         reg = register or DEFAULT_REGISTER
 
+        # Replace char-based truncation
+        text, estimated_tokens, was_truncated = truncate_to_token_budget(
+            text,
+            max_tokens=config.SYNTHESIS_TOKEN_BUDGET,
+        )
+
         # Build container with required skills
         skill_containers = self._skills_manager.build_skill_containers(QUICK_SYNTHESIS_SKILLS)
 
@@ -126,25 +143,79 @@ class SynthesisGenerator:
         message = self._build_quick_synthesis_message(text, metadata, reg, citation_contexts)
 
         # Call Claude with skills
-        response = self.client.beta.messages.create(
-            model=self.MODEL,
-            max_tokens=max_tokens,
-            betas=[self.CODE_EXECUTION_BETA, self.SKILLS_BETA],
-            container={"skills": skill_containers},
-            tools=[self.CODE_EXECUTION_TOOL],
-            messages=[{"role": "user", "content": message}],
-        )
+        with tracer.start_as_current_span(
+            "claude_synthesize",
+            kind=SpanKind.CLIENT,
+            attributes={
+                "llm.model": self.MODEL,
+                "llm.provider": "anthropic",
+                "llm.max_tokens": max_tokens,
+                "paper.text_chars_sent": len(text),
+                "llm.text_estimated_tokens": estimated_tokens,
+                "llm.text_was_truncated": was_truncated,
+                "llm.skills": QUICK_SYNTHESIS_SKILLS,
+            },
+        ) as span:
+            response = self.client.beta.messages.create(
+                model=self.MODEL,
+                max_tokens=max_tokens,
+                betas=[self.CODE_EXECUTION_BETA, self.SKILLS_BETA],
+                container={"skills": skill_containers},
+                tools=[self.CODE_EXECUTION_TOOL],
+                messages=[{"role": "user", "content": message}],
+            )
 
-        # The model reads skill files first (multi-step), then produces output.
-        # The synthesis XML is in the last text block, not the first.
-        text_blocks = [block.text for block in response.content if hasattr(block, "text")]
-        response_text = text_blocks[-1] if text_blocks else ""
+            # The model reads skill files first (multi-step), then produces output.
+            # The synthesis XML is in the last text block, not the first.
+            text_blocks = [block.text for block in response.content if hasattr(block, "text")]
+            response_text = text_blocks[-1] if text_blocks else ""
+
+            usage = response.usage
+            cost = self._calculate_cost(usage.input_tokens, usage.output_tokens)
+
+            # Span attributes
+            span.set_attribute("llm.input_tokens", usage.input_tokens)
+            span.set_attribute("llm.output_tokens", usage.output_tokens)
+            span.set_attribute(
+                "llm.cache_read_tokens", getattr(usage, "cache_read_input_tokens", 0) or 0
+            )
+            span.set_attribute(
+                "llm.cache_creation_tokens",
+                getattr(usage, "cache_creation_input_tokens", 0) or 0,
+            )
+            span.set_attribute("llm.cost_usd", cost)
+            span.set_attribute("llm.stop_reason", response.stop_reason)
+
+            if estimated_tokens > 0:
+                span.set_attribute(
+                    "llm.token_estimation_accuracy", usage.input_tokens / estimated_tokens
+                )
+            span.set_status(StatusCode.OK)
+
+            # Structured logging
+            logger.debug(
+                "synthesis_api_call",
+                model=self.MODEL,
+                input_tokens=usage.input_tokens,
+                output_tokens=usage.output_tokens,
+                cache_read_tokens=getattr(usage, "cache_read_input_tokens", 0) or 0,
+                cost_usd=cost,
+                text_chars_sent=len(text),
+                stop_reason=response.stop_reason,
+            )
+            logger.info(
+                "synthesis_complete",
+                cost_usd=cost,
+                input_tokens=usage.input_tokens,
+                output_tokens=usage.output_tokens,
+            )
+
+            # Metrics
+            input_tokens_counter.add(usage.input_tokens, {"model": self.MODEL})
+            output_tokens_counter.add(usage.output_tokens, {"model": self.MODEL})
+            cost_counter.add(cost, {"model": self.MODEL, "task": "quick_synthesis"})
+
         synthesis_data = self._parse_quick_synthesis_response(response_text)
-
-        cost = self._calculate_cost(
-            response.usage.input_tokens,
-            response.usage.output_tokens,
-        )
 
         return Synthesis(
             summary=synthesis_data["summary"],
@@ -172,7 +243,7 @@ class SynthesisGenerator:
         - Paper text
 
         Args:
-            text: Paper text
+            text: Paper text (expected to be already truncated)
             metadata: Paper metadata
             register: Register configuration dict
 
@@ -180,7 +251,7 @@ class SynthesisGenerator:
             User message string
         """
         text_length = len(text)
-        text_preview = text[:50000]
+        text_preview = text
 
         if len(metadata.authors) > 3:
             authors_str = f"{metadata.authors[0]} et al."
@@ -339,6 +410,12 @@ Use the quick-summary skill format with <summary>, <why_you_cared>, <key_concept
         """
         reg = register or DEFAULT_REGISTER
 
+        # Replace char-based truncation
+        text, _, _ = truncate_to_token_budget(
+            text,
+            max_tokens=config.SYNTHESIS_TOKEN_BUDGET,
+        )
+
         skill_containers = self._skills_manager.build_skill_containers(
             [
                 "understand-academic-text",
@@ -357,7 +434,7 @@ Use the quick-summary skill format with <summary>, <why_you_cared>, <key_concept
         jargon = reg.get("jargon", "selective")
         structure = reg.get("structure", "mixed")
         depth = reg.get("depth", "balanced")
-        text_preview = text[:50000]
+        text_preview = text
 
         year = getattr(metadata, "year", None) or (
             getattr(metadata, "published_date", None) and metadata.published_date.year
@@ -412,6 +489,12 @@ Use the detailed-summary skill format with <detailed_summary> XML tags."""
         """
         reg = register or DEFAULT_REGISTER
 
+        # Replace char-based truncation
+        text, _, _ = truncate_to_token_budget(
+            text,
+            max_tokens=config.SYNTHESIS_TOKEN_BUDGET,
+        )
+
         skill_containers = self._skills_manager.build_skill_containers(
             [
                 "identify-terminology",
@@ -427,7 +510,7 @@ Use the detailed-summary skill format with <detailed_summary> XML tags."""
 
         jargon = reg.get("jargon", "selective")
         depth = reg.get("depth", "balanced")
-        text_preview = text[:50000]
+        text_preview = text
 
         message = f"""Extract a technical glossary from this academic paper.
 

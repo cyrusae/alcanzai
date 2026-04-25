@@ -18,8 +18,33 @@ import requests
 from pathlib import Path
 from typing import Optional, Tuple
 from lxml import etree
-
+from opentelemetry.trace import SpanKind, StatusCode
+from paper_library.telemetry import tracer, get_logger
 from paper_library.models import PaperMetadata
+
+logger = get_logger(__name__)
+
+# Minimum byte size and magic bytes required for a file to be treated as a
+# valid cached PDF. A truncated/zero-byte file from an interrupted download
+# would pass an existence check but fail this verification.
+_PDF_MIN_SIZE = 1024
+_PDF_MAGIC = b"%PDF"
+
+
+def _cached_pdf_is_valid(path: Path) -> bool:
+    """Return True if *path* looks like a complete PDF file.
+
+    Checks:
+    - File size >= _PDF_MIN_SIZE (catches empty / truncated downloads)
+    - First 4 bytes equal b"%PDF"   (catches landing-page HTML saved as .pdf)
+    """
+    try:
+        if path.stat().st_size < _PDF_MIN_SIZE:
+            return False
+        with open(path, "rb") as fh:
+            return fh.read(4) == _PDF_MAGIC
+    except OSError:
+        return False
 
 
 class ArxivError(Exception):
@@ -42,7 +67,7 @@ class ArxivFetcher:
     """
     
     # arXiv API endpoint
-    API_BASE = "http://export.arxiv.org/api/query"
+    API_BASE = "https://export.arxiv.org/api/query"
     PDF_BASE = "https://arxiv.org/pdf"
     
     # XML namespace for Atom feed
@@ -88,20 +113,37 @@ class ArxivFetcher:
         if not clean_id:
             raise ArxivError(f"Invalid arXiv ID: {arxiv_id}")
         
-        print(f"→ Fetching arXiv {clean_id}...")
-        
-        # Fetch metadata from API
-        metadata = self._fetch_metadata(clean_id)
-        
-        # Download PDF
-        pdf_path = self._download_pdf(clean_id)
-        
-        # Store PDF path in metadata
-        metadata.pdf_path = str(pdf_path)
-        metadata.arxiv_id = clean_id
-        metadata.source = "arxiv"
-        
-        return pdf_path, metadata
+        with tracer.start_as_current_span(
+            'fetch_arxiv',
+            kind=SpanKind.CLIENT,
+            attributes={
+                'arxiv.id': clean_id,
+            }
+        ) as span:
+            try:
+                logger.info("fetching_arxiv", arxiv_id=clean_id)
+                
+                # Fetch metadata from API
+                metadata = self._fetch_metadata(clean_id)
+                
+                # Download PDF
+                pdf_path = self._download_pdf(clean_id)
+                
+                # Store PDF path in metadata
+                metadata.pdf_path = str(pdf_path)
+                metadata.arxiv_id = clean_id
+                metadata.source = "arxiv"
+                
+                span.set_attribute('arxiv.title', metadata.title or '')
+                span.set_attribute('arxiv.author_count', len(metadata.authors))
+                span.set_attribute('arxiv.pdf_size_bytes', pdf_path.stat().st_size if pdf_path else 0)
+                span.set_status(StatusCode.OK)
+                
+                return pdf_path, metadata
+            except Exception as e:
+                span.set_status(StatusCode.ERROR, str(e))
+                span.record_exception(e)
+                raise
     
     def parse_arxiv_id(self, text: str) -> Optional[str]:
         """
@@ -212,11 +254,16 @@ class ArxivFetcher:
             if abstract:
                 abstract = " ".join(abstract.split())
             
-            # Validate required fields
-            if not title or not authors or not year:
+            # Validate required fields. Title and authors are load-bearing;
+            # year is nice-to-have (arXiv virtually always has it, but we
+            # match the GROBID/DOI pipeline in not blocking on missing year).
+            if not title or not authors:
                 raise ArxivError(
-                    f"Incomplete metadata from arXiv for {arxiv_id}"
+                    f"Incomplete metadata from arXiv for {arxiv_id}: "
+                    f"missing {'title' if not title else 'authors'}"
                 )
+            if not year:
+                logger.warning("arxiv_missing_year", arxiv_id=arxiv_id)
             
             return PaperMetadata(
                 title=title,
@@ -247,41 +294,75 @@ class ArxivFetcher:
             return found.text.strip()
         return None
     
+    # Honorifics stripped from the start of a name before choosing surname.
+    _NAME_HONORIFICS = frozenset({
+        "dr.", "prof.", "professor", "mr.", "mrs.", "ms.", "mx.", "sir", "lord",
+    })
+
+    # Suffixes stripped from the end of a name before choosing surname.
+    # Convention: suffix stays attached to the surname in formatted output
+    # (e.g. "Smith Jr." rather than "Smith, John Jr.") — simpler and
+    # unambiguous for citation matching.
+    _NAME_SUFFIXES = frozenset({
+        "jr.", "sr.", "ii", "iii", "iv", "v", "esq.",
+    })
+
     def _extract_authors(self, entry: etree._Element) -> list[str]:
         """
         Extract author names from entry.
-        
+
         Authors are in <author><name>Author Name</name></author> elements.
         We format them as "Lastname, Firstname" to match GROBID format.
-        
+
+        Honorifics (Dr., Prof., …) are stripped from the forename side;
+        generational suffixes (Jr., Sr., II, …) stay with the surname so
+        the formatted result is e.g. "Smith Jr., John".
+
         Args:
             entry: Entry element from arXiv API
-            
+
         Returns:
             List of formatted author names
         """
         authors = []
-        
-        # Find all author elements
+
         for author_elem in entry.findall('atom:author', self.NS):
             name_elem = author_elem.find('atom:name', self.NS)
             if name_elem is not None and name_elem.text:
                 name = name_elem.text.strip()
-                
-                # arXiv names are typically "Firstname Lastname"
-                # Convert to "Lastname, Firstname" format
                 name_parts = name.split()
+
+                if len(name_parts) < 2:
+                    # Single token — use as-is (uncommon but possible)
+                    authors.append(name)
+                    continue
+
+                # Strip leading honorifics
+                while name_parts and name_parts[0].lower() in self._NAME_HONORIFICS:
+                    name_parts = name_parts[1:]
+
+                if not name_parts:
+                    authors.append(name)
+                    continue
+
+                # Detect trailing suffix (keep it attached to the surname)
+                suffix = ""
+                if name_parts[-1].lower() in self._NAME_SUFFIXES:
+                    suffix = " " + name_parts[-1]
+                    name_parts = name_parts[:-1]
+
                 if len(name_parts) >= 2:
-                    # Assume last word is surname, rest is forenames
-                    surname = name_parts[-1]
+                    surname = name_parts[-1] + suffix
                     forenames = " ".join(name_parts[:-1])
                     formatted = f"{surname}, {forenames}"
+                elif len(name_parts) == 1:
+                    # Only a surname left after stripping
+                    formatted = name_parts[0] + suffix
                 else:
-                    # Single name (uncommon but possible)
                     formatted = name
-                
+
                 authors.append(formatted)
-        
+
         return authors
     
     def _extract_year(self, entry: etree._Element) -> Optional[int]:
@@ -330,13 +411,21 @@ class ArxivFetcher:
         pdf_filename = f"arxiv_{arxiv_id.replace('/', '_')}.pdf"
         pdf_path = self.pdfs_dir / pdf_filename
         
-        # Skip if already downloaded
+        # Return cached file if it already exists and passes integrity checks.
+        # An interrupted download can leave a zero-byte or truncated file;
+        # those are silently re-fetched rather than returned as valid cache.
         if pdf_path.exists():
-            print(f"  ✓ PDF already exists: {pdf_filename}")
-            return pdf_path
+            if _cached_pdf_is_valid(pdf_path):
+                logger.info("pdf_already_exists", filename=pdf_filename)
+                return pdf_path
+            logger.warning(
+                "cached_pdf_invalid_re_downloading",
+                filename=pdf_filename,
+            )
+            pdf_path.unlink()
         
         try:
-            print(f"  → Downloading PDF from arXiv...")
+            logger.info("downloading_pdf", arxiv_id=arxiv_id)
             
             # Stream the download (PDFs can be large)
             # stream=True means we download in chunks
@@ -349,7 +438,7 @@ class ArxivFetcher:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
             
-            print(f"  ✓ PDF downloaded: {pdf_filename}")
+            logger.info("pdf_downloaded", filename=pdf_filename)
             return pdf_path
             
         except requests.RequestException as e:
@@ -357,18 +446,3 @@ class ArxivFetcher:
             if pdf_path.exists():
                 pdf_path.unlink()
             raise ArxivError(f"Failed to download PDF: {e}")
-
-
-def fetch_arxiv_paper(arxiv_id: str, vault_path: Path) -> Tuple[Path, PaperMetadata]:
-    """
-    Convenience function to fetch an arXiv paper.
-    
-    Args:
-        arxiv_id: arXiv identifier
-        vault_path: Path to vault
-        
-    Returns:
-        Tuple of (pdf_path, metadata)
-    """
-    fetcher = ArxivFetcher(vault_path)
-    return fetcher.fetch(arxiv_id)

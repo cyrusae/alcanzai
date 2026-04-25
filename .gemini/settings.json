@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "exomonad": {
+      "command": "",
+      "args": [
+        "exomonad mcp-stdio"
+      ]
+    }
+  },
+  "general": {
+    "preferredEditor": "neovim"
+  }
+}

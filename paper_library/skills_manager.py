@@ -20,6 +20,9 @@ from typing import Optional
 
 import anthropic
 from anthropic.lib import files_from_dir
+from paper_library.telemetry import tracer, get_logger
+
+logger = get_logger(__name__)
 
 SKILLS_DIR = Path(__file__).parent.parent / "skills"
 SKILL_IDS_FILE = SKILLS_DIR / "skill_ids.json"
@@ -56,9 +59,25 @@ class SkillsManager:
         self._load_cached_ids()
 
     def _load_cached_ids(self) -> None:
-        if SKILL_IDS_FILE.exists():
+        """Load cached skill IDs from disk.
+
+        Tolerates a corrupt or unreadable cache file: logs a warning, resets
+        the in-memory map to empty, and lets skills re-upload on first use.
+        Previously this raised on malformed JSON, killing the CLI at startup
+        for any command (even ones that didn't use skills).
+        """
+        if not SKILL_IDS_FILE.exists():
+            return
+        try:
             with open(SKILL_IDS_FILE) as f:
                 self._skill_ids = json.load(f)
+        except (json.JSONDecodeError, OSError) as e:
+            logger.warning(
+                "skills_cache_corrupt_resetting",
+                file=str(SKILL_IDS_FILE),
+                error=str(e),
+            )
+            self._skill_ids = {}
 
     def _save_cached_ids(self) -> None:
         SKILL_IDS_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -86,14 +105,20 @@ class SkillsManager:
             raise FileNotFoundError(f"Skill directory not found: {skill_dir}")
 
         display_title = skill_name.replace("-", " ").title()
-        response = self.client.beta.skills.create(
-            display_title=display_title,
-            files=files_from_dir(str(skill_dir)),
-            betas=[SKILLS_BETA],
-        )
 
-        # response.id is the skill ID used in container.skills[].skill_id
-        skill_id = response.id
+        with tracer.start_as_current_span(
+            "skill_upload", attributes={"skill.name": skill_name, "skill.cache_hit": False}
+        ) as span:
+            response = self.client.beta.skills.create(
+                display_title=display_title,
+                files=files_from_dir(str(skill_dir)),
+                betas=[SKILLS_BETA],
+            )
+
+            # response.id is the skill ID used in container.skills[].skill_id
+            skill_id = response.id
+            span.set_attribute("skill.id", skill_id)
+
         self._skill_ids[skill_name] = skill_id
         self._save_cached_ids()
         return skill_id
@@ -108,9 +133,12 @@ class SkillsManager:
         Returns:
             Skill ID string
         """
-        if skill_name not in self._skill_ids:
-            self.upload_skill(skill_name)
-        return self._skill_ids[skill_name]
+        if skill_name in self._skill_ids:
+            cached_id = self._skill_ids[skill_name]
+            logger.debug("skill_cache_hit", skill_name=skill_name, skill_id=cached_id)
+            return cached_id
+
+        return self.upload_skill(skill_name)
 
     def ensure_uploaded(self, skill_names: Optional[list[str]] = None) -> dict[str, str]:
         """

@@ -8,9 +8,10 @@ Run only integration tests: pytest tests/test_arxiv_fetcher.py -m integration
 
 import pytest
 from pathlib import Path
+from unittest.mock import patch, Mock
 
 from paper_library.config import config
-from paper_library.arxiv_fetcher import ArxivFetcher, ArxivError
+from paper_library.arxiv_fetcher import ArxivFetcher, ArxivError, _cached_pdf_is_valid
 from paper_library.models import PaperMetadata
 
 
@@ -166,3 +167,147 @@ class TestArxivAuthorsFormatting:
         pdf_path, metadata = fetcher.fetch("1706.03762")
 
         assert len(metadata.authors) > 1
+
+
+class TestExtractAuthorsUnit:
+    """Unit tests for _extract_authors() — no network needed."""
+
+    NS = "http://www.w3.org/2005/Atom"
+
+    def _make_entry(self, names: list) -> "etree._Element":
+        from lxml import etree
+        entry = etree.Element(f"{{{self.NS}}}entry")
+        for name in names:
+            author = etree.SubElement(entry, f"{{{self.NS}}}author")
+            name_el = etree.SubElement(author, f"{{{self.NS}}}name")
+            name_el.text = name
+        return entry
+
+    @pytest.fixture
+    def fetcher(self, tmp_path):
+        return ArxivFetcher(tmp_path)
+
+    def test_plain_two_part_name(self, fetcher):
+        entry = self._make_entry(["John Smith"])
+        assert fetcher._extract_authors(entry) == ["Smith, John"]
+
+    def test_three_part_name(self, fetcher):
+        entry = self._make_entry(["Mary Jane Watson"])
+        assert fetcher._extract_authors(entry) == ["Watson, Mary Jane"]
+
+    def test_suffix_jr_stays_with_surname(self, fetcher):
+        entry = self._make_entry(["John Smith Jr."])
+        result = fetcher._extract_authors(entry)
+        assert result == ["Smith Jr., John"]
+
+    def test_suffix_sr_stays_with_surname(self, fetcher):
+        entry = self._make_entry(["Robert Jones Sr."])
+        result = fetcher._extract_authors(entry)
+        assert result == ["Jones Sr., Robert"]
+
+    def test_suffix_roman_numeral(self, fetcher):
+        entry = self._make_entry(["James Brown III"])
+        result = fetcher._extract_authors(entry)
+        assert result == ["Brown III, James"]
+
+    def test_honorific_dr_stripped(self, fetcher):
+        entry = self._make_entry(["Dr. Jane Doe"])
+        result = fetcher._extract_authors(entry)
+        assert result == ["Doe, Jane"]
+
+    def test_honorific_prof_stripped(self, fetcher):
+        entry = self._make_entry(["Prof. Alan Turing"])
+        result = fetcher._extract_authors(entry)
+        assert result == ["Turing, Alan"]
+
+    def test_single_name_returned_as_is(self, fetcher):
+        entry = self._make_entry(["Madonna"])
+        assert fetcher._extract_authors(entry) == ["Madonna"]
+
+    def test_multiple_authors(self, fetcher):
+        entry = self._make_entry(["Alice Smith", "Bob Jones Jr."])
+        result = fetcher._extract_authors(entry)
+        assert result == ["Smith, Alice", "Jones Jr., Bob"]
+
+    def test_empty_entry_returns_empty_list(self, fetcher):
+        from lxml import etree
+        entry = etree.Element(f"{{{self.NS}}}entry")
+        assert fetcher._extract_authors(entry) == []
+
+
+class TestCachedPdfIsValid:
+    """Unit tests for _cached_pdf_is_valid() helper."""
+
+    def test_valid_pdf_returns_true(self, tmp_path):
+        p = tmp_path / "paper.pdf"
+        p.write_bytes(b"%PDF-1.4\n" + b"x" * 2000)
+        assert _cached_pdf_is_valid(p) is True
+
+    def test_zero_byte_file_returns_false(self, tmp_path):
+        p = tmp_path / "empty.pdf"
+        p.write_bytes(b"")
+        assert _cached_pdf_is_valid(p) is False
+
+    def test_too_small_returns_false(self, tmp_path):
+        p = tmp_path / "tiny.pdf"
+        p.write_bytes(b"%PDF-1.4\n" + b"x" * 10)
+        assert _cached_pdf_is_valid(p) is False
+
+    def test_wrong_magic_bytes_returns_false(self, tmp_path):
+        p = tmp_path / "html.pdf"
+        p.write_bytes(b"<html>" + b"x" * 2000)
+        assert _cached_pdf_is_valid(p) is False
+
+    def test_missing_file_returns_false(self, tmp_path):
+        p = tmp_path / "nonexistent.pdf"
+        assert _cached_pdf_is_valid(p) is False
+
+
+class TestDownloadPdfCacheVerification:
+    """_download_pdf must re-download if the cached file is corrupt/truncated."""
+
+    @pytest.fixture
+    def fetcher(self, tmp_path):
+        f = ArxivFetcher(tmp_path)
+        # Ensure PDFs subdirectory exists (ArxivFetcher creates it in __init__)
+        return f
+
+    def _make_mock_response(self, content: bytes):
+        resp = Mock()
+        resp.iter_content = lambda chunk_size: [content]
+        resp.raise_for_status = Mock()
+        return resp
+
+    def test_corrupt_cache_is_replaced(self, fetcher, tmp_path):
+        """A zero-byte cached file should trigger a re-download."""
+        arxiv_id = "1706.03762"
+        pdf_filename = f"arxiv_{arxiv_id.replace('/', '_')}.pdf"
+        pdf_path = fetcher.pdfs_dir / pdf_filename
+
+        # Place a corrupt (zero-byte) file in the cache
+        pdf_path.write_bytes(b"")
+
+        valid_pdf = b"%PDF-1.4\n" + b"x" * 2000
+
+        with patch("paper_library.arxiv_fetcher.requests.get") as mock_get:
+            mock_get.return_value = self._make_mock_response(valid_pdf)
+            result = fetcher._download_pdf(arxiv_id)
+
+        # File should now be the valid PDF
+        assert result.read_bytes() == valid_pdf
+        mock_get.assert_called_once()
+
+    def test_valid_cache_is_not_re_downloaded(self, fetcher, tmp_path):
+        """A valid cached file must be returned without hitting the network."""
+        arxiv_id = "1706.03762"
+        pdf_filename = f"arxiv_{arxiv_id.replace('/', '_')}.pdf"
+        pdf_path = fetcher.pdfs_dir / pdf_filename
+
+        valid_pdf = b"%PDF-1.4\n" + b"x" * 2000
+        pdf_path.write_bytes(valid_pdf)
+
+        with patch("paper_library.arxiv_fetcher.requests.get") as mock_get:
+            result = fetcher._download_pdf(arxiv_id)
+
+        mock_get.assert_not_called()
+        assert result == pdf_path

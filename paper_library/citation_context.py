@@ -14,10 +14,13 @@ Python concepts:
 """
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 from paper_library.models import Citation
+from paper_library.telemetry import tracer, get_logger
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -79,49 +82,65 @@ class CitationContextExtractor:
             Dict mapping citation key (doi or title) to list of CitationContext objects.
             A citation may appear multiple times, so each key maps to a list.
         """
-        # Strip bibliography so we don't match reference-list entries
-        body_text = self._remove_bibliography(paper_text)
-        text_len = len(body_text)
+        with tracer.start_as_current_span(
+            'extract_citation_contexts',
+            attributes={
+                'citations.input_count': len(citations),
+                'text.char_length': len(paper_text),
+            }
+        ) as span:
+            # Strip bibliography so we don't match reference-list entries
+            body_text = self._remove_bibliography(paper_text)
+            text_len = len(body_text)
 
-        all_contexts: dict[str, list[CitationContext]] = {}
+            all_contexts: dict[str, list[CitationContext]] = {}
 
-        for idx, citation in enumerate(citations):
-            patterns = self._build_citation_patterns(citation, index=idx)
-            if not patterns:
-                continue  # Can't build patterns without author+year
+            for idx, citation in enumerate(citations):
+                patterns = self._build_citation_patterns(citation, index=idx)
+                if not patterns:
+                    continue  # Can't build patterns without author+year
 
-            contexts = []
-            seen_positions: set[int] = set()
+                contexts = []
+                seen_positions: set[int] = set()
 
-            for pattern, mention_type in patterns:
-                for match in re.finditer(pattern, body_text, re.IGNORECASE):
-                    # Deduplicate: skip if we already grabbed context at this spot
-                    bucket = match.start() // 50
-                    if bucket in seen_positions:
-                        continue
-                    seen_positions.add(bucket)
+                for pattern, mention_type in patterns:
+                    for match in re.finditer(pattern, body_text, re.IGNORECASE):
+                        # Deduplicate: skip if we already grabbed context at this spot
+                        bucket = match.start() // 50
+                        if bucket in seen_positions:
+                            continue
+                        seen_positions.add(bucket)
 
-                    context_text = self._extract_char_context(
-                        body_text, match.start(), match.end()
+                        context_text = self._extract_char_context(
+                            body_text, match.start(), match.end()
+                        )
+                        position = match.start() / text_len if text_len else 0.0
+                        contexts.append(CitationContext(
+                            citation=citation,
+                            context_text=context_text,
+                            mention_type=mention_type,
+                            position=position,
+                        ))
+
+                if contexts:
+                    key = (
+                        citation.doi
+                        or citation.title
+                        or (citation.raw_text[:50] if citation.raw_text else None)
                     )
-                    position = match.start() / text_len if text_len else 0.0
-                    contexts.append(CitationContext(
-                        citation=citation,
-                        context_text=context_text,
-                        mention_type=mention_type,
-                        position=position,
-                    ))
+                    if key:
+                        all_contexts[key] = contexts
 
-            if contexts:
-                key = (
-                    citation.doi
-                    or citation.title
-                    or (citation.raw_text[:50] if citation.raw_text else None)
-                )
-                if key:
-                    all_contexts[key] = contexts
+            # After extraction:
+            matched_count = len(all_contexts)
+            total_contexts = sum(len(ctxs) for ctxs in all_contexts.values())
+            
+            span.set_attribute('citations.matched_count', matched_count)
+            span.set_attribute('citations.total_context_sentences', total_contexts)
+            match_rate = matched_count / len(citations) if citations else 0.0
+            span.set_attribute('citations.match_rate', match_rate)
 
-        return all_contexts
+            return all_contexts
 
     def format_contexts_for_synthesis(
         self,

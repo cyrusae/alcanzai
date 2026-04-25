@@ -18,10 +18,13 @@ DOI formats handled:
 import re
 import requests
 from pathlib import Path
-from typing import Optional, Tuple
-from datetime import datetime
-
+from typing import Optional, Tuple, List
+from opentelemetry.trace import SpanKind, StatusCode
+from paper_library import __version__
+from paper_library.telemetry import tracer, get_logger
 from paper_library.models import PaperMetadata
+
+logger = get_logger(__name__)
 
 
 class DoiFetchError(Exception):
@@ -47,7 +50,10 @@ class DoiFetcher:
     SEMANTIC_SCHOLAR_BASE = "https://api.semanticscholar.org/graph/v1/paper"
 
     HEADERS = {
-        "User-Agent": "alcanzai/1.0 (personal research library; https://github.com/alcanzai)"
+        "User-Agent": (
+            f"alcanzai/{__version__} "
+            f"(personal research library; https://github.com/cyrusae/alcanzai)"
+        )
     }
 
     # DOI pattern: 10.XXXX/suffix
@@ -117,28 +123,55 @@ class DoiFetcher:
         Raises:
             DoiFetchError: If Crossref lookup fails entirely.
         """
-        print(f"  → Looking up DOI: {doi}")
+        with tracer.start_as_current_span(
+            'fetch_doi',
+            kind=SpanKind.CLIENT,
+            attributes={'doi.identifier': doi}
+        ) as span:
+            try:
+                logger.info("doi_lookup", doi=doi)
 
-        metadata = self._fetch_crossref(doi)
-        print(f"  ✓ Crossref: {metadata.title[:70]}")
+                metadata = self._fetch_crossref(doi)
+                span.set_attribute('doi.crossref_found', True)
+                logger.info("crossref_metadata_found", title=metadata.title)
 
-        pdf_path = None
-        pdf_url = self._find_oa_pdf_url(doi)
-        if pdf_url:
-            print(f"  ✓ OA PDF: {pdf_url[:70]}")
-            pdf_path = self._download_pdf(pdf_url, doi)
-            if pdf_path:
-                print(f"  ✓ Downloaded: {pdf_path.name}")
-            else:
-                print(f"  ⚠ PDF download failed — using abstract only")
-        else:
-            print(f"  ⚠ No OA PDF found — synthesis will use abstract only")
+                pdf_path = None
+                resolution_path: List[str] = ["crossref"]
+                
+                # Unpaywall
+                pdf_url = self._fetch_unpaywall(doi)
+                if pdf_url:
+                    span.set_attribute('doi.unpaywall_oa_found', True)
+                    resolution_path.append("unpaywall")
+                else:
+                    span.set_attribute('doi.unpaywall_oa_found', False)
+                    # Semantic Scholar
+                    pdf_url = self._fetch_semantic_scholar(doi)
+                    if pdf_url:
+                        span.set_attribute('doi.semantic_scholar_oa_found', True)
+                        resolution_path.append("semantic_scholar")
+                    else:
+                        span.set_attribute('doi.semantic_scholar_oa_found', False)
 
-        return metadata, pdf_path
+                span.set_attribute('doi.resolution_path', "+".join(resolution_path))
 
-    # ------------------------------------------------------------------
-    # Crossref
-    # ------------------------------------------------------------------
+                if pdf_url:
+                    logger.info("oa_pdf_found", url=pdf_url)
+                    pdf_path = self._download_pdf(pdf_url, doi)
+                    if pdf_path:
+                        logger.info("pdf_downloaded", filename=pdf_path.name)
+                    else:
+                        logger.warning("pdf_download_failed")
+                else:
+                    logger.info("no_oa_pdf_found")
+
+                span.set_attribute('doi.pdf_acquired', bool(pdf_path))
+                span.set_status(StatusCode.OK)
+                return metadata, pdf_path
+            except Exception as e:
+                span.set_status(StatusCode.ERROR, str(e))
+                span.record_exception(e)
+                raise
 
     def _fetch_crossref(self, doi: str) -> PaperMetadata:
         """Fetch bibliographic metadata from the Crossref REST API."""
@@ -209,7 +242,7 @@ class DoiFetcher:
         return PaperMetadata(
             title=title,
             authors=authors or ["Unknown"],
-            year=year or datetime.now().year,
+            year=year,  # May be None — downstream handles missing date explicitly.
             abstract=abstract or None,
             doi=doi,
             venue=venue,
@@ -232,12 +265,22 @@ class DoiFetcher:
         return self._fetch_semantic_scholar(doi)
 
     def _fetch_unpaywall(self, doi: str) -> Optional[str]:
-        """Return the best OA PDF URL from Unpaywall, or None."""
-        email = self.email or "research@example.com"
+        """Return the best OA PDF URL from Unpaywall, or None.
+
+        Unpaywall requires a real contact email per their API terms. If no
+        email is configured on this fetcher (``self.email is None``), this
+        method skips the Unpaywall call entirely and the caller falls
+        through to Semantic Scholar. Sending a fake/placeholder email
+        violates the polite-pool contract and risks getting the project
+        (or all example.com traffic) rate-limited or banned.
+        """
+        if not self.email:
+            logger.info("unpaywall_skipped_no_email", doi=doi)
+            return None
         try:
             resp = requests.get(
                 f"{self.UNPAYWALL_BASE}/{doi}",
-                params={"email": email},
+                params={"email": self.email},
                 headers=self.HEADERS,
                 timeout=10,
             )
@@ -288,8 +331,10 @@ class DoiFetcher:
 
             content = resp.content
 
-            # Verify magic bytes — some Unpaywall "pdf" URLs are landing pages
-            if not content.startswith(b"%PDF"):
+            # Verify magic bytes + minimum size.
+            # Some Unpaywall "pdf" URLs return HTML landing pages; a short
+            # or non-PDF response is silently discarded rather than saved.
+            if not content.startswith(b"%PDF") or len(content) < 1024:
                 return None
 
             safe_doi = re.sub(r"[^\w.-]", "_", doi)[:60]

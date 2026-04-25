@@ -170,6 +170,100 @@ class TestArticleSourceNoteLink:
         assert "## Key Concepts" in md
 
 
+class TestNoneYearHandling:
+    """Regression tests for R3/R4/R15: year=None should render cleanly,
+    not leak 'None' or fall back to the current calendar year."""
+
+    @pytest.fixture
+    def undated_paper(self):
+        return PaperMetadata(
+            title="An Undated Preprint",
+            authors=["Solo, One"],
+            year=None,
+        )
+
+    @pytest.fixture
+    def sample_synthesis(self):
+        return Synthesis(
+            summary="s", why_you_cared="w",
+            key_concepts=["c"], memorable_quote="q", cost_usd=0.0,
+        )
+
+    def test_paper_byline_uses_nd_for_none_year(self, undated_paper, sample_synthesis):
+        md = MarkdownWriter.paper_to_markdown(undated_paper, sample_synthesis)
+        assert "n.d." in md
+        # And definitely not the string "None"
+        assert "• None" not in md
+
+    def test_paper_frontmatter_omits_year_when_none(self, undated_paper, sample_synthesis):
+        """YAML frontmatter should not include 'year: None' — omit the key instead."""
+        md = MarkdownWriter.paper_to_markdown(undated_paper, sample_synthesis)
+        # Extract the frontmatter block
+        fm = md.split("---")[1]
+        assert "year:" not in fm, f"year key should be omitted when None; got frontmatter:\n{fm}"
+
+    def test_filename_uses_nd_for_none_year(self, undated_paper):
+        name = MarkdownWriter.generate_filename(undated_paper)
+        # Should use n.d. in the year slot, not a real year
+        assert "(n.d.)" in name
+        import datetime as dt
+        assert f"({dt.datetime.now().year})" not in name
+
+
+class TestArticleByline:
+    """Regression tests for the article byline rendering (issue #10)."""
+
+    @pytest.fixture
+    def article_with_date(self):
+        return ArticleMetadata(
+            title="Test Article",
+            authors=["Jane Doe"],
+            url="https://example.com/article",
+            published_date=datetime(2024, 3, 15),
+            publisher="Example Blog",
+        )
+
+    @pytest.fixture
+    def article_without_date(self):
+        return ArticleMetadata(
+            title="Test Article",
+            authors=["Jane Doe"],
+            url="https://example.com/article",
+            published_date=None,
+            publisher="Example Blog",
+        )
+
+    @pytest.fixture
+    def sample_synthesis(self):
+        return Synthesis(
+            summary="s",
+            why_you_cared="w",
+            key_concepts=["c"],
+            memorable_quote="q",
+            cost_usd=0.001,
+        )
+
+    def test_byline_uses_real_bullet_not_mojibake(self, article_with_date, sample_synthesis):
+        """Regression for issue #10: byline should contain a real Unicode bullet (U+2022),
+        not the Windows-1252-double-encoded mojibake pattern 'â€¢'."""
+        md = MarkdownWriter.article_to_markdown(article_with_date, sample_synthesis)
+        # The real bullet character should appear
+        assert "\u2022" in md, "expected real bullet character U+2022 in byline"
+        # The mojibake sequence must NOT appear
+        assert "\u00e2\u20ac\u00a2" not in md, "mojibake bullet sequence leaked into output"
+        # Literal 'â€¢' form also must not appear (belt-and-braces)
+        assert "â€¢" not in md
+
+    def test_byline_omits_date_separator_when_no_date(self, article_without_date, sample_synthesis):
+        """When published_date is None, no bullet+date segment should be written.
+        Guards against a future change that inadvertently stringifies None as the date."""
+        md = MarkdownWriter.article_to_markdown(article_without_date, sample_synthesis)
+        # The bullet character is only used for the date separator; absent with no date
+        assert "\u2022" not in md
+        # And we definitely don't want 'None' appearing as a date
+        assert "None" not in md.split("## Quick Refresh")[0]
+
+
 class TestMarkdownFilenameGeneration:
     """Tests for markdown filename generation"""
 

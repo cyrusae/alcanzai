@@ -109,10 +109,15 @@ class PaperMetadata(BibliographicEntry):
     
     For main papers, title/authors/year are REQUIRED (we validate in GROBID processor).
     """
-    # Override base class to make these required for main papers
-    title: str  # Required for papers we're processing
-    authors: list[str]  # Required
-    year: int  # Required
+    # Title and authors are required for papers we're processing.
+    # Year is optional: some legitimate inputs (preprints, working papers,
+    # institutional technical reports) don't carry a publication date in
+    # their metadata. Better to let the paper into the vault with year=None
+    # than to block ingestion on a missing field the user couldn't fill
+    # in anyway.
+    title: str
+    authors: list[str]
+    year: Optional[int] = None
     
     # Bibliography of this paper
     # Citations now have full metadata (venue, volume, etc.)
@@ -184,7 +189,7 @@ class Synthesis(BaseModel):
 class ProcessingState(BaseModel):
     """
     Tracks which papers have been processed to avoid duplicates.
-    
+
     This is saved to processing_state.json in the vault.
     """
     # Sets for fast lookup: "is this DOI already processed?"
@@ -192,22 +197,23 @@ class ProcessingState(BaseModel):
     processed_dois: set[str] = Field(default_factory=set)
     processed_arxiv_ids: set[str] = Field(default_factory=set)
     processed_urls: set[str] = Field(default_factory=set)
-    
+    processed_local_paths: set[str] = Field(default_factory=set)
+
     # Papers that failed processing
     # dict[str, str] means "dictionary with string keys and string values"
     # Keys are identifiers (DOI, arXiv ID), values are error messages
     failed: dict[str, str] = Field(default_factory=dict)
-    
+
     # When this state was last updated
     last_updated: datetime = Field(default_factory=datetime.now)
-    
+
     def is_processed(self, identifier: str) -> bool:
         """
         Check if a paper has already been processed.
-        
+
         Args:
-            identifier: DOI, arXiv ID, or URL
-            
+            identifier: DOI, arXiv ID, URL, or local file path
+
         Returns:
             True if already processed, False otherwise
         """
@@ -216,15 +222,22 @@ class ProcessingState(BaseModel):
             identifier in self.processed_dois
             or identifier in self.processed_arxiv_ids
             or identifier in self.processed_urls
+            or identifier in self.processed_local_paths
         )
-    
+
     def mark_processed(self, identifier: str, source: str) -> None:
         """
         Mark a paper as successfully processed.
-        
+
         Args:
-            identifier: DOI, arXiv ID, or URL
-            source: Where it came from ("arxiv", "doi", "web")
+            identifier: DOI, arXiv ID, URL, or local file path
+            source: Where it came from. One of:
+                    "arxiv", "doi", "web", "local"
+
+        Raises:
+            ValueError: If source is not one of the supported types.
+                        Previously this silently no-op'd on unknown source,
+                        causing identifiers to vanish from dedup tracking.
         """
         if source == "arxiv":
             self.processed_arxiv_ids.add(identifier)
@@ -232,7 +245,14 @@ class ProcessingState(BaseModel):
             self.processed_dois.add(identifier)
         elif source == "web":
             self.processed_urls.add(identifier)
-        
+        elif source == "local":
+            self.processed_local_paths.add(identifier)
+        else:
+            raise ValueError(
+                f"Unknown source: {source!r}. "
+                f"Expected one of 'arxiv', 'doi', 'web', 'local'."
+            )
+
         # Update timestamp
         self.last_updated = datetime.now()
     
