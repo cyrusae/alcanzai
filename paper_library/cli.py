@@ -5,7 +5,8 @@ Usage:
     alcanzai ingest 2312.12345              # Ingest a single paper
     alcanzai batch papers.txt               # Batch ingest from file
     alcanzai stats                          # Show processing statistics
-    alcanzai validate                       # Check configuration
+    alcanzai validate                       # Check configuration (read-only)
+    alcanzai init                           # Create vault directory structure
 """
 
 import click
@@ -114,7 +115,11 @@ def stats():
 
 @cli.command()
 def validate():
-    """Validate your configuration."""
+    """Check configuration (read-only — does not create any directories).
+
+    Exits non-zero if any required configuration is missing.
+    Run `alcanzai init` to create the vault directory structure.
+    """
     click.secho("\nValidating configuration...\n", fg="blue")
 
     checks_failed = 0
@@ -128,9 +133,9 @@ def validate():
     if config.vault_path.exists():
         click.secho(f"✓ Vault directory exists: {config.vault_path}", fg="green")
     else:
-        click.secho(f"  Creating vault directory at {config.vault_path}", fg="yellow")
-        config.vault_path.mkdir(parents=True, exist_ok=True)
-        click.secho("✓ Vault directory created", fg="green")
+        click.secho(f"✗ Vault directory does not exist: {config.vault_path}", fg="red")
+        click.secho("  Run `alcanzai init` to create it, or fix VAULT_PATH in .env.", fg="yellow")
+        checks_failed += 1
 
     click.echo()
     if checks_failed == 0:
@@ -139,6 +144,33 @@ def validate():
         click.secho(f"✗ {checks_failed} check(s) failed", fg="red", bold=True)
         raise SystemExit(1)
 
+    click.echo()
+
+
+@cli.command()
+def init():
+    """Create vault directory structure.
+
+    Creates vault/ and all required subdirectories (Papers, Articles,
+    PDFs, Sources, _meta). Safe to re-run — existing directories are
+    left untouched.
+    """
+    click.secho(f"\nInitializing vault at {config.vault_path}...\n", fg="blue")
+
+    dirs = [
+        config.vault_path,
+        config.vault_path / "Papers",
+        config.vault_path / "Articles",
+        config.vault_path / "PDFs",
+        config.vault_path / "Sources",
+        config.vault_path / "_meta",
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        click.secho(f"  ✓ {d}", fg="green")
+
+    click.echo()
+    click.secho("✓ Vault initialized.", fg="green", bold=True)
     click.echo()
 
 
