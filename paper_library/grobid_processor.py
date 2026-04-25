@@ -325,10 +325,10 @@ class GrobidProcessor:
         # Remove multiple spaces
         title = re.sub(r'\s+', ' ', title)
         
-        # Fix ALL-CAPS titles
-        # If more than 50% of letters are uppercase, convert to title case
-        if title.isupper() or sum(1 for c in title if c.isupper()) > len([c for c in title if c.isalpha()]) * 0.5:
-            # Simple title case - user can manually fix acronyms later
+        # Fix ALL-CAPS titles — only when the entire title is uppercase.
+        # Do NOT apply title() to mixed-case titles: acronyms like BERT, GPT,
+        # NLP push the uppercase ratio above 50% and title() would destroy them.
+        if title.isupper():
             title = title.title()
         
         return title.strip()

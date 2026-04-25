@@ -237,3 +237,33 @@ class TestExtractBodyText:
         text = processor._extract_body_text(root)
         # No double spaces in paragraph text
         assert "  " not in text
+
+
+class TestCleanTitle:
+    """Unit tests for _clean_title() — no GROBID service needed."""
+
+    @pytest.fixture
+    def processor(self):
+        return GrobidProcessor("http://localhost:8070")
+
+    def test_all_caps_title_converted_to_title_case(self, processor):
+        assert processor._clean_title("DEEP LEARNING WITH BERT") == "Deep Learning With Bert"
+
+    def test_mixed_case_with_acronym_left_alone(self, processor):
+        """Acronyms must not be destroyed — only fully-uppercase input is title-cased."""
+        result = processor._clean_title("Deep Learning with BERT")
+        assert result == "Deep Learning with BERT"
+
+    def test_mixed_case_multiple_acronyms_left_alone(self, processor):
+        result = processor._clean_title("NLP Benchmarks: A Study of BERT, GPT, and LLaMA")
+        assert result == "NLP Benchmarks: A Study of BERT, GPT, and LLaMA"
+
+    def test_already_correct_title_unchanged(self, processor):
+        result = processor._clean_title("Attention Is All You Need")
+        assert result == "Attention Is All You Need"
+
+    def test_strips_leading_trailing_whitespace(self, processor):
+        assert processor._clean_title("  Some Title  ") == "Some Title"
+
+    def test_collapses_internal_whitespace(self, processor):
+        assert processor._clean_title("Some   Title") == "Some Title"
