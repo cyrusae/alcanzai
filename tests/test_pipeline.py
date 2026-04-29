@@ -1,136 +1,130 @@
 #!/usr/bin/env python3
 """
-End-to-end test script.
+End-to-end integration test for the full pipeline.
 
-This runs the complete pipeline on one arXiv paper to verify
-everything works together.
+Tests the complete path: arXiv API → PDF download → GROBID → Claude synthesis
+→ Obsidian note → state recording.
 
-Usage:
-    python test_pipeline.py [arxiv_id]
-    
-Example:
-    python test_pipeline.py 1706.03762
+Run manually:
+    pytest tests/test_pipeline.py -m integration
+    python tests/test_pipeline.py [arxiv_id]   # script mode, shows output
+
+Requires: ANTHROPIC_API_KEY set, GROBID running on localhost:8070.
+The canonical test paper is "Attention Is All You Need" (arXiv 1706.03762).
 """
 
 import sys
+import pytest
+import requests
 from pathlib import Path
-
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent))
 
 from paper_library.config import config
 from paper_library.state import StateManager
 from paper_library.orchestrator import PaperProcessor
 
 
-def test_pipeline(arxiv_id: str = "1706.03762"):
-    """
-    Run the full pipeline on one paper.
-    
-    Steps:
-    1. Fetch from arXiv (API + PDF)
-    2. Process with GROBID (metadata extraction)
-    3. Generate synthesis with Claude
-    4. Write Obsidian note
-    5. Update state
-    """
-    
-    print("\n" + "="*70)
-    print("END-TO-END PIPELINE TEST")
-    print("="*70)
-    print()
-    print(f"Paper: arXiv {arxiv_id}")
-    print(f"Vault: {config.vault_path}")
-    print()
-    
-    # Pre-flight checks
-    print("Pre-flight checks:")
-    
-    # Check API key
-    if not config.anthropic_api_key:
-        print("  ✗ ANTHROPIC_API_KEY not set")
-        print("    Create .env file with your API key")
-        return False
-    print("  ✓ Anthropic API key configured")
-    
-    # Check GROBID
-    import requests
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _grobid_is_running() -> bool:
     try:
-        response = requests.get(f"{config.grobid_url}/api/isalive", timeout=5)
-        if response.status_code == 200:
-            print("  ✓ GROBID service is running")
-        else:
-            print(f"  ✗ GROBID responded but with status {response.status_code}")
-            print("    Try: docker-compose restart")
-            return False
-    except Exception as e:
-        print(f"  ✗ GROBID service not reachable: {e}")
-        print("    Start with: docker-compose up -d")
+        r = requests.get(f"{config.grobid_url}/api/isalive", timeout=5)
+        return r.status_code == 200
+    except Exception:
         return False
-    
-    # Check vault exists
-    if not config.vault_path.exists():
-        print(f"  → Creating vault at {config.vault_path}")
-        config.vault_path.mkdir(parents=True, exist_ok=True)
-    print(f"  ✓ Vault directory exists")
-    
-    print()
-    
-    # Initialize processor
+
+
+# ---------------------------------------------------------------------------
+# Integration test
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+def test_pipeline_attention_paper(tmp_path):
+    """Full pipeline smoke test on arXiv:1706.03762 (Attention Is All You Need).
+
+    Uses a tmp_path vault to avoid polluting the real vault and to ensure the
+    test is repeatable across runs without --force.
+    """
+    arxiv_id = "1706.03762"
+
+    if not config.anthropic_api_key:
+        pytest.skip("ANTHROPIC_API_KEY not set")
+
+    if not _grobid_is_running():
+        pytest.skip("GROBID not reachable — start with: docker-compose up -d")
+
+    # Wire up processor against a fresh tmp vault
+    from paper_library.config import Config
+    test_config = Config(
+        anthropic_api_key=config.anthropic_api_key,
+        vault_path=tmp_path,
+        grobid_url=config.grobid_url,
+        crossref_email=config.crossref_email,
+    )
+    state = StateManager(state_file=tmp_path / "_meta" / "processing_state.json")
+    processor = PaperProcessor(test_config, state)
+
+    # Run the pipeline
+    processor.process(arxiv_id, force=True)
+
+    # --- Assertions on state ---
+    assert state.is_processed(arxiv_id=arxiv_id), \
+        "Paper should be marked as processed in state after ingestion"
+
+    # --- Assertions on vault output ---
+    papers_dir = tmp_path / "Papers"
+    md_files = list(papers_dir.glob("*.md")) if papers_dir.exists() else []
+    assert md_files, "At least one .md note should have been written to vault/Papers/"
+
+    note_text = md_files[0].read_text(encoding="utf-8")
+    # YAML frontmatter
+    assert "title:" in note_text, "Note must include a 'title:' frontmatter field"
+    # Paper should be recognisable as the Vaswani attention paper
+    title_lower = note_text.lower()
+    assert "attention" in title_lower or "transformer" in title_lower, \
+        "Note should reference 'attention' or 'transformer'"
+    # Synthesis must have been written
+    assert "## Summary" in note_text or "## Synthesis" in note_text, \
+        "Note must contain a synthesis section"
+
+
+# ---------------------------------------------------------------------------
+# Script mode — for manual / ad-hoc use
+# ---------------------------------------------------------------------------
+
+def _run_script(arxiv_id: str = "1706.03762") -> bool:
+    """Run the pipeline and print human-friendly output. Returns True on success."""
+    print("\n" + "=" * 70)
+    print("END-TO-END PIPELINE SMOKE TEST")
+    print("=" * 70)
+    print(f"\nPaper:  arXiv {arxiv_id}")
+    print(f"Vault:  {config.vault_path}\n")
+
+    if not config.anthropic_api_key:
+        print("  ✗ ANTHROPIC_API_KEY not set — create .env with your key")
+        return False
+
+    if not _grobid_is_running():
+        print("  ✗ GROBID not reachable — start with: docker-compose up -d")
+        return False
+
+    config.vault_path.mkdir(parents=True, exist_ok=True)
+
     state = StateManager.load()
     processor = PaperProcessor(config, state)
-    
-    print("✓ Processor initialized\n")
-    
-    # Process the paper
+
     try:
-        success = processor.process(arxiv_id, force=True)
-        
-        if success:
-            print("\n" + "="*70)
-            print("✓✓✓ PIPELINE TEST PASSED ✓✓✓")
-            print("="*70)
-            print()
-            print("Next steps:")
-            print("1. Check your vault for the generated note")
-            print(f"   Location: {config.papers_dir}")
-            print("2. Open it in Obsidian to see how it renders")
-            print("3. Try processing more papers from your collection")
-            print()
-            print("To process multiple papers:")
-            print("  python -c 'from paper_library.orchestrator import process_paper; process_paper(\"ARXIV_ID\")'")
-            print()
-            
-            # Show stats
-            stats = state.get_stats()
-            print("Processing statistics:")
-            print(f"  Papers processed: {stats['total']}")
-            print(f"  Failed: {stats['failed']}")
-            print()
-            
-            return True
-        else:
-            print("\n⊘ Paper was already processed (skipped)")
-            return True
-            
+        processor.process(arxiv_id, force=True)
+        print(f"\n✓ Wrote note to {config.papers_dir}")
+        print(f"✓ State recorded ({state.get_stats()['total']} total papers)")
+        print("\n✓✓✓ PIPELINE TEST PASSED ✓✓✓\n")
+        return True
     except Exception as e:
-        print("\n" + "="*70)
-        print("✗✗✗ PIPELINE TEST FAILED ✗✗✗")
-        print("="*70)
-        print(f"\nError: {e}")
-        print("\nDebugging tips:")
-        print("1. Check error message above for specifics")
-        print("2. Verify GROBID is running: docker-compose ps")
-        print("3. Check API key is valid")
-        print("4. Try with a different paper")
-        print("5. Check network connection")
-        print()
+        print(f"\n✗ Pipeline failed: {e}")
         return False
 
 
 if __name__ == "__main__":
-    # Use command-line arg or default to "Attention Is All You Need"
     arxiv_id = sys.argv[1] if len(sys.argv) > 1 else "1706.03762"
-    
-    success = test_pipeline(arxiv_id)
-    sys.exit(0 if success else 1)
+    sys.exit(0 if _run_script(arxiv_id) else 1)
