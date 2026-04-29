@@ -301,3 +301,195 @@ class TestMarkdownFilenameGeneration:
 
         for char in ["/", "\\", "*", "?", "<", ">", "|"]:
             assert char not in filename
+
+    def test_filename_period_to_dash(self):
+        """Periods in the title become dashes: '3.1' → '3-1', 'U.S.A.' → 'U-S-A-'."""
+        metadata = PaperMetadata(
+            title="Part 3.1 Analysis",
+            authors=["Smith, John"],
+            year=2023,
+        )
+        filename = MarkdownWriter.generate_filename(metadata)
+        assert "3.1" not in filename
+        assert "3-1" in filename
+
+    def test_filename_acronym_periods_become_dashes(self):
+        """All title periods, including those in acronyms, are replaced with dashes."""
+        metadata = PaperMetadata(
+            title="U.S.A. Economic Policy",
+            authors=["Smith, John"],
+            year=2023,
+        )
+        filename = MarkdownWriter.generate_filename(metadata)
+        assert "U.S.A." not in filename
+        # Each period replaced by a dash (collapsed runs → single dash)
+        assert "U" in filename
+        assert "S" in filename
+        assert "A" in filename
+        # No bare periods survive
+        assert "." not in filename.split("(")[1]  # beyond the year portion
+
+    def test_filename_truncated_when_too_long(self):
+        """Filename (no extension) must be ≤ 77 chars when title is very long."""
+        long_title = "A Very Long Title That Goes On And On And On And Will Definitely Exceed The Eighty Character Limit For Filenames"
+        metadata = PaperMetadata(
+            title=long_title,
+            authors=["Smith, John"],
+            year=2023,
+        )
+        filename = MarkdownWriter.generate_filename(metadata)
+        assert len(filename) <= 77, f"Filename too long ({len(filename)}): {filename!r}"
+
+    def test_filename_truncation_prefers_word_boundary(self):
+        """Truncation should not leave a trailing dash or space after the cut."""
+        long_title = "Neural Network Architectures for Processing Sequential Data in Modern Systems"
+        metadata = PaperMetadata(
+            title=long_title,
+            authors=["Smith, John"],
+            year=2023,
+        )
+        filename = MarkdownWriter.generate_filename(metadata)
+        assert len(filename) <= 77
+        # After stripping, the filename must not end with a bare dash or space
+        assert not filename.endswith("-"), f"Filename ends with trailing dash: {filename!r}"
+        assert not filename.endswith(" "), f"Filename ends with trailing space: {filename!r}"
+
+    def test_filename_et_al_for_multiple_authors(self):
+        """More than one author → 'FirstLast et al (Year) - Title'."""
+        metadata = PaperMetadata(
+            title="Test Paper",
+            authors=["Vaswani, Ashish", "Shazeer, Noam", "Parmar, Niki"],
+            year=2017,
+        )
+        filename = MarkdownWriter.generate_filename(metadata)
+        assert "et al" in filename
+        assert filename.startswith("Vaswani")
+
+    def test_filename_single_author_no_et_al(self):
+        """Single author → no 'et al'."""
+        metadata = PaperMetadata(
+            title="Solo Paper",
+            authors=["Kaiser, Łukasz"],
+            year=2020,
+        )
+        filename = MarkdownWriter.generate_filename(metadata)
+        assert "et al" not in filename
+        assert "Kaiser" in filename
+
+
+class TestCitationWikilink:
+    """_format_citation_wikilink: wikilink format with author/year/title fields."""
+
+    def _make_citation(self, authors, year, title, raw_text="fallback raw"):
+        return Citation(
+            authors=authors,
+            year=year,
+            title=title,
+            raw_text=raw_text,
+        )
+
+    def test_single_author_format(self):
+        c = self._make_citation(["Smith, John"], 2020, "Neural Nets")
+        link = MarkdownWriter._format_citation_wikilink(c)
+        assert link == "[[Smith, John (2020) - Neural Nets]]"
+
+    def test_two_author_format_uses_ampersand(self):
+        c = self._make_citation(["Smith, J.", "Jones, A."], 2021, "Paper Title")
+        link = MarkdownWriter._format_citation_wikilink(c)
+        assert "Smith, J. & Jones, A." in link
+        assert link.startswith("[[")
+        assert link.endswith("]]")
+
+    def test_three_author_format(self):
+        c = self._make_citation(
+            ["Vaswani, A.", "Shazeer, N.", "Parmar, N."], 2017, "Attention Is All You Need"
+        )
+        link = MarkdownWriter._format_citation_wikilink(c)
+        assert "Vaswani, A." in link
+        assert "Parmar, N." in link
+        assert "&" in link
+
+    def test_long_title_truncated_in_wikilink(self):
+        long_title = "A" * 70
+        c = self._make_citation(["Smith, J."], 2020, long_title)
+        link = MarkdownWriter._format_citation_wikilink(c)
+        # Title portion should not be the full 70 chars — it's truncated at 60
+        assert long_title not in link
+        assert "..." in link
+
+    def test_fallback_to_raw_text_when_fields_missing(self):
+        c = Citation(raw_text="Smith et al. (2020). No structured fields.", contexts=[])
+        link = MarkdownWriter._format_citation_wikilink(c)
+        assert link.startswith("[[")
+        assert "Smith et al." in link
+
+    def test_wikilink_format_double_brackets(self):
+        c = self._make_citation(["Author, A."], 2022, "Some Title")
+        link = MarkdownWriter._format_citation_wikilink(c)
+        assert link.startswith("[[")
+        assert link.endswith("]]")
+        # Exactly one opening and one closing double bracket
+        assert link.count("[[") == 1
+        assert link.count("]]") == 1
+
+
+class TestYamlFrontmatterEscaping:
+    """YAML frontmatter must not break on special characters in title/author fields."""
+
+    def _synth(self):
+        return Synthesis(
+            summary="s", why_you_cared="w",
+            key_concepts=["c"], memorable_quote="q", cost_usd=0.0,
+        )
+
+    def _parse_frontmatter(self, md: str) -> dict:
+        lines = md.split("\n")
+        start = lines.index("---")
+        end = lines.index("---", start + 1)
+        return yaml.safe_load("\n".join(lines[start + 1:end]))
+
+    def test_title_with_colon_produces_valid_yaml(self):
+        paper = PaperMetadata(
+            title="Attention: A Unified Perspective",
+            authors=["Smith, J."],
+            year=2022,
+        )
+        md = MarkdownWriter.paper_to_markdown(paper, self._synth())
+        fm = self._parse_frontmatter(md)
+        assert "Attention" in fm["title"]
+
+    def test_title_with_double_quote_produces_valid_yaml(self):
+        paper = PaperMetadata(
+            title='What "Intelligence" Really Means',
+            authors=["Smith, J."],
+            year=2022,
+        )
+        md = MarkdownWriter.paper_to_markdown(paper, self._synth())
+        fm = self._parse_frontmatter(md)
+        # YAML must parse without error; title should contain the word
+        assert "Intelligence" in fm["title"]
+
+    def test_title_with_leading_dash_produces_valid_yaml(self):
+        """A title starting with '-' would break YAML list parsing if unquoted."""
+        paper = PaperMetadata(
+            title="- An Unusual Title",
+            authors=["Smith, J."],
+            year=2022,
+        )
+        md = MarkdownWriter.paper_to_markdown(paper, self._synth())
+        # Must parse without raising
+        fm = self._parse_frontmatter(md)
+        assert fm["title"] is not None
+
+    def test_utf8_author_names_survive_yaml_round_trip(self):
+        """Authors with non-ASCII characters must survive the YAML round-trip intact."""
+        paper = PaperMetadata(
+            title="Multilingual NLP",
+            authors=["Kaiser, Łukasz", "Gómez, María"],
+            year=2023,
+        )
+        md = MarkdownWriter.paper_to_markdown(paper, self._synth())
+        fm = self._parse_frontmatter(md)
+        author_block = str(fm["authors"])
+        assert "Łukasz" in author_block
+        assert "Gómez" in author_block or "María" in author_block
