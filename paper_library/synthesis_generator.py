@@ -31,7 +31,10 @@ from paper_library.skills_manager import SkillsManager
 
 logger = get_logger(__name__)
 
-# Metrics
+# Metrics — created at import time on the global proxy meter.
+# OTel's ProxyMeter/ProxyCounter pattern ensures these forward to the real
+# instrument once init_telemetry() calls metrics.set_meter_provider().
+# No lazy-init needed: the proxy handles the swap transparently.
 input_tokens_counter = meter.create_counter("alcanzai.llm.tokens.input", unit="tokens")
 output_tokens_counter = meter.create_counter("alcanzai.llm.tokens.output", unit="tokens")
 cost_counter = meter.create_counter("alcanzai.llm.cost.usd", unit="usd")

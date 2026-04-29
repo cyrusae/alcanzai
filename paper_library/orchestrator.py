@@ -370,10 +370,10 @@ class PaperProcessor:
         output_path = output_dir / f"{filename}.md"
         output_path.write_text(markdown, encoding="utf-8")
 
-        # Set output path on span
+        # Record output path on the active span (no-op when telemetry is off)
         from opentelemetry import trace
         span = trace.get_current_span()
-        if span:
+        if span.is_recording():
             span.set_attribute("paper.output_path", str(output_path))
 
         # Step 6: Update state
@@ -408,10 +408,10 @@ class PaperProcessor:
         output_path = output_dir / f"{filename}.md"
         output_path.write_text(markdown, encoding="utf-8")
 
-        # Set output path on span
+        # Record output path on the active span (no-op when telemetry is off)
         from opentelemetry import trace
         span = trace.get_current_span()
-        if span:
+        if span.is_recording():
             span.set_attribute("paper.output_path", str(output_path))
 
         # Step 4: Update state
@@ -450,10 +450,10 @@ class PaperProcessor:
         output_path = output_dir / f"{filename}.md"
         output_path.write_text(markdown, encoding="utf-8")
 
-        # Set output path on span
+        # Record output path on the active span (no-op when telemetry is off)
         from opentelemetry import trace
         span = trace.get_current_span()
-        if span:
+        if span.is_recording():
             span.set_attribute("paper.output_path", str(output_path))
 
         # Step 4: Update state
