@@ -1,0 +1,10 @@
+{
+  "uuid": "47960b2b-220a-41fc-b21b-d394c0643bab",
+  "issue_uuid": "50d66a6f-3b43-4049-9924-94b4629632b8",
+  "author": "N6rL",
+  "content": "All Python pipeline checks pass cleanly: ruff format OK, ruff check OK (0 errors), pyright --strict OK (0 errors/warnings), pytest exits 0. Files written: pyproject.toml (ruff + pytest markers config), pyrightconfig.json, .pre-commit-config.yaml, pre-commit hooks installed at .git/hooks/pre-commit. Fixes needed during work: removed stale ANN101/ANN102 from ruff ignore (rules removed in 0.9); excluded prototype/ from ruff scans; fixed RUF002 unicode × in synthesis __init__.py; moved conftest.py pytest import to TYPE_CHECKING block (TC002).",
+  "created_at": "2026-05-31T07:49:53.657733Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAjZfQbzB6XpBP/qQ6ehIR1iksSQkyT5GR5t4/4OXIPnvNGQDSkJOV61RvpQFIilN83L6T3ukKXEcA1NnDPuEmAQ=="
+}
