@@ -1,0 +1,10 @@
+{
+  "uuid": "93faed99-dac6-4e7a-8b55-556825f72928",
+  "issue_uuid": "dd37eae6-ffd7-4419-adb8-dc63b19477e5",
+  "author": "N6rL",
+  "content": "Python frontier contract types complete. Files: alcanzai_ingestion/raw_document.py (RawDocument schema v1: schema_version, job_id UUID, ContentType, DeduplicationAnchors with SHA-256 hash validation, Provenance, ContentBlock/BlockKind/BoundingBox, top-level bibliographic fields, to_json()); alcanzai_ingestion/source.py (Source Protocol, CanonicalId, FetchResult, SourceError hierarchy); alcanzai_understanding/enricher.py (Enricher Protocol with enricher_id/priority/applies_to/enrich, EnrichmentResult, EnricherError hierarchy). py.typed markers added to all 4 packages. pyright 0 errors, ruff 0 errors. Schema is now the canonical Python side of the membrane for L7/L8.",
+  "created_at": "2026-05-31T08:20:18.490178Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAGLiqPnpjFOzXd8VGdwDtKcYi+FhpYuzk5VIq1GDzb8b4ZTwmraHnBbRJkdYqeImnuDLq1fVuMt4WzUTwizhvCw=="
+}
