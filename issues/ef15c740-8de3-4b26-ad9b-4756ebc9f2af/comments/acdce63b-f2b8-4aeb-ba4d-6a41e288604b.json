@@ -1,0 +1,10 @@
+{
+  "uuid": "acdce63b-f2b8-4aeb-ba4d-6a41e288604b",
+  "issue_uuid": "ef15c740-8de3-4b26-ad9b-4756ebc9f2af",
+  "author": "N6rL",
+  "content": "Blocked by L2 (skeleton), L3 (illegal-states convention ADR), L5 (clippy must pass). Scope — Rust trait/struct definitions with doc comments, no implementations: KnowledgeObject (content-type-tagged central noun per DESIGN.md §3.2), Library trait (store/query/graph interfaces — object store, identity/dedup authority, citation-edges adjacency, query interface, projection dispatch), Projection trait, SynthesisService trait, Job (identity, inputs, status, result). RawDocument as a serde struct with deny_unknown_fields — must match the Pydantic model from L6 exactly (L8 will verify this). Apply the illegal-states convention from L3 ADR (typestate on RawDocument? IdentityResult sum type?). AC: cargo check passes; cargo clippy -- -D warnings passes; all types are in alcanzai-core with correct module structure; deny_unknown_fields on RawDocument serde; zero unimplemented!() — trait method stubs with no body are fine as trait definitions.",
+  "created_at": "2026-05-31T03:35:53.635486Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAmREPwaAnCD5T9Wrhe2i9sefreX66fp8nPVYqZ1LuUWG6rDikfImiESgKIxM70lBqmtfE6h78BXsZf0n0ROJNCg=="
+}
