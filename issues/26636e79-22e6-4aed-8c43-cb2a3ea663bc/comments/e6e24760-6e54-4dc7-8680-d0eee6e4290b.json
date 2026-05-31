@@ -1,0 +1,10 @@
+{
+  "uuid": "e6e24760-6e54-4dc7-8680-d0eee6e4290b",
+  "issue_uuid": "26636e79-22e6-4aed-8c43-cb2a3ea663bc",
+  "author": "N6rL",
+  "content": "tracker_remote configured to origin — sync now live. No more offline-only warnings.",
+  "created_at": "2026-05-31T03:39:54.539171Z",
+  "kind": "observation",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAQj71d5zxRCSkepa8le3uf8vsae6DKLHzExAOxMUJd3ePAMjgGnEaxeMMiky21MdSYJgRpli1O28wG45ve8U2Bg=="
+}
