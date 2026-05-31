@@ -1,0 +1,10 @@
+{
+  "uuid": "33b8f055-2dc8-42e9-bbb5-28a39d43a8ae",
+  "issue_uuid": "ef15c740-8de3-4b26-ad9b-4756ebc9f2af",
+  "author": "N6rL",
+  "content": "Plan: (1) Add serde+serde_json+uuid+thiserror to Cargo.toml deps; (2) src/error.rs — library-level error types; (3) src/raw_document.rs — RawDocument<T> typestate (Unvalidated/Validated), all component types mirroring Python schema v1, deny_unknown_fields on all serde structs, try_from_json() constructor (ADR-003); (4) src/knowledge_object.rs — KnowledgeObjectId newtype, KnowledgeObject struct, Enrichment record; (5) src/library.rs — Library trait, IdentityResult enum (ADR-003: ExactMatch/VersionUpdate/SoftMatch/NewUnique), LibraryQuery; (6) src/projection.rs — Projection trait; (7) src/synthesis.rs — SynthesisService trait, SynthesisConfig, SynthesisArtifact; (8) src/job.rs — Job struct, JobId newtype, JobStatus enum (ADR-004); (9) src/lib.rs — pub mod declarations + re-exports; (10) cargo clippy + cargo test clean.",
+  "created_at": "2026-05-31T08:21:06.669878Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA2VB3TKxnq4Avng6q5NoUr/fjxVjI6K0Tg+0Dp2Z8roxsjgm86hwFlpsg2DGUDj4Rhocem25rF3Sk5iSgwLZCCg=="
+}
