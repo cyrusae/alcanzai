@@ -1,0 +1,10 @@
+{
+  "uuid": "1479fd21-c197-4c8a-ade2-8fe8227eef5e",
+  "issue_uuid": "dccd6b15-c9fc-4938-81c0-bf29ca628995",
+  "author": "N6rL",
+  "content": "ADR-002: mutmut. Rationale: 88.5% vs 82.7% detection rate on Python-specific mutations; simpler setup; sequential slowness is the point per PIPELINE.md governor philosophy.",
+  "created_at": "2026-05-31T04:12:48.858409Z",
+  "kind": "decision",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAdUDxTWPSotFDfcIhKlFNfdamIlVsnKnZofjIoDji2vfmHE3mtjZsEba/F2BYh86PhsM2VJ4iRPw/D3SwfdnjCA=="
+}
