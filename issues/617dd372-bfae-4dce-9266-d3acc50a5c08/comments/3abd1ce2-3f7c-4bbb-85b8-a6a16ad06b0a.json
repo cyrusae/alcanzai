@@ -1,0 +1,10 @@
+{
+  "uuid": "3abd1ce2-3f7c-4bbb-85b8-a6a16ad06b0a",
+  "issue_uuid": "617dd372-bfae-4dce-9266-d3acc50a5c08",
+  "author": "N6rL",
+  "content": "L2 done. All three ROADMAP.md M0 done-conditions verified:\n\n1. uv run python exits 0 — Python 3.14.5 (Homebrew), all 4 modules (alcanzai_ingestion, alcanzai_understanding, alcanzai_synthesis, alcanzai_interaction) import cleanly in a uv workspace with src/ layout and hatchling build backend.\n\n2. cargo check passes — Rust 1.95.0 / edition 2024, alcanzai-core crate compiles clean.\n\n3. pytest exits 0 with 0 tests — root conftest.py hook converts exit code 5 to 0; norecursedirs excludes prototype/, .venv, .crosslink.\n\nPackage layout created:\n  alcanzai-ingestion/   Python Source plugins\n  alcanzai-understanding/  Python Enrichers\n  alcanzai-core/        Rust Library spine\n  alcanzai-synthesis/   Python SynthesisService workers\n  alcanzai-interaction/ Python CLI / interaction surface\n  pyproject.toml        uv workspace root (virtual)\n  rust-toolchain.toml   stable channel\n  .python-version       3.14\n  conftest.py           root pytest config\n  tests/                empty, ready for test files\n\nOne decision deferred to L3: type checker placeholder is pyright in pyproject.toml dev deps; update if L3 decides mypy.",
+  "created_at": "2026-05-31T03:52:14.778255Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAp9qPUzfM3ORJ6BCG9F59sZICKqtVQzuCN46g4ZsFjyQOUQovA2yK/eMRT0CFA2Usj5gtV44iHP5jdvK/nVBtBw=="
+}
