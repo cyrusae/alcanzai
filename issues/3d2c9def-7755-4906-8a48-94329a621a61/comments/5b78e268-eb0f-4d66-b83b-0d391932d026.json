@@ -1,0 +1,10 @@
+{
+  "uuid": "5b78e268-eb0f-4d66-b83b-0d391932d026",
+  "issue_uuid": "3d2c9def-7755-4906-8a48-94329a621a61",
+  "author": "N6rL",
+  "content": "Plan: (1) CLAUDE.md at repo root — agent orientation doc: project purpose, where to find docs, polyglot split summary, key commands, ADR pointer, salvage protocol reminder. Deliberately brief; depth lives in .design/ and ADR.md. (2) devcontainer: check if .devcontainer/ is appropriate given the polyglot stack; write .devcontainer/devcontainer.json with Python 3.14 + Rust stable + uv + pre-commit. (3) No behavioral code in either.",
+  "created_at": "2026-05-31T08:04:16.041737Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAGRB09ueNGzzotQ1teVrMikTSefhAXP0bYPsaVt0ACLtWj1rVxykeumuqx65u4b+W82nZF3VDCCPkfOsSW/6gDA=="
+}
