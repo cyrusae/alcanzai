@@ -1,0 +1,10 @@
+{
+  "uuid": "799cad5c-15b8-458d-ac0d-55ba18a2d7fa",
+  "issue_uuid": "3d2c9def-7755-4906-8a48-94329a621a61",
+  "author": "N6rL",
+  "content": "Blocked by L2 (skeleton must exist so CLAUDE.md can reference real paths). Scope: (1) CLAUDE.md at repo root — a brief agent-orientation document that covers: what the project is (one paragraph, pointing to .design/ALCANZAI.md), the polyglot split and which layer lives where (pointing to DESIGN.md §9.2), how to use the prototype/ reference (pointing to .design/PROTOTYPE.md), the crosslink rules summary (pointing to .crosslink/rules/), how to run the test suites (uv run pytest and cargo test), and where to find the current milestone (crosslink issue tree). CLAUDE.md should be readable in under 2 minutes — it is a map, not a manual. (2) Devcontainer or equivalent: a .devcontainer/devcontainer.json (or Dockerfile + setup script) so environment setup — uv, Python 3.14, Rust toolchain, GROBID container — is not per-session friction. AC: a new agent session reading only CLAUDE.md can locate the design docs, run the test suites, and find the current milestone without additional orientation; devcontainer builds successfully.",
+  "created_at": "2026-05-31T03:36:22.534925Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAWCK3TMb6HlsJgq4x86rFMwG9h+/p9c+Zudpt3/wxhY389I5bBnn4pDoefaeg7U8DmYwZI4Wo/nKLW7L5HGJFAQ=="
+}
