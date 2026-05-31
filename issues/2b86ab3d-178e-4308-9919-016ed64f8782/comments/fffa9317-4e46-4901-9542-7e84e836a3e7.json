@@ -1,0 +1,10 @@
+{
+  "uuid": "fffa9317-4e46-4901-9542-7e84e836a3e7",
+  "issue_uuid": "2b86ab3d-178e-4308-9919-016ed64f8782",
+  "author": "N6rL",
+  "content": "Blocked by L2 (toolchain) and L3 (mutation testing tool choice and illegal-states convention). Scope: cargo fmt config (rustfmt.toml), cargo clippy configured warnings-as-errors, cargo-deny (license/security/duplicate-dep auditing — matters for dual-licensed open-core future), and the mutation testing tool (cargo mutants) configured with per-zone policy: core modules = survivors block; frontier modules = survivors advisory. Pre-commit and CI integration per the blocking matrix from L3. AC: cargo fmt --check passes; cargo clippy -- -D warnings passes on empty crate; cargo deny check passes; cargo mutants runs (even with trivial output on an empty crate). Rust-toolchain.toml pins the channel.",
+  "created_at": "2026-05-31T03:35:37.019943Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAfSCUr+Jo9nFcRRXtDIlLsR6FI84GedNvRzlfbM1Qxku/GULRtrufdmr7a/uUGv91OZYGdtufBKXcS88Zy4u4CA=="
+}
