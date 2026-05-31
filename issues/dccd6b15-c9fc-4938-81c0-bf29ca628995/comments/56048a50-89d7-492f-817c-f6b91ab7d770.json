@@ -1,0 +1,10 @@
+{
+  "uuid": "56048a50-89d7-492f-817c-f6b91ab7d770",
+  "issue_uuid": "dccd6b15-c9fc-4938-81c0-bf29ca628995",
+  "author": "N6rL",
+  "content": "ADR-004: job file drop. Rationale: DESIGN.md principle 6 requires jobs to be addressable/retryable/inspectable — stdin/stdout pipe evaporates. File drop naturally becomes the local-queue-backend when Redis/Celery arrives. Job dir layout: .alcanzai/jobs/<uuid>/{raw_document.json, result.json, status.json}.",
+  "created_at": "2026-05-31T04:13:00.371566Z",
+  "kind": "decision",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAknAJENH+f8Ml5SLk9WRpp7IHViL4jVjNk/+JLg4/9fDG1ScWVRsuItHfpOVXV8nUARUeW4P0Lf49FU/ylaDpDA=="
+}
