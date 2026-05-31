@@ -1,5 +1,13 @@
 [
   {
+    "hash": "629442a11edd15872fb37b8467ea9596360c2a47",
+    "short_hash": "629442a",
+    "author": "Cyrus",
+    "date": "2026-04-29T00:15:09-07:00",
+    "message": "Add unit coverage and API-shape test for synthesis_generator\n\n27 new unit tests across 5 classes (no network required):\n- TestParseQuickSynthesisResponse: all-tags, missing-tag, comma-split,\n  quote-stripping, multiline, empty response\n- TestCalculateCost: zero, input-only, output-only, mixed, pricing sanity\n- TestInferResearchArea: one test per keyword category + fallback; includes\n  a comment about keyword-priority gotcha (ML checked before NLP/CV)\n- TestBuildQuickSynthesisMessage: title/year, author et-al truncation at >3,\n  register axes, citation context inclusion/truncation/omission\n- TestApiRequestShape: mocked client verifies both required betas\n  (skills-2025-10-02, code-execution-2025-08-25) and code_execution tool\n  are present in every API call — catches silent breakage if betas drift\n\nCloses test audit A4.\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>",
+    "files_changed": 1
+  },
+  {
     "hash": "4d117bdcb5463c3d0ae55e5c9c16d08aa6224434",
     "short_hash": "4d117bd",
     "author": "Cyrus",

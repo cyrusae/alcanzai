@@ -868,6 +868,39 @@
       "created_at": "2026-04-24T22:57:02.969114-07:00",
       "updated_at": "2026-04-24T22:57:02.969114-07:00",
       "metadata_json": "{\"branch\":\"claude\",\"commit\":\"4d117bd\",\"confidence\":98}"
+    },
+    {
+      "id": 80,
+      "change_id": "6dd64449-f6d9-4d00-821b-c41ecfcef272",
+      "node_type": "goal",
+      "title": "Test suite + telemetry hardening: A1-A4 + issue #7",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-29T00:07:19.420106-07:00",
+      "updated_at": "2026-04-29T00:07:19.420106-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"confidence\":95,\"prompt\":\"Let's keep going!\\n\\n(Context: code review hardening merged via PR #28. Remaining work: test suite remediation A1-A4 from docs/test-audit-2026-04.md, plus issue #7 instrumentation hardening. A1=delete legacy tests, A2=fix test_pipeline, A3=rewrite test_telemetry, A4=synthesis_generator unit tests, #7=TracerProvider shutdown + meter lazy-init + token_utils structlog import + orchestrator span pattern.)\"}"
+    },
+    {
+      "id": 81,
+      "change_id": "a34540b0-9aa3-45a5-95b1-e62bd68d6cd1",
+      "node_type": "action",
+      "title": "Implement A1 legacy deletion, A2 pipeline fix, #7 hardening, A3 telemetry rewrite, A4 synthesis unit tests",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-29T01:07:07.305110-07:00",
+      "updated_at": "2026-04-29T01:07:07.305110-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"commit\":\"629442a\",\"confidence\":95}"
+    },
+    {
+      "id": 82,
+      "change_id": "1261ce5b-833d-440c-8ce8-43a13986b35f",
+      "node_type": "outcome",
+      "title": "A1-A4 + #7 done: 250 unit tests passing (was 217), PR #29 open",
+      "description": null,
+      "status": "pending",
+      "created_at": "2026-04-29T01:09:39.669737-07:00",
+      "updated_at": "2026-04-29T01:09:39.669737-07:00",
+      "metadata_json": "{\"branch\":\"claude\",\"commit\":\"629442a\",\"confidence\":98}"
     }
   ],
   "edges": [
@@ -1838,6 +1871,28 @@
       "weight": 1.0,
       "rationale": "Result of implementation",
       "created_at": "2026-04-24T22:57:02.986178-07:00"
+    },
+    {
+      "id": 89,
+      "from_node_id": 80,
+      "to_node_id": 81,
+      "from_change_id": "6dd64449-f6d9-4d00-821b-c41ecfcef272",
+      "to_change_id": "a34540b0-9aa3-45a5-95b1-e62bd68d6cd1",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation of goal",
+      "created_at": "2026-04-29T01:07:07.345368-07:00"
+    },
+    {
+      "id": 90,
+      "from_node_id": 81,
+      "to_node_id": 82,
+      "from_change_id": "a34540b0-9aa3-45a5-95b1-e62bd68d6cd1",
+      "to_change_id": "1261ce5b-833d-440c-8ce8-43a13986b35f",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Result of implementation",
+      "created_at": "2026-04-29T01:09:39.723574-07:00"
     }
   ]
 }

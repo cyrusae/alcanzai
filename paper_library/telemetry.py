@@ -52,6 +52,9 @@ def init_telemetry(log_level_override: Optional[str] = None) -> None:
         tp = TracerProvider(resource=resource)
         tp.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=otel_endpoint)))
         trace.set_tracer_provider(tp)
+        # BatchSpanProcessor is async-buffered; short-lived CLI runs must flush
+        # before exit or the last batch of spans is silently dropped.
+        atexit.register(tp.shutdown)
 
         # Meter Provider
         mp = MeterProvider(
@@ -59,8 +62,6 @@ def init_telemetry(log_level_override: Optional[str] = None) -> None:
             metric_readers=[PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=otel_endpoint))]
         )
         metrics.set_meter_provider(mp)
-        
-        # Ensure meter provider shuts down at exit
         atexit.register(mp.shutdown)
 
         # Auto-instrument requests

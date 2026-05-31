@@ -13,6 +13,7 @@ Usage:
 
 import tiktoken
 import logging
+import structlog
 from typing import Optional, Tuple
 
 # Module-level logger (simple until telemetry is init'd)
@@ -92,7 +93,6 @@ def truncate_to_token_budget(text: str, max_tokens: int = 150_000) -> Tuple[str,
     if tokens <= max_tokens:
         return text, tokens, False
     
-    import structlog
     log = structlog.get_logger(__name__)
     
     log.info("text_truncation_needed", 
