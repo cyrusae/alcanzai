@@ -1,0 +1,10 @@
+{
+  "uuid": "05c6de5b-af71-4501-925b-e62f6ac1e9c8",
+  "issue_uuid": "50d66a6f-3b43-4049-9924-94b4629632b8",
+  "author": "N6rL",
+  "content": "Plan: (1) Add ruff config to root pyproject.toml (format + lint, strict settings); (2) Add pyright strict config (pyrightconfig.json at root, covering all 4 src/ trees); (3) Add pytest markers config (integration mark registration); (4) Add pre-commit config (.pre-commit-config.yaml, ADR-005 matrix: ruff format, ruff check, pyright, cargo fmt, cargo clippy, fast pytest); (5) Install pre-commit hooks. All config-only, no behavioral code.",
+  "created_at": "2026-05-31T07:47:35.302134Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABACJ/M/ku/57BoKHmw+568xtN5iUPRBM7Vm4qcbRfiiXGHCa1IzmTDa1mlRAKf5Z4FUBvR1XvISesp0aHootb9Ag=="
+}
