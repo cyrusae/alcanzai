@@ -1,0 +1,10 @@
+{
+  "uuid": "4892ecda-a890-41e8-a243-4fb187000280",
+  "issue_uuid": "50d66a6f-3b43-4049-9924-94b4629632b8",
+  "author": "N6rL",
+  "content": "Blocked by L2 (toolchain must exist) and L3 (mypy/pyright choice must be settled first). Scope: configure ruff (lint+format, replaces black/isort/flake8), the chosen type checker at strict/max mode (no implicit Any, no untyped defs), pytest with basic config, and pre-commit hooks for the fast-local checks per the blocking matrix decided in L3. AC: ruff check passes on empty modules; type checker passes in strict mode on empty modules; pytest runs and passes (0 tests ok); pre-commit install works and runs clean. Mutation testing tool (mutmut or cosmic-ray) identified in L3 but does not need to be fully configured here — just the fast-local pipeline.",
+  "created_at": "2026-05-31T03:35:30.479404Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABABo9lIMQB7RI9aA8qTyRrn73I3pmKqUu20CBrDaL96T1gEZ2Zxkxd99ZruxJZhNiZbGoaIKljI/taqXADGm28Cg=="
+}
