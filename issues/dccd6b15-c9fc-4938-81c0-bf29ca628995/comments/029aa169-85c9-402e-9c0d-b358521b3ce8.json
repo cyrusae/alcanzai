@@ -1,0 +1,10 @@
+{
+  "uuid": "029aa169-85c9-402e-9c0d-b358521b3ce8",
+  "issue_uuid": "dccd6b15-c9fc-4938-81c0-bf29ca628995",
+  "author": "N6rL",
+  "content": "ADR-001: pyright. Rationale: 98% vs 58% spec conformance decisive for a strict-from-zero project; Pydantic v2 native support; no Django/SQLAlchemy in stack so mypy plugin ecosystem irrelevant. ty deferred (beta, 53% conformance).",
+  "created_at": "2026-05-31T04:12:42.891508Z",
+  "kind": "decision",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAPWZP2/KWkTs2MJ1XU5m/r89C6WLUfKu8mvohWWEGbvRmw2q05DwuOzoHRtPFq5Rz7la7hQAM3RUaCv5pRlHoAw=="
+}
