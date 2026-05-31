@@ -1,0 +1,10 @@
+{
+  "uuid": "2acdf5aa-24f6-42f4-8154-71f9d79a09da",
+  "issue_uuid": "617dd372-bfae-4dce-9266-d3acc50a5c08",
+  "author": "N6rL",
+  "content": "Toolchain + skeleton — the root of M0; everything else is blocked on this.\n\nScope:\n- Install and pin uv + Python 3.14 (pyproject.toml, .python-version)\n- Install and pin Rust toolchain (rust-toolchain.toml)\n- Create package layout with four top-level modules matching DESIGN.md §3 layers:\n    alcanzai-ingestion/   (Python — Source plugins)\n    alcanzai-understanding/ (Python — Enrichers)\n    alcanzai-core/        (Rust — Library spine, dedup, graph, projections, job orchestration)\n    alcanzai-synthesis/   (Python — SynthesisService workers)\n    alcanzai-interaction/ (Python — CLI / interaction surface entrypoint)\n- Each module is an empty but valid package (pyproject.toml / Cargo.toml as appropriate)\n- No cross-layer imports yet; just the skeleton\n\nAC: uv run python -c 'pass' exits 0; cargo check in alcanzai-core exits 0; all module dirs exist and are importable/compilable; zero behavioral code — skeleton only.\n\nNot salvage (fresh start per ROADMAP.md).",
+  "created_at": "2026-05-31T03:34:59.437559Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAOcj6FLN3AXP12n7Gr8qkRZTIAzlsq79+UQIBAsOq5a1mpzUvG/b+9UqJoq4WiPP4IB2SAnsUviHkxn7E4tREBA=="
+}
