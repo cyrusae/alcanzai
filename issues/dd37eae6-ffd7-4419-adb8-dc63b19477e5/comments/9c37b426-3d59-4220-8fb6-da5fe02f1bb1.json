@@ -1,0 +1,10 @@
+{
+  "uuid": "9c37b426-3d59-4220-8fb6-da5fe02f1bb1",
+  "issue_uuid": "dd37eae6-ffd7-4419-adb8-dc63b19477e5",
+  "author": "N6rL",
+  "content": "Plan: (1) Add pydantic>=2.0 to alcanzai-ingestion deps; add alcanzai-ingestion workspace dep to alcanzai-understanding; (2) Write alcanzai_ingestion/raw_document.py — ContentType enum, BlockKind enum, BoundingBox, ContentBlock, DeduplicationAnchors, Provenance, RawDocument (all Pydantic, frozen=strict=True, schema_version field, UUID job_id); (3) Write alcanzai_ingestion/source.py — CanonicalId dataclass, FetchResult dataclass, Source Protocol; (4) Update alcanzai_ingestion __init__.py to re-export public API; (5) Write alcanzai_understanding/enricher.py — EnrichmentResult Pydantic model, Enricher Protocol; (6) Update alcanzai_understanding __init__.py; (7) Run pyright + ruff to verify clean. RawDocument schema is the canonical definition for the Phase 1 membrane (PIPELINE.md §Layer 3) — schema_version=1, deny_unknown_fields enforced on Rust side in L7.",
+  "created_at": "2026-05-31T08:09:42.853026Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAYngpHCjUzPO61YAB5EGMcDPZ4IJ2duAUYgftmLhCMEopLPZ9bxZO5SxC+3aFnSTysN7j/wZxSCpRydwngwGSAw=="
+}
