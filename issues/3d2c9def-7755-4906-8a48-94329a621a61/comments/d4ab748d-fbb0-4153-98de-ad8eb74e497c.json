@@ -1,0 +1,10 @@
+{
+  "uuid": "d4ab748d-fbb0-4153-98de-ad8eb74e497c",
+  "issue_uuid": "3d2c9def-7755-4906-8a48-94329a621a61",
+  "author": "N6rL",
+  "content": "CLAUDE.md written at repo root: orientation table, polyglot split summary, repo layout, key commands, pre-code checklist, salvage protocol reminder, ADR behavioral summary. .devcontainer/devcontainer.json written: Rust base image + Python 3.14 feature + uv feature, postCreateCommand syncs deps and installs pre-commit, VS Code extensions (rust-analyzer, pylance, ruff, even-better-toml) and settings (pyright strict, ruff formatter, rust-analyzer with clippy -D warnings).",
+  "created_at": "2026-05-31T08:05:15.878474Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA1sx5+B0olKnsVy1zR+etOyrJ7lcYrYdopAjxrcf+ZkhUeLddMUC+p6/koL/rMc3sNL4zjNoWjMZnwNyduW68DA=="
+}
