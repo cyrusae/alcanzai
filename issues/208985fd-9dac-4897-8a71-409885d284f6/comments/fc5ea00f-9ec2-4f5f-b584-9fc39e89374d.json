@@ -1,0 +1,10 @@
+{
+  "uuid": "fc5ea00f-9ec2-4f5f-b584-9fc39e89374d",
+  "issue_uuid": "208985fd-9dac-4897-8a71-409885d284f6",
+  "author": "N6rL",
+  "content": "Blocked by L6 and L7 (need actual module imports to check). The required dependency direction from ROADMAP.md M0 done-condition: ingestion → understanding → library (core) ← synthesis ← interaction. 'Core' (alcanzai-core) is imported by understanding, synthesis, and interaction but imports nothing from the Python frontier. Scope: add a CI/lint check that verifies no module imports across layer boundaries in the wrong direction — e.g. alcanzai-core must not import alcanzai-ingestion; alcanzai-ingestion must not import alcanzai-synthesis. Tool options: import-linter (Python), a custom script, or cargo's module visibility for the Rust side. AC: check passes on the M0 skeleton; deliberately adding a cross-layer import in the wrong direction causes the check to fail (run this manually and confirm before closing); check is wired into CI. The check running clean is one of the three M0 done-conditions.",
+  "created_at": "2026-05-31T03:36:11.755368Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAYifMtL8xck9TPyZgdwHB5vc3u0A8BpABi0ZMf5zqEbWbTAmmLZ7JSoxg3Vj6RfyQVbTjtvQPp6dBryXxDC3MCA=="
+}
