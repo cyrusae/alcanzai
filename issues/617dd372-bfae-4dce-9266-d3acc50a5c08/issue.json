@@ -2,10 +2,11 @@
   "uuid": "617dd372-bfae-4dce-9266-d3acc50a5c08",
   "display_id": 2,
   "title": "Set up uv+Python 3.14 and Rust toolchains with four-layer package skeleton",
-  "status": "open",
+  "status": "closed",
   "priority": "high",
   "parent_uuid": "26636e79-22e6-4aed-8c43-cb2a3ea663bc",
   "created_by": "N6rL",
   "created_at": "2026-05-31T03:34:01.407894Z",
-  "updated_at": "2026-05-31T03:34:01.407894Z"
+  "updated_at": "2026-05-31T03:52:21.132270Z",
+  "closed_at": "2026-05-31T03:52:21.132270Z"
 }
