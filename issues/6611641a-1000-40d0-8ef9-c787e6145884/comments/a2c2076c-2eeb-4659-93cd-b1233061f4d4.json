@@ -1,0 +1,10 @@
+{
+  "uuid": "a2c2076c-2eeb-4659-93cd-b1233061f4d4",
+  "issue_uuid": "6611641a-1000-40d0-8ef9-c787e6145884",
+  "author": "N6rL",
+  "content": "Done. Corpus: 4 happy-path fixtures (academic_pdf with bboxes, scanned_document OCR, web_article, edge_cases with Unicode and all optionals null/empty) + 1 negative fixture (unknown field). Python: 13 tests covering parametric parse, round-trip stability, and per-fixture field contracts — all in fast gate (no integration marker). Rust: 11 tests covering deserialize assertions per fixture, round-trip stability helper, negative/deny_unknown_fields guard (confirms LibraryError::Deserialization), negative/schema-version guard (confirms LibraryError::Validation), negative/bad-hash guard. All 24 tests green. Mutation baseline: N/A at M0 (manual trigger per ADR-006). Key finding: Python (Pydantic strict=True) silently ignores unknown fields — documented in test_python_permissive_unknown_field; Rust deny_unknown_fields is the authoritative membrane enforcer, confirmed by negative_unknown_field_rejected.",
+  "created_at": "2026-05-31T17:18:37.318567Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAMQImolScWK1dvnlYSAwnILnSh/KUnSYSTUbblqT0QXRpWOsESj1UhPqmCaRBzikfFuQLsQzC+Cd2W/tf5p+7BA=="
+}
