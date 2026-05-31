@@ -1,0 +1,10 @@
+{
+  "uuid": "807c681d-27af-4458-98fb-bea04b25a9b7",
+  "issue_uuid": "26636e79-22e6-4aed-8c43-cb2a3ea663bc",
+  "author": "N6rL",
+  "content": "M0 milestone epic per ROADMAP.md. No implementation begins until this tree is approved by the human.\n\nDone-conditions (self-checkable from ROADMAP.md):\n1. `uv run` executes; test harness runs with zero real tests and passes\n2. Every contract type imports cleanly and is referenced by at least a stub consumer so the layer dependency direction (ingestion → understanding → library ← synthesis ← interaction) is enforced by imports, not just by intent — a linter/import-graph check passes\n3. `crosslink next` returns sensibly against the seeded issues\n\nBreakdown: 9 subissues covering toolchain+skeleton, sub-decisions/ADRs, Python and Rust dev pipelines, Python and Rust contract types, RawDocument membrane fixture corpus, import-graph enforcement check, and CLAUDE.md/devcontainer. Blocking dependencies encoded between subissues.",
+  "created_at": "2026-05-31T03:33:43.782861Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA7UYSXftsDlH5/4sPTmn49S3ttsUEhpdqobdau82dYoDTEO54SUwyFAyMpnQKpcMpRMMleO61b42YaqUd/PT1Bw=="
+}
