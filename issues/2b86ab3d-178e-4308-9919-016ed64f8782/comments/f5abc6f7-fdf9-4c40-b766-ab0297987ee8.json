@@ -1,0 +1,10 @@
+{
+  "uuid": "f5abc6f7-fdf9-4c40-b766-ab0297987ee8",
+  "issue_uuid": "2b86ab3d-178e-4308-9919-016ed64f8782",
+  "author": "N6rL",
+  "content": "All Rust pipeline checks pass cleanly. Files written: rustfmt.toml (stable options only; nightly-only import-grouping options deferred), .cargo/deny.toml (cargo-deny 0.19.x format; licenses OK, bans/sources OK, unmatched-allowance warnings expected until real deps arrive), alcanzai-core/Cargo.toml ([lints] table with clippy::all + pedantic at warn, unsafe_code forbidden), alcanzai-core/.cargo/mutants.toml (ADR-006 config). Fixes during work: trimmed nightly-only rustfmt options; rewrote deny.toml for 0.19.x schema (removed v1/v2 transitional fields); added license=MIT publish=false to Cargo.toml so cargo-deny private ignore works.",
+  "created_at": "2026-05-31T08:03:11.223156Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA4toh3oDnfo09hVAn7PdXkbV363FF6mhpoA59I9Ru6rbxRFD+f0vSdowa2nkvYZRnP5jecY9u3ab+LlDobddqBw=="
+}
