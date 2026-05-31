@@ -2,12 +2,13 @@
   "uuid": "2b86ab3d-178e-4308-9919-016ed64f8782",
   "display_id": 5,
   "title": "Configure Rust dev pipeline: fmt, clippy, cargo-deny, and mutation testing",
-  "status": "open",
+  "status": "closed",
   "priority": "high",
   "parent_uuid": "26636e79-22e6-4aed-8c43-cb2a3ea663bc",
   "created_by": "N6rL",
   "created_at": "2026-05-31T03:34:02.286649Z",
-  "updated_at": "2026-05-31T03:34:29.736744Z",
+  "updated_at": "2026-05-31T08:03:20.756251Z",
+  "closed_at": "2026-05-31T08:03:20.756251Z",
   "blockers": [
     "617dd372-bfae-4dce-9266-d3acc50a5c08",
     "dccd6b15-c9fc-4938-81c0-bf29ca628995"
