@@ -1,0 +1,10 @@
+{
+  "uuid": "0ce86058-c820-4a73-b263-efc029b74131",
+  "issue_uuid": "6611641a-1000-40d0-8ef9-c787e6145884",
+  "author": "N6rL",
+  "content": "Implementation plan: (1) fixtures/raw_document/ directory at repo root with 4 JSON files: 01_academic_pdf_clean.json, 02_scanned_document_ocr.json, 03_web_article.json, 04_edge_cases.json (no DOI, empty blocks, Unicode titles, missing optionals). (2) tests/test_membrane_fixtures.py — Python test that loads each fixture, parses with RawDocument.model_validate_json(), verifies round-trip by re-serializing and checking JSON equality via dict comparison. (3) alcanzai-core/tests/membrane.rs — Rust integration tests that (a) deserialize every fixture with RawDocument::try_from_json(), (b) round-trip stability: deserialize → to_json() → deserialize again and compare key fields, (c) negative drift test: a 'bad_unknown_field.json' fixture with an unknown field must fail deserialization. (4) Pre-commit hook entry: fast Python membrane test added to local gate (already marked 'not integration' so it runs in pytest-fast). Rust membrane tests run under cargo test. No new CI step needed — already covered by existing pipeline matrix.",
+  "created_at": "2026-05-31T17:13:03.791658Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA7xgKiVtpf4ArikSuBJ3mWbnmZ19/5PTPAq7KPPw0ZKtsStQnBfJ3HDAdgkb7EONA9Y5hqzOVr53dh/485dedBw=="
+}
