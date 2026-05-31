@@ -6,5 +6,8 @@
   "priority": "high",
   "created_by": "N6rL",
   "created_at": "2026-05-31T03:33:32.019071Z",
-  "updated_at": "2026-05-31T03:33:32.019071Z"
+  "updated_at": "2026-05-31T03:33:32.290106Z",
+  "labels": [
+    "feature"
+  ]
 }
