@@ -1,0 +1,10 @@
+{
+  "uuid": "6020c8d2-b820-42a1-acab-0d57b65da3bb",
+  "issue_uuid": "6611641a-1000-40d0-8ef9-c787e6145884",
+  "author": "N6rL",
+  "content": "Blocked by L6 (Pydantic RawDocument) and L7 (serde RawDocument). This is the Phase 1 membrane enforcement from PIPELINE.md. Scope: (1) a curated fixture corpus of real JSON RawDocument payloads — minimum 4 fixtures: clean academic PDF, messy OCR scan, web article, and edge cases (no DOI, empty blocks array, unusual Unicode, missing-optional permutations); (2) a Python test that generates/serializes all fixtures; (3) a Rust test that deserializes every fixture — if Rust rejects any fixture that Python produces, the membrane is broken; (4) round-trip stability test — Rust deserializes then re-serializes, assert semantic JSON equality (parse-and-compare not string-compare, needs a small utility); (5) the negative test: adding a field to the Python Pydantic model but not the Rust serde struct should cause a deserialization error on the fixture, proving deny_unknown_fields catches drift. AC: all 4+ fixtures round-trip clean; the negative drift test fails as expected (demonstrates the guard works); CI step runs this check. This check must go red before any agent can drift the membrane silently.",
+  "created_at": "2026-05-31T03:36:03.550836Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA0gHK6kTfrCgPiMm0uWxVaWjDouprlO7EzHKbsKN5B0rWQHOgMXBxfT8u12PjSd17eZzERmr+oj+EViRJ4hlqBw=="
+}
