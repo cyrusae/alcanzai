@@ -1,0 +1,10 @@
+{
+  "uuid": "5ece38f4-6aa8-4136-8c7c-9c8e47e34215",
+  "issue_uuid": "ef15c740-8de3-4b26-ad9b-4756ebc9f2af",
+  "author": "N6rL",
+  "content": "Rust core contract types complete. Modules: error.rs (LibraryError, ProjectionError, SynthesisError via thiserror); raw_document.rs (RawDocument<T> typestate with Unvalidated/Validated markers, all component types mirroring Python schema v1, deny_unknown_fields on all membrane types, try_from_json() constructor with schema_version + content_hash validation); knowledge_object.rs (KnowledgeObjectId UUID newtype, KnowledgeObject, Enrichment); library.rs (Library trait, IdentityResult enum with boxed VersionUpdate, LibraryQuery); projection.rs (Projection trait with render/rebuild); synthesis.rs (SynthesisService trait, register axes as #[derive(Default)] enums, SynthesisConfig, SynthesisArtifact, TokenCounts); job.rs (Job, JobId UUID newtype, JobStatus with serde tag, path helpers, is_terminal()); lib.rs (pub mod + re-exports). All clean: cargo clippy -D warnings, cargo test, cargo fmt. Schema v1 defined on both sides of membrane.",
+  "created_at": "2026-05-31T08:28:52.533713Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA5nMEY6bKl8oDqZMmhsNVJQK6GBhPLJN2PS84r4bUX9hFCLf5Xb098T3GXA0kFNGNnbPx7RlMSlT9QuMChcLQAA=="
+}
