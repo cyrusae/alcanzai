@@ -1,0 +1,10 @@
+{
+  "uuid": "f9aa1ac1-d26b-4aa4-b5c5-b9dade430b50",
+  "issue_uuid": "2b86ab3d-178e-4308-9919-016ed64f8782",
+  "author": "N6rL",
+  "content": "Plan: (1) rustfmt.toml — explicit fmt config (edition 2024, line width, import grouping); (2) .cargo/deny.toml — cargo-deny config (license allowlist, advisories, duplicate crate policy); (3) .cargo/mutants.toml — cargo-mutants config (timeout, exclude patterns for non-core modules); (4) Cargo.toml — add [lints] table with clippy lint groups at deny level; (5) Verify: cargo fmt --check, cargo clippy -D warnings, cargo test all pass from scaffold state.",
+  "created_at": "2026-05-31T07:50:50.384146Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA7GIyQ+pMxEr+ndygF33pztk69mGbVeWn6VhzYct+y3TQ2WrTdyEWpOmQguqnu4ww0okl5PRWMb7eZVBsaJm1Aw=="
+}
