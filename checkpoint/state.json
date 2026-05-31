@@ -1,0 +1,24 @@
+{
+  "next_display_id": 1,
+  "next_comment_id": 1,
+  "display_id_map": {},
+  "locks": {
+    "-1": {
+      "agent_id": "N6rL",
+      "claimed_at": "2026-05-31T03:33:37.322579Z"
+    }
+  },
+  "issues": {},
+  "unsigned_event_warnings": [
+    {
+      "agent_id": "N6rL",
+      "agent_seq": 1,
+      "timestamp": "2026-05-31T03:33:37.322579Z"
+    }
+  ],
+  "watermark": {
+    "timestamp": "2026-05-31T03:33:37.322579Z",
+    "agent_id": "N6rL",
+    "agent_seq": 1
+  }
+}
