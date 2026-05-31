@@ -1,0 +1,10 @@
+{
+  "uuid": "3e2a833e-5b9f-498d-92f9-9b77580f2685",
+  "issue_uuid": "dccd6b15-c9fc-4938-81c0-bf29ca628995",
+  "author": "N6rL",
+  "content": "Pure documentation/decision work — no code. Can start immediately alongside L2 since it has no blockers. Open sub-decisions from PIPELINE.md to settle and record in ADR.md (seed ADR.md at repo root first): (1) mypy vs pyright — pick one at max strictness; (2) mutmut vs cosmic-ray for Python mutation testing; (3) Rust illegal-states convention — typestate on RawDocument? IdentityResult as sum type? Record as agent behavioral rules; (4) IPC mechanism for Python to Rust membrane — PIPELINE.md lean is file/queue drop not a live socket, settle the exact mechanism since it affects RawDocument shape in L6/L7; (5) pre-commit vs CI blocking matrix — which checks are fast-local vs full-CI vs advisory; (6) mutation testing run policy — per-push vs per-milestone-close. AC: ADR.md at repo root with 6 entries minimum, each with decision, alternatives, rationale, and any agent behavioral rules that follow from it.",
+  "created_at": "2026-05-31T03:35:23.106823Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAVsdlXMrrCYnxEVpmpqu7KPxfVFe7dWCf/e2Omgn0rRz/KxW360cQCKezu+S1bpgV9Ccnt1im8pBtIlrhyEn/Cw=="
+}
