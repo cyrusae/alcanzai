@@ -1,0 +1,10 @@
+{
+  "uuid": "c50079f1-1590-4742-9e73-ce00e13eac33",
+  "issue_uuid": "dd37eae6-ffd7-4419-adb8-dc63b19477e5",
+  "author": "N6rL",
+  "content": "Blocked by L2 (skeleton), L3 (IPC mechanism and sub-decisions), L4 (type checker must pass before writing types). Scope — Python Protocol/Pydantic types with full docstrings, no implementations: Source (resolve/fetch/normalize → RawDocument), RawDocument (the membrane payload — Pydantic model, shape informed by IPC decision in L3 and DESIGN.md §9.3: provenance block, dedup anchors, content-type-tagged blocks array), Enricher (declares applicable content_types, produces enrichment data). All types fully annotated, no implicit Any, no TODOs. The RawDocument Pydantic model is the Python-canonical side of the membrane; its shape is the source of truth that L8 will generate fixtures from. AC: all three types import cleanly from alcanzai-ingestion and alcanzai-understanding; type checker passes in strict mode; ruff passes; pytest runs (0 tests ok); no stubs or TODOs. Not salvage — fresh against the contract.",
+  "created_at": "2026-05-31T03:35:45.645790Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAYKfiCQC0byPUBtCFlZUYc4IYCrO71DeRcmfcBo+mGi4kTG1wAVPGDpcQr7JlMBiW/EysK0NyJlgXJ6hQ7Y7+AQ=="
+}
