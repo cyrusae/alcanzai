@@ -1,6 +1,6 @@
 {
   "uuid": "208985fd-9dac-4897-8a71-409885d284f6",
-  "display_id": null,
+  "display_id": 9,
   "title": "Add import-graph enforcement check for layer dependency direction",
   "status": "open",
   "priority": "medium",

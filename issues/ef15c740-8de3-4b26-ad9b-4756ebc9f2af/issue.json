@@ -1,6 +1,6 @@
 {
   "uuid": "ef15c740-8de3-4b26-ad9b-4756ebc9f2af",
-  "display_id": null,
+  "display_id": 7,
   "title": "Write Rust core contract types: KnowledgeObject, Library, Projection, SynthesisService, Job",
   "status": "open",
   "priority": "high",

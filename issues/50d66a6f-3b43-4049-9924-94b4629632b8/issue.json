@@ -1,6 +1,6 @@
 {
   "uuid": "50d66a6f-3b43-4049-9924-94b4629632b8",
-  "display_id": null,
+  "display_id": 4,
   "title": "Configure Python dev pipeline: ruff, type checker, pytest, and pre-commit",
   "status": "open",
   "priority": "high",

@@ -1,6 +1,6 @@
 {
   "uuid": "3d2c9def-7755-4906-8a48-94329a621a61",
-  "display_id": null,
+  "display_id": 10,
   "title": "Write CLAUDE.md and establish devcontainer environment setup",
   "status": "open",
   "priority": "medium",

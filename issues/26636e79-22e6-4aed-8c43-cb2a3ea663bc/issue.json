@@ -1,6 +1,6 @@
 {
   "uuid": "26636e79-22e6-4aed-8c43-cb2a3ea663bc",
-  "display_id": null,
+  "display_id": 1,
   "title": "Add M0 scaffolding: toolchains, dev pipeline, and contract type stubs",
   "status": "open",
   "priority": "high",

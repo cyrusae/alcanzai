@@ -1,6 +1,6 @@
 {
   "uuid": "dd37eae6-ffd7-4419-adb8-dc63b19477e5",
-  "display_id": null,
+  "display_id": 6,
   "title": "Write Python frontier contract types: Source, RawDocument, Enricher",
   "status": "open",
   "priority": "high",
