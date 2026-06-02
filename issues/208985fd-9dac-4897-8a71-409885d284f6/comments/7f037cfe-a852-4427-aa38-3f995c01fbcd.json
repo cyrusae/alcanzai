@@ -1,0 +1,10 @@
+{
+  "uuid": "7f037cfe-a852-4427-aa38-3f995c01fbcd",
+  "issue_uuid": "208985fd-9dac-4897-8a71-409885d284f6",
+  "author": "N6rL",
+  "content": "Done. import-linter 2.11 installed. [tool.importlinter] layers contract in pyproject.toml: interaction > synthesis > understanding > ingestion. .github/workflows/ci.yml created: two jobs (python: ruff/pyright/pytest-fast/lint-imports; rust: fmt/clippy/test/cargo-deny). Negative test confirmed: adding alcanzai_understanding import into alcanzai_ingestion/__init__.py causes lint-imports to exit 1 with 'alcanzai_ingestion is not allowed to import alcanzai_understanding (l.17)'. Restored clean. Baseline: 1 contract kept, 0 broken. Mutation baseline: N/A (ADR-006 manual trigger).",
+  "created_at": "2026-06-02T04:15:13.624210Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAUYXIzpsCl+paz0asmknacZ5ub9rOoQYGGq6+EDwPjff1f5dI5IT/549CCxxD/bnb8vycmwwL07RIAVWabmYkDQ=="
+}
