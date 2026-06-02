@@ -1,0 +1,12 @@
+{
+  "uuid": "4f4baccc-dcbe-4aef-b5f4-64205d8ef294",
+  "display_id": 17,
+  "title": "Implement VaultProjection: render KnowledgeObject → Obsidian Markdown note",
+  "description": "First concrete implementation of the Projection trait. Rust — alcanzai-core.\n\nReference: v0.1.x markdown_writer.py and note-template design (salvage protocol: read for behavioral reference, reimplement fresh against Projection trait). See prototype/markdown_writer.py.\n\nVaultProjection struct:\n  Config: VaultConfig { vault_root: PathBuf, note_subdir: Option<PathBuf> }.\n  render(library, config): incremental — for each KnowledgeObject where updated_at > last_render_watermark, write/overwrite its note file.\n  rebuild(library, config): delete vault_root/note_subdir, then render all objects.\n\nNote file layout (per v0.1.x reference):\n  Filename: <KnowledgeObjectId>.md (stable, UUID-based — survives metadata corrections).\n  YAML frontmatter: title, authors (list), year, content_type, doi (if present), arxiv_id (if present), alcanzai_id (KnowledgeObjectId), source_plugin, fetched_at.\n  Sections: ## Abstract (if present), ## Content (blocks rendered as flowing text), ## Enrichments (per enricher, JSON or structured list).\n  Wikilinks: [[<KnowledgeObjectId>|title]] format for cross-references (used later by citation graph projection).\n\nConstraints:\n  - rebuild() must make ZERO LLM calls (renders existing Library state only).\n  - render/rebuild must be deterministic: same Library state → same file content.\n  - Both operations write only to vault_root; never modify the Library.\n\nUnit tests:\n  - Single KnowledgeObject → expected Markdown output (snapshot test).\n  - rebuild on empty library → empty vault dir (no files).\n  - rebuild idempotency: two rebuilds produce identical files.\n\nAcceptance criterion: tests pass; cargo fmt + clippy clean; rebuild makes no external calls.",
+  "status": "open",
+  "priority": "high",
+  "parent_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
+  "created_by": "N6rL",
+  "created_at": "2026-06-02T19:29:02.874295Z",
+  "updated_at": "2026-06-02T19:29:02.874295Z"
+}
