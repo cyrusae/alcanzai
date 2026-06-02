@@ -2,12 +2,13 @@
   "uuid": "208985fd-9dac-4897-8a71-409885d284f6",
   "display_id": 9,
   "title": "Add import-graph enforcement check for layer dependency direction",
-  "status": "open",
+  "status": "closed",
   "priority": "medium",
   "parent_uuid": "26636e79-22e6-4aed-8c43-cb2a3ea663bc",
   "created_by": "N6rL",
   "created_at": "2026-05-31T03:34:05.123253Z",
-  "updated_at": "2026-05-31T03:34:31.393950Z",
+  "updated_at": "2026-06-02T04:15:26.490544Z",
+  "closed_at": "2026-06-02T04:15:26.490544Z",
   "blockers": [
     "dd37eae6-ffd7-4419-adb8-dc63b19477e5",
     "ef15c740-8de3-4b26-ad9b-4756ebc9f2af"
