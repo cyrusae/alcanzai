@@ -8,11 +8,12 @@
   "parent_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
   "created_by": "N6rL",
   "created_at": "2026-06-02T19:28:25.423478Z",
-  "updated_at": "2026-06-02T19:49:08.880336Z",
+  "updated_at": "2026-06-02T19:49:21.976958Z",
   "labels": [
     "feature"
   ],
   "blockers": [
-    "3c0aea2e-afde-415b-b9e6-39591b0ff3bf"
+    "3c0aea2e-afde-415b-b9e6-39591b0ff3bf",
+    "867cc1eb-6cc5-42bc-8a75-135e8ec939d4"
   ]
 }
