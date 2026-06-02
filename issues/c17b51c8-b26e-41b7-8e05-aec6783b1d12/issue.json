@@ -1,0 +1,11 @@
+{
+  "uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
+  "display_id": 12,
+  "title": "M1 milestone: Library spine + KnowledgeObject + vault-as-projection",
+  "description": "Discharges DESIGN.md §6 test #5: the Obsidian vault can be deleted and fully regenerated from the Library as a projection.\n\nScope (from ROADMAP.md):\n- SqliteLibrary: implement the Library trait in SQLite (object store, identity/dedup, query, citation-edges table).\n- VaultProjection: render Library state to Markdown + YAML + wikilinks; regeneration command.\n- Annotation model: human-authored notes as Library objects; near-term structured intake.\n- Seed hand-authored KnowledgeObjects so the projection loop can be exercised without real ingestion.\n\nDone-conditions (self-checkable):\n1. A command regenerates the entire vault from the Library.\n2. Deleting the vault directory and re-running reproduces it (diff empty modulo intended nondeterminism).\n3. A human annotation added via the intake channel survives delete-and-regenerate (proves §9.4).\n4. Regenerating the vault makes zero LLM calls.\n5. The Library is the only component holding durable state; the projection holds none.",
+  "status": "open",
+  "priority": "high",
+  "created_by": "N6rL",
+  "created_at": "2026-06-02T19:26:02.809772Z",
+  "updated_at": "2026-06-02T19:26:02.809772Z"
+}
