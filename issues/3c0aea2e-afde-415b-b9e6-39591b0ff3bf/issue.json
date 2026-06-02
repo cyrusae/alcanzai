@@ -1,0 +1,12 @@
+{
+  "uuid": "3c0aea2e-afde-415b-b9e6-39591b0ff3bf",
+  "display_id": 14,
+  "title": "Add rusqlite dep + SqliteLibrary schema: knowledge_objects, dedup_anchors, citation_edges tables",
+  "description": "First Rust implementation issue for SqliteLibrary.\n\nTasks:\n- Add rusqlite (+ rusqlite_migration or inline SQL) to alcanzai-core/Cargo.toml.\n- Define SqliteLibrary struct: holds a rusqlite::Connection + open() constructor that creates/migrates the schema.\n- Schema (v1 migrations):\n  knowledge_objects: id (UUID TEXT PK), content_type TEXT NOT NULL, title TEXT, authors TEXT (JSON array), year INTEGER, abstract_text TEXT, provenance TEXT NOT NULL (JSON), dedup_anchors TEXT NOT NULL (JSON), blocks TEXT NOT NULL (JSON array), enrichments TEXT NOT NULL (JSON array), created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL.\n  dedup_anchors_index: content_hash TEXT UNIQUE, doi TEXT UNIQUE, arxiv_id TEXT UNIQUE, object_id TEXT NOT NULL FK knowledge_objects.id. Separate table for fast O(1) identity lookups without deserializing the full object blob.\n  citation_edges: source_id TEXT NOT NULL FK knowledge_objects.id, target_id TEXT NULLABLE (NULL = dangling citation to unknown object), raw_citation TEXT NOT NULL (JSON), created_at INTEGER NOT NULL.\n  relationships: id TEXT PK, subject_id TEXT NOT NULL FK, predicate TEXT NOT NULL, object_id TEXT NULLABLE, object_value TEXT NULLABLE, created_at INTEGER NOT NULL.\n- Unit tests: open in-memory DB (:memory:), verify all tables exist, verify UNIQUE constraints.\n\nAcceptance criterion: cargo test passes; all four tables exist in the schema; UNIQUE on content_hash/doi/arxiv_id is verified by test.",
+  "status": "open",
+  "priority": "high",
+  "parent_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
+  "created_by": "N6rL",
+  "created_at": "2026-06-02T19:27:13.198534Z",
+  "updated_at": "2026-06-02T19:27:13.198534Z"
+}
