@@ -8,5 +8,8 @@
   "parent_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
   "created_by": "N6rL",
   "created_at": "2026-06-02T19:27:13.198534Z",
-  "updated_at": "2026-06-02T19:27:13.198534Z"
+  "updated_at": "2026-06-02T19:27:27.979813Z",
+  "labels": [
+    "feature"
+  ]
 }
