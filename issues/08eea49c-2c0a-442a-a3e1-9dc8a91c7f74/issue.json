@@ -1,0 +1,12 @@
+{
+  "uuid": "08eea49c-2c0a-442a-a3e1-9dc8a91c7f74",
+  "display_id": 19,
+  "title": "Annotation intake: write human annotation to SqliteLibrary (Rust binary, M1 near-term path)",
+  "description": "Implements DESIGN.md §9.4 near-term annotation capture for M1.\n\nPer sub-decisions (#13): M1 uses a Rust binary subcommand. Python CLI wrapper deferred to M2+.\n\nBinary subcommand (extends alcanzai binary from #18):\n  alcanzai annotate --library <path.db> --object <KnowledgeObjectId> \"<annotation text>\"\n\nBehavior:\n  - Look up the target KnowledgeObject by ID (returns error if not found).\n  - Create a new KnowledgeObject with content_type: 'annotation', title: 'Annotation on <target title>', blocks: [one paragraph block with the annotation text], relationship to target stored in the relationships table (predicate: 'annotates', subject: annotation_id, object: target_id).\n  - Ingest via Library::ingest (NewUnique path — annotations have no stable external ID; content_hash of the text is the anchor).\n\nIntegration test:\n  - Seed a KnowledgeObject, annotate it, rebuild vault → annotation note appears in vault with correct wikilink back to the source object.\n  - Delete vault, rebuild → annotation note still appears (it was never vault-native).\n\nThis is the §9.4 done-condition: human-authored content survives delete-and-regenerate because it lives in the Library.\n\nAcceptance criterion: alcanzai annotate command works; annotation note projected into vault; delete+rebuild test passes.",
+  "status": "open",
+  "priority": "medium",
+  "parent_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
+  "created_by": "N6rL",
+  "created_at": "2026-06-02T19:31:10.701219Z",
+  "updated_at": "2026-06-02T19:31:10.701219Z"
+}
