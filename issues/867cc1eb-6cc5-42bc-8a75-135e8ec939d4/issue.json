@@ -1,0 +1,12 @@
+{
+  "uuid": "867cc1eb-6cc5-42bc-8a75-135e8ec939d4",
+  "display_id": 15,
+  "title": "Implement SqliteLibrary: Library::resolve_identity + Library::ingest",
+  "description": "Core Library operations: identity cascade and ingestion.\n\nImplements Library trait methods resolve_identity and ingest for SqliteLibrary.\n\nresolve_identity(anchors):\n  1. ExactMatch: query dedup_anchors_index for content_hash match → return ExactMatch(id).\n  2. ExactMatch by stable ID: query for DOI match or arxiv_id match → return ExactMatch(id).\n  3. VersionUpdate: same DOI or arxiv_id but different content_hash → return VersionUpdate{existing, incoming}.\n  4. SoftMatch: fuzzy title_hint match (SQLite LIKE or normalized levenshtein) → return SoftMatch(candidates).\n  5. NewUnique: nothing matched.\n\ningest(document):\n  - Mint a new KnowledgeObjectId (Uuid::new_v4).\n  - INSERT into knowledge_objects (serialize blocks/authors/enrichments/provenance/dedup_anchors as JSON blobs).\n  - INSERT into dedup_anchors_index.\n  - Return KnowledgeObjectId.\n  - VersionUpdate path: UPDATE existing row, update dedup_anchors_index.\n  - Guard: calling ingest without prior resolve_identity (or with ExactMatch result) returns LibraryError::IdentityResolution.\n\nUnit tests (use :memory: DB):\n  - NewUnique: ingest once → Ok(id).\n  - ExactMatch: ingest same content_hash twice → second resolve returns ExactMatch.\n  - VersionUpdate: ingest with same DOI, different content_hash → VersionUpdate.\n  - SoftMatch: insert object with title 'Attention Is All You Need', resolve with same title_hint → SoftMatch.\n\nAcceptance criterion: all unit tests pass; cargo clippy clean.",
+  "status": "open",
+  "priority": "high",
+  "parent_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
+  "created_by": "N6rL",
+  "created_at": "2026-06-02T19:27:50.216325Z",
+  "updated_at": "2026-06-02T19:27:50.216325Z"
+}
