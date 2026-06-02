@@ -1,0 +1,10 @@
+{
+  "uuid": "95e96b79-58f8-4003-aba0-568a4877f8b9",
+  "issue_uuid": "208985fd-9dac-4897-8a71-409885d284f6",
+  "author": "N6rL",
+  "content": "Implementation: (1) Add import-linter to dev deps. (2) Configure [tool.importlinter] in root pyproject.toml — layers contract: interaction > synthesis > understanding > ingestion. (3) Create .github/workflows/ci.yml — minimal GitHub Actions matrix covering Python (ruff, pyright, pytest fast, lint-imports) and Rust (fmt, clippy, test, cargo-deny). lint-imports runs as uv run lint-imports in the python job. (4) Verify green baseline: uv run lint-imports passes on the M0 skeleton. (5) Negative check: temporarily add a wrong-direction import (alcanzai_ingestion importing from alcanzai_understanding), confirm lint-imports goes red, remove it, confirm green again. Noting import-linter is CI-only per DEV-PIPELINE.md Layer 5 — not wired into pre-commit. The [tool.importlinter] root_packages entry lists all four Python packages; src-layout editable installs via uv sync make them importable.",
+  "created_at": "2026-06-02T04:13:11.136559Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAvAkR1T9/zx94ULNt8cu+DOdfHHZ8DQmboCZRacsZGxNlB6HpqYl7xW3KHQjdY3Rh2eQJiG1G9t59haVu0aRjDg=="
+}
