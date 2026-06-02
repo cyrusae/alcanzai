@@ -1,0 +1,10 @@
+{
+  "uuid": "56b84ac8-5a98-4327-9696-c2ca2c17f3df",
+  "issue_uuid": "26636e79-22e6-4aed-8c43-cb2a3ea663bc",
+  "author": "N6rL",
+  "content": "M0 complete. All 9 subissues closed. Done-condition verification:\n\n1. uv run pytest -m 'not integration' → 13 passed (Python membrane fixture tests). Test harness executes and exits 0.\n2. uv run lint-imports → '1 kept, 0 broken'. Layer contract (interaction > synthesis > understanding > ingestion) enforced. Negative test (wrong-direction import) confirmed exit 1 with line-precise error. All contract types import cleanly: RawDocument/Source/Enricher (Python), KnowledgeObject/Library/IdentityResult/Projection/SynthesisService/Job (Rust).\n3. crosslink issue ready → returns #11 (design discussion, not a blocker) sensibly. No blocked or orphaned issues.\n\nDeliverables: uv workspace (4 Python packages, src layout, hatchling), alcanzai-core (Rust, edition 2024), ruff+pyright+pytest+pre-commit (Python), rustfmt+clippy+cargo-deny+cargo-mutants (Rust), RawDocument membrane (Pydantic + serde, deny_unknown_fields, typestate), 5-fixture corpus + 24 round-trip tests, import-linter layers contract, GitHub Actions CI matrix, CLAUDE.md, devcontainer.\n\nMutation baseline: 0 mutants annotated (ADR-006 — manual trigger at M1 milestone close).",
+  "created_at": "2026-06-02T05:28:45.663658Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA3sJYYB+YXYZdfHEQcHKXPZeDUurzaQcnBLXWbE9isk12fD115A1tP2hnJvYKbQBEXmByeENkLVQgvc/Ee1/oBw=="
+}
