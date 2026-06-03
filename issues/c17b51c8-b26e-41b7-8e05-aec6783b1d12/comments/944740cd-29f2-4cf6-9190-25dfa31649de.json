@@ -1,0 +1,10 @@
+{
+  "uuid": "944740cd-29f2-4cf6-9190-25dfa31649de",
+  "issue_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
+  "author": "N6rL",
+  "content": "M1 milestone epic per ROADMAP.md.\n\nBreakdown: 8 subissues. No implementation begins until approved by the human.\n\nIssue tree:\n  #13 — Sub-decisions (SQLite crate, Library::get return type, annotation intake mechanism) [BLOCKS #14]\n  #14 — SQLite schema + SqliteLibrary struct [blocked by #13, BLOCKS #15 #16]\n  #15 — Library::resolve_identity + Library::ingest [blocked by #14, BLOCKS #16 #21]\n  #16 — Library::get + Library::query [blocked by #14 #15, BLOCKS #17]\n  #17 — VaultProjection (Projection trait impl) [blocked by #16, BLOCKS #18]\n  #18 — Vault regeneration binary + delete-rebuild integration test [blocked by #17, BLOCKS #20]\n  #21 — Annotation intake (alcanzai annotate subcommand) [blocked by #15, BLOCKS #20]\n  #20 — Seed fixtures + full M1 integration test suite [blocked by #18 #21, BLOCKS #12 epic]\n\nDone-conditions map to ROADMAP.md M1:\n  #18 covers: vault regenerate command, delete+rebuild diff-empty test.\n  #21 covers: annotation survives delete+rebuild (DESIGN.md §9.4).\n  #20 covers: dedup (ExactMatch, VersionUpdate), query, full battery.\n  ADR-006: mutant counts recorded in #20 closing comment.",
+  "created_at": "2026-06-03T01:39:31.248352Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABARprJx1GbQ9ZjURAuGKcF0eev1iiVHlRz6tHccSE6CEpSF64ZssyZ+ejf5adYaz/WZOni7uu0nPBJvmOoogKCDg=="
+}
