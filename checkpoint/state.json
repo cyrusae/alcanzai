@@ -6,6 +6,10 @@
     "-1": {
       "agent_id": "N6rL",
       "claimed_at": "2026-05-31T03:33:37.322579Z"
+    },
+    "14": {
+      "agent_id": "N6rL",
+      "claimed_at": "2026-06-03T06:33:35.980558Z"
     }
   },
   "issues": {},
@@ -134,11 +138,16 @@
       "agent_id": "N6rL",
       "agent_seq": 25,
       "timestamp": "2026-06-03T06:27:54.618944Z"
+    },
+    {
+      "agent_id": "N6rL",
+      "agent_seq": 26,
+      "timestamp": "2026-06-03T06:33:35.980558Z"
     }
   ],
   "watermark": {
-    "timestamp": "2026-06-03T06:27:54.618944Z",
+    "timestamp": "2026-06-03T06:33:35.980558Z",
     "agent_id": "N6rL",
-    "agent_seq": 25
+    "agent_seq": 26
   }
 }
