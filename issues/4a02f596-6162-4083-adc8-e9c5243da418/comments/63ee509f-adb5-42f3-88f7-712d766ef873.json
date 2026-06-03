@@ -1,0 +1,10 @@
+{
+  "uuid": "63ee509f-adb5-42f3-88f7-712d766ef873",
+  "issue_uuid": "4a02f596-6162-4083-adc8-e9c5243da418",
+  "author": "N6rL",
+  "content": "All three sub-decisions settled and recorded.\n\nADR-007: rusqlite (no async runtime at M1; sqlx offline-mode friction not worth it).\nADR-008: Library::get returns owned KnowledgeObject — reference return is a borrow-checker footgun. Trait signature updated in library.rs. cargo fmt + clippy + test all pass (11 Rust tests).\nADR-009: M1 annotation intake via Rust binary subcommand. Python CLI wrapper deferred to M2+.\n\n#14 (schema + rusqlite dep) is now unblocked.",
+  "created_at": "2026-06-03T06:27:12.683587Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA3YBq7rNcTWMsf8Cp3vEUzJYNvlvQ1+t3W1XPSpuXdBC7/iIihkgcTDQW2UtfmB2qnQTm69oWwxVC4zpWHiluAg=="
+}
