@@ -1,0 +1,10 @@
+{
+  "uuid": "d12428bf-695c-4c96-81f4-e6a64e1e5dc2",
+  "issue_uuid": "4a02f596-6162-4083-adc8-e9c5243da418",
+  "author": "N6rL",
+  "content": "Decisions settled in conversation with human. Recording as ADR entries and updating library.rs trait signature.\n\n1. SQLite crate → rusqlite. No async runtime at M1; sqlx offline-mode friction not worth it.\n2. Library::get return type → owned KnowledgeObject (Option A). Reference return is a borrow-checker footgun in real usage; all SQL stores return owned data naturally. Change trait signature now before any callers exist.\n3. Annotation intake for M1 → Rust binary subcommand (alcanzai annotate). Python CLI wrapper deferred to M2+; M1 only needs to prove §9.4, not build the full interaction layer.",
+  "created_at": "2026-06-03T05:18:41.856432Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAsPDJYxffm/ekrTKWIBLPEEIelLp3+t4mj1V2x+jt0a0BvwWMj0NuVEo4eqYhaF6wolonQZ0CHLAKL+Kn4IYGDw=="
+}
