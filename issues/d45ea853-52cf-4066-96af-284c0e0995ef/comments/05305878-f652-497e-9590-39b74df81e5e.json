@@ -1,0 +1,10 @@
+{
+  "uuid": "05305878-f652-497e-9590-39b74df81e5e",
+  "issue_uuid": "d45ea853-52cf-4066-96af-284c0e0995ef",
+  "author": "N6rL",
+  "content": "\n## Result\n\n**Binary: alcanzai-core/src/bin/alcanzai.rs**\n- clap 4 derive-macro CLI\n- alcanzai vault regenerate --library <PATH> --vault <PATH> [--note-subdir <PATH>] → VaultProjection::rebuild\n- alcanzai vault render --library <PATH> --vault <PATH> [--note-subdir <PATH>] → VaultProjection::render\n- cargo run --bin alcanzai -- vault regenerate --help exits 0 ✓\n\n**Integration tests: alcanzai-core/tests/vault_rebuild_integration.rs**\nThree tests, no external services (open_in_memory + tempfile::TempDir):\n\n1. delete_and_rebuild_produces_identical_vault — §6 test #5: seeds 3 KOs (academic_pdf with blocks+abstract, web_article, unknown/bare), rebuilds vault, deletes entire vault root (rm -rf equivalent), rebuilds again → assert_eq!(first, second). PASSES.\n\n2. render_after_rebuild_is_noop — incremental render after full rebuild changes nothing (watermark > all updated_at). PASSES.\n\n3. academic_pdf_note_contains_expected_content — verifies known content in the arXiv paper note (title heading, author, year, Abstract section, Content section, heading block). PASSES.\n\ncargo fmt ✓ cargo clippy -D warnings ✓ (zero warnings) cargo test ✓\n\nTotal: 36 tests (22 unit + 11 membrane + 3 integration).\n\n§6 test #5 DISCHARGED: vault deletion + rebuild = empty diff.\nM1 done-condition: vault can be deleted and fully regenerated from the Library with zero LLM calls. ✓\n\n#20 (seed KOs + M1 integration + mutant count) is now unblocked.\n",
+  "created_at": "2026-06-06T14:51:42.588388Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAX0DK1i8aEQR3xGi++5sS63USwEqIl/hWfpo+4VuuG3M+ZOPEBMhvj5FH4rseokQbfhz9quGPFk7qMJIHm0eFDw=="
+}
