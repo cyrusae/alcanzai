@@ -3,12 +3,13 @@
   "display_id": 21,
   "title": "Annotation intake: write human annotation to SqliteLibrary (Rust binary, M1 near-term path)",
   "description": "Implements DESIGN.md section 9.4 near-term annotation capture for M1. Per sub-decisions (#13): M1 uses a Rust binary subcommand. Python CLI wrapper deferred to M2+. Binary subcommand: alcanzai annotate --library path.db --object KnowledgeObjectId 'annotation text'. Creates a new KnowledgeObject with content_type annotation, ingests via Library::ingest, stores relationship to target in the relationships table. Integration test: seed a KnowledgeObject, annotate it, rebuild vault, delete vault, rebuild again — annotation note appears both times (never vault-native). Acceptance criterion: alcanzai annotate command works; annotation note projected into vault; delete+rebuild test passes.",
-  "status": "open",
+  "status": "closed",
   "priority": "medium",
   "parent_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
   "created_by": "N6rL",
   "created_at": "2026-06-02T19:48:11.020407Z",
-  "updated_at": "2026-06-02T19:49:34.176666Z",
+  "updated_at": "2026-06-06T17:14:32.512791Z",
+  "closed_at": "2026-06-06T17:14:32.512791Z",
   "labels": [
     "feature"
   ],
