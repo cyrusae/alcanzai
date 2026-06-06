@@ -1,0 +1,10 @@
+{
+  "uuid": "7e138657-6660-4be9-8f22-5253f56d1c67",
+  "issue_uuid": "4f4baccc-dcbe-4aef-b5f4-64205d8ef294",
+  "author": "N6rL",
+  "content": "\n## Result\n\nVaultProjection implemented in alcanzai-core/src/vault_projection.rs.\n\n**VaultConfig**: vault_root + note_subdir (None → Notes/). notes_dir() and watermark_path() helpers.\n\n**VaultProjection** (unit struct, derives Default):\n- render_note(ko) → String — public, deterministic, no external calls. YAML frontmatter (alcanzai_id, title, authors block-seq, year, content_type, doi, arxiv_id, source_plugin, fetched_at). Body: # Title, author byline, ## Abstract, ## Content (filtered+sorted blocks), ## Enrichments (json code blocks + flags).\n- render() — reads .alcanzai-render-time watermark, re-renders updated_at > watermark only.\n- rebuild() — deletes .md files + watermark, then render_since(0) for full regeneration.\n\n**Helpers**: yaml_dquote_escape (backslash/quote/control chars), format_author_byline (1/2/3/4+ patterns), render_blocks (sort by sequence, skip Abstract/PageNumber/RunningHeader/Reference), render_block (Heading→##, ListItem→bullet, FigureCaption/TableCaption→italics, Footnote→footnote).\n\n**error.rs**: Added ProjectionError::LibraryAccess(String) to bridge LibraryError in projection context.\n\n**Cargo.toml**: Added tempfile = \"3\" dev-dependency.\n\nTests: 7 vault tests (frontmatter keys, body sections, YAML escaping, doi/arxiv absent when None, abstract absent when None, empty-library rebuild, idempotency). All 33 tests pass (22 unit + 11 membrane). cargo fmt ✓ cargo clippy -D warnings ✓ (zero warnings).\n\n#18 (vault regenerate binary + §6 integration test) is now unblocked.\n",
+  "created_at": "2026-06-06T14:40:43.485376Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAzkySkf9EBuXbrw+SrqjDKdTahRKvm676exu2YTvmdlSpKnu9e5oYd2ynuKL9W/QEaPdgiBglEPxLxdagRsg5DA=="
+}
