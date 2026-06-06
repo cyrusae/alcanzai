@@ -3,12 +3,13 @@
   "display_id": 18,
   "title": "Vault regeneration binary + delete-and-rebuild integration test (§6 test #5)",
   "description": "Proves DESIGN.md §6 test #5: the vault can be deleted and fully regenerated from the Library.\n\nRust binary target (alcanzai-core/src/bin/alcanzai.rs or similar):\n  Subcommands:\n    alcanzai vault regenerate --library <path.db> --vault <path> — calls VaultProjection::rebuild.\n    alcanzai vault render --library <path.db> --vault <path> — calls VaultProjection::render (incremental).\n\nIntegration test (cargo test -- --include-ignored or a separate test binary):\n  1. Open SqliteLibrary with 2–3 hand-authored KnowledgeObjects (academic_pdf, web_article, one with abstract + enrichment).\n  2. Call VaultProjection::rebuild → capture file list and content.\n  3. Delete the vault directory entirely.\n  4. Call VaultProjection::rebuild again.\n  5. Assert: same file list, same file content (byte-for-byte or normalized).\n  This is the §6 test #5 check and an agent can run it with cargo test.\n\nAlso test: regenerate a vault that already exists (render is idempotent on second call).\n\nAcceptance criterion:\n  - cargo run --bin alcanzai -- vault regenerate --help exits 0.\n  - Integration test passes (delete + rebuild → diff empty).\n  - cargo fmt + clippy clean.",
-  "status": "open",
+  "status": "closed",
   "priority": "high",
   "parent_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
   "created_by": "N6rL",
   "created_at": "2026-06-02T19:29:38.112316Z",
-  "updated_at": "2026-06-02T19:49:58.274339Z",
+  "updated_at": "2026-06-06T14:51:55.619805Z",
+  "closed_at": "2026-06-06T14:51:55.619805Z",
   "labels": [
     "feature"
   ],
