@@ -1,0 +1,10 @@
+{
+  "uuid": "b1ae6074-1250-4553-8fbd-2ff24e57ee8e",
+  "issue_uuid": "af3d7b2a-6341-4058-bc47-2003e9082718",
+  "author": "N6rL",
+  "content": "Implemented as part of #15 (get + query both complete). Closing.",
+  "created_at": "2026-06-06T13:37:57.748454Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAjKF8K3CFeWUrBDrzMxC+qaFtiaO4i6GBRqtITxgGyoMqhLfFcqOPuvg94ocp6W2CUKWVFACJihxPFOM86SGGBQ=="
+}
