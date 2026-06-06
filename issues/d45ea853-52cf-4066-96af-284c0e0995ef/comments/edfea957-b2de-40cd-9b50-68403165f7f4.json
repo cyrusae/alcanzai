@@ -1,0 +1,10 @@
+{
+  "uuid": "edfea957-b2de-40cd-9b50-68403165f7f4",
+  "issue_uuid": "d45ea853-52cf-4066-96af-284c0e0995ef",
+  "author": "N6rL",
+  "content": "\n## Plan\n\n### 1. alcanzai-core/Cargo.toml — add clap dep\nclap = { version = \"4\", features = [\"derive\"] } in [dependencies] (binaries under src/bin/ use the crate's regular deps).\n\n### 2. alcanzai-core/src/bin/alcanzai.rs — CLI binary\nclap derive-macro CLI with subcommand tree:\n  alcanzai vault regenerate --library <PATH> --vault <PATH> [--note-subdir <PATH>]\n  alcanzai vault render     --library <PATH> --vault <PATH> [--note-subdir <PATH>]\n\nUses SqliteLibrary::open + VaultProjection::rebuild / render. Errors printed to stderr, exits 1.\n\n### 3. alcanzai-core/tests/vault_rebuild_integration.rs — §6 test #5\nThree KOs ingested via SqliteLibrary::open_in_memory:\n  - academic_pdf: title, authors, year, abstract, DOI, arXiv, content blocks + enrichment\n  - web_article: title, source_plugin=web, no abstract, minimal blocks\n  - unknown: no title, no year, no abstract (exercises all-None paths)\n\nTest flow:\n  rebuild → collect HashMap<filename, content>\n  fs::remove_dir_all(vault_root)\n  rebuild again → collect HashMap<filename, content>\n  assert_eq! both maps\n\nAlso: test that render after rebuild is a no-op (all files already up-to-date; watermark newer than all updated_at). This proves incremental render correctness.\n\nBoth tests use open_in_memory + tempfile::TempDir — no external services needed, no #[ignore].\n",
+  "created_at": "2026-06-06T14:43:39.506686Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA50xGYgBWKa4XpXXHeU2A1RdYDjEvHfP6bRlgWVk7KiC8BANopILXfXQ7zZxoloMkECkTPEx+kNcEvUQu9794AQ=="
+}
