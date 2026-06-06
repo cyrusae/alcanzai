@@ -1,0 +1,10 @@
+{
+  "uuid": "78401681-5cba-44b5-82e4-65362e0c309c",
+  "issue_uuid": "867cc1eb-6cc5-42bc-8a75-135e8ec939d4",
+  "author": "N6rL",
+  "content": "\n## Result\n\nAll four Library trait methods implemented for SqliteLibrary:\n\n**resolve_identity** — 5-step cascade: content_hash → DOI → arxiv_id → title_hint LIKE → NewUnique.\n\n**ingest** — ExactMatch guard (LibraryError::IdentityResolution on duplicate hash) + VersionUpdate path (UPDATE existing row + dedup_anchors_index) + NewUnique path (INSERT both tables, transaction-wrapped).\n\n**get** — SELECT + JSON deserialization for all columns. year stored as i64 converted via u32::try_from().ok() (None for corrupt values).\n\n**query** — Dynamic SQL with Vec<SqlValue> params_from_iter. Supports content_type, author (LIKE on JSON array), year_range, text_search, limit.\n\n**library.rs** — Removed IdentityResult::VersionUpdate::incoming (ADR-010). resolve_identity only receives &DeduplicationAnchors so it can never construct a RawDocument<Validated>.\n\n**ADR-010** written.\n\nTests: 15 unit tests pass (6 new: new_unique_ingest_returns_id, exact_match_by_content_hash, ingest_exact_match_guard_returns_error, version_update_by_doi, soft_match_by_title_hint, get_returns_ingested_object). 11 membrane tests pass. Total: 26/26.\n\ncargo fmt ✓ cargo clippy -D warnings ✓ cargo test ✓\n\nget + query also implemented, so #16 is complete as a side effect.\n",
+  "created_at": "2026-06-06T13:37:05.687455Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA1hahA/HDj1xIJizSQn6I29aFSgdyFhg6zq8phOMz6nmNdaHnzVJYQ309G6074JQSVYubtY1/EBTxwA/k+YZhBA=="
+}
