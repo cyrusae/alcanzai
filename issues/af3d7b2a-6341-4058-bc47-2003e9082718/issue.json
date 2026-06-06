@@ -3,12 +3,13 @@
   "display_id": 16,
   "title": "Implement SqliteLibrary: Library::get + Library::query",
   "description": "Read operations for SqliteLibrary.\n\nLibrary::get(id) → Result<Option<KnowledgeObject>, LibraryError>:\n  SELECT from knowledge_objects WHERE id = ?, deserialize JSON blobs back into KnowledgeObject struct. Return None if not found.\n  Note: signature may need updating from &KnowledgeObject to owned KnowledgeObject per sub-decisions issue #13.\n\nLibrary::query(q) → Result<Vec<KnowledgeObjectId>, LibraryError>:\n  Build a dynamic SQL query from the LibraryQuery fields (AND-combined filters):\n  - content_type: WHERE content_type = ?\n  - author: WHERE authors LIKE '%' || ? || '%' (JSON array, case-insensitive)\n  - year_range: WHERE year BETWEEN ? AND ?\n  - text_search: WHERE title LIKE ? OR abstract_text LIKE ? (basic, no FTS needed at M1)\n  - limit: LIMIT ?\n  Return Vec<KnowledgeObjectId> (IDs only; callers use get() to fetch full objects).\n\nUnit tests:\n  - get by ID: ingest → get → same title/authors/year.\n  - get missing ID → None.\n  - query by content_type: insert 2 academic_pdf + 1 web_article → query(academic_pdf) returns 2.\n  - query by author substring: insert 'Vaswani' → query(author='Vaswani') returns it.\n  - query with limit: insert 5 objects → query(limit=2) returns 2.\n\nAcceptance criterion: all unit tests pass; cargo clippy clean.",
-  "status": "open",
+  "status": "closed",
   "priority": "medium",
   "parent_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
   "created_by": "N6rL",
   "created_at": "2026-06-02T19:28:25.423478Z",
-  "updated_at": "2026-06-02T19:49:21.976958Z",
+  "updated_at": "2026-06-06T13:38:12.228892Z",
+  "closed_at": "2026-06-06T13:38:12.228892Z",
   "labels": [
     "feature"
   ],
