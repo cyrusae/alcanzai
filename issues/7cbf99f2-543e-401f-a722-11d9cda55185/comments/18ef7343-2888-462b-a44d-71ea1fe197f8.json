@@ -1,0 +1,10 @@
+{
+  "uuid": "18ef7343-2888-462b-a44d-71ea1fe197f8",
+  "issue_uuid": "7cbf99f2-543e-401f-a722-11d9cda55185",
+  "author": "N6rL",
+  "content": "\n## Result\n\n**ContentType::Annotation** added to raw_document.rs. Note explains Python frontier (alcanzai_ingestion) must be updated when M2 builds the Python-side ContentType enum.\n\n**write_relationship()** added to SqliteLibrary as a pub inherent method. Inserts into the relationships table with a fresh UUID PK, subject_id, predicate, object_id, object_value, created_at.\n\n**Annotation rendering** in vault_projection.rs: if content_type == Annotation, adds 'Annotates: [[canonical_id]]' wikilink line after the byline. target ID stored in provenance.canonical_id at ingest time.\n\n**alcanzai annotate** subcommand in src/bin/alcanzai.rs:\n- alcanzai annotate --library <db> --object <KnowledgeObjectId> <text>\n- SHA-256 of annotation text as content_hash (sha2 = 0.10 dep added)\n- std-only ISO 8601 timestamp (Rata Die calendar algorithm — no chrono dep)\n- Verifies target KO exists before ingesting\n- Writes annotation_of relationship row after ingest\n- Prints annotation_id on stdout; alcanzai annotate --help exits 0 ✓\n\n**sha2 = 0.10** added to [dependencies] in Cargo.toml.\n\n**annotation_survives_delete_and_rebuild** integration test in tests/vault_rebuild_integration.rs: seeds 1 KO → ingests annotation KO via ingest_doc + write_relationship → rebuild → collect (2 notes) → rm -rf vault → rebuild → collect → assert_eq. Also asserts annotation note contains 'Annotates: [[target_id]]' wikilink. §9.4 PROVEN.\n\nAll checks: cargo fmt ✓ cargo clippy -D warnings ✓ (zero warnings) cargo test ✓\nTotal: 37 tests (22 unit + 11 membrane + 4 integration).\n",
+  "created_at": "2026-06-06T17:14:20.186295Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAkQg6wGmi3cvhPtRmRRHa0gmEFAsIlIsetsIJtdxEXIlK1wwOFLe9AqsilR1NdkNaxdDEIN7YDpnUbBZDRpygAw=="
+}
