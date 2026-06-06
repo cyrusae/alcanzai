@@ -3,12 +3,13 @@
   "display_id": 20,
   "title": "Seed hand-authored KnowledgeObjects + full M1 integration test suite + close M1 epic",
   "description": "Final M1 issue: prove all done-conditions from ROADMAP.md and close the epic.\n\nSeed fixtures:\n  A set of hand-authored KnowledgeObjects (stored as test fixtures or seeded via a helper), covering: academic_pdf (with abstract, authors, year, DOI, arxiv_id), web_article (no year, no abstract, page-less blocks), annotation (annotates the academic_pdf), unknown (edge-case nulls).\n\nFull M1 integration test battery (cargo test --features integration or similar gate):\n  1. Seed → rebuild vault → vault contains one note per object.\n  2. Delete vault → rebuild → diff empty (§6 test #5, proven in #18 — this is a combined run).\n  3. Annotation survives delete-and-regenerate (§9.4 done-condition, proven in #19 — combined run).\n  4. Regeneration makes zero LLM calls (assert no API key is needed to run the test).\n  5. Re-ingest academic_pdf with same content_hash → ExactMatch, no new object, vault unchanged.\n  6. Re-ingest with same DOI but different content_hash → VersionUpdate, existing note updated.\n  7. query(content_type=AcademicPdf) returns only the paper.\n\nClosing comment must include:\n  - Mutant count per ADR-006 (run cargo-mutants on SqliteLibrary, VaultProjection).\n  - Confirmation of all 5 done-conditions from ROADMAP.md M1.\n\nAcceptance criterion: all integration tests pass; all ROADMAP.md M1 done-conditions self-checked and confirmed.",
-  "status": "open",
+  "status": "closed",
   "priority": "medium",
   "parent_uuid": "c17b51c8-b26e-41b7-8e05-aec6783b1d12",
   "created_by": "N6rL",
   "created_at": "2026-06-02T19:47:39.528027Z",
-  "updated_at": "2026-06-02T19:50:23.330762Z",
+  "updated_at": "2026-06-06T17:23:45.092538Z",
+  "closed_at": "2026-06-06T17:23:45.092538Z",
   "labels": [
     "feature"
   ],
