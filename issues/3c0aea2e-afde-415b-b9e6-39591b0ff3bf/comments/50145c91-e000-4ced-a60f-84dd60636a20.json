@@ -1,0 +1,10 @@
+{
+  "uuid": "50145c91-e000-4ced-a60f-84dd60636a20",
+  "issue_uuid": "3c0aea2e-afde-415b-b9e6-39591b0ff3bf",
+  "author": "N6rL",
+  "content": "Complete. rusqlite 0.38.0 (bundled) added to Cargo.toml. New module alcanzai-core/src/sqlite_library.rs: SqliteLibrary struct, open()/open_in_memory() constructors, configure_conn (WAL + FK + NORMAL sync pragmas), run_migrations (schema_meta version table + MIGRATIONS slice applied in transactions). LibraryError::Database(#[from] rusqlite::Error) added to error.rs. lib.rs updated with pub mod + pub use.\n\nSchema (v1): knowledge_objects, dedup_anchors_index (UNIQUE object_id, uidx_dedup_hash, uidx_dedup_doi, uidx_dedup_arxiv), citation_edges (dangling-target support), relationships.\n\n9 new unit tests pass: all tables present, schema_version=1, 3 UNIQUE constraints enforced, NULL doi coexistence, migration idempotency. cargo fmt + clippy -D warnings + cargo test all clean (20 total tests).\n\n#15 (Library::resolve_identity + Library::ingest) is now unblocked.",
+  "created_at": "2026-06-06T01:45:45.238234Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAWPkXpbBQZSqujtYHsKqRVuuDBCDp4zNkdl3ho/DK4BI1TFEQX2k0i+rvOurkVXJmXqe/JGvse65YA3hdZ4FgDQ=="
+}
