@@ -1,0 +1,10 @@
+{
+  "uuid": "70743dc1-eb5a-4b9d-89a7-858633587a6e",
+  "issue_uuid": "89f4176f-a471-4165-b801-4fadd171af97",
+  "author": "N6rL",
+  "content": "\n## Plan\n\n### tests/m1_integration.rs — 7-test M1 battery\n\n**Shared helpers**: vault_config, collect_notes, M1Fixture struct, seed_m1_library (seeds academic_pdf + web_article + annotation + unknown, returns all 4 IDs).\n\n**Tests**:\n1. vault_has_one_note_per_ko — 4 KOs → rebuild → 4 .md files\n2. delete_rebuild_combined — seed all 4, delete vault, rebuild, assert diff empty (combined §6 #5 proof)\n3. annotation_survives_combined — confirms annotation note is present in both rebuilds (combined §9.4 proof with the full fixture set)\n4. vault_rebuild_makes_zero_llm_calls — remove ANTHROPIC_API_KEY from env, rebuild succeeds without it (documents the M1 done-condition)\n5. exact_match_dedup_no_new_object — ingest paper twice with same hash → second ingest returns LibraryError::IdentityResolution; library still has 1 paper object\n6. version_update_updates_note — ingest paper v1 (title 'Paper v1') + rebuild; ingest paper v2 (same DOI, new hash, title 'Paper v2') + rebuild; assert note now contains 'Paper v2'\n7. query_content_type_filter — seed 4 KOs; query(content_type=AcademicPdf) returns exactly 1 ID matching the paper\n\n### Mutant testing (ADR-006)\ncargo mutants --manifest-path alcanzai-core/Cargo.toml -F 'resolve_identity|ingest|render_note|write_relationship' (limit to the most critical functions). Record caught/escaped/total in closing comment.\n\n### Closing comment\n- All 7 tests passing\n- Mutant count (caught / total)\n- M1 done-conditions 1–5 self-checked\n- Close #20 → close #12 epic\n",
+  "created_at": "2026-06-06T17:17:36.588668Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAl1vKOOGXQakq2bCbq4DGK9XJsrZ01aSKDAt4P/RZgosXg7QY31l9XKeI3N4p3VLHhD1sBcX4DgDB2nzi+cVUAw=="
+}
