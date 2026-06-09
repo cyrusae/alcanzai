@@ -1,0 +1,10 @@
+{
+  "uuid": "0ea08323-ebd1-41ca-b953-eb3ebb638ddf",
+  "issue_uuid": "fd4804cd-cc23-4368-b5da-e7f499f15992",
+  "author": "N6rL",
+  "content": "Created fixtures/raw_document/05_scanned_opaque_filename.json. Pre-OCR ingest state: content_type scanned_document, opaque filename (halttunen1995.pdf) as raw_identifier, content_hash-only dedup anchors (no doi/arxiv_id/title_hint), null title/authors/year, empty blocks, source_metadata flags ocr_required:true. 13 Python membrane tests pass, 45 Rust tests pass. Post-OCR fixture (06) deferred to when OCR enricher is built.",
+  "created_at": "2026-06-09T15:31:49.449661Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA5UHqwSS1b75xen6OH8Dp3Bk0frBd655KololqRa7LjgqBqvQgT8j+q2y+NXzrRLiDU0l6HGW9KO78edhNyLtCA=="
+}
