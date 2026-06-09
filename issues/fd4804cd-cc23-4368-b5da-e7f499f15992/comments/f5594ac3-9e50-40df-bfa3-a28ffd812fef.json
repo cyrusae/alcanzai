@@ -1,0 +1,10 @@
+{
+  "uuid": "f5594ac3-9e50-40df-bfa3-a28ffd812fef",
+  "issue_uuid": "fd4804cd-cc23-4368-b5da-e7f499f15992",
+  "author": "N6rL",
+  "content": "Write fixtures/raw_document/05_scanned_opaque_filename.json representing a pre-OCR ingest of halttunen1995.pdf. State: Source plugin saw a scanned PDF, extracted no text, flagged ocr_required. No title/authors/year (opaque filename, no PDF metadata). Dedup anchors: content_hash only (no doi, arxiv_id, title_hint). Blocks: empty. source_metadata: ocr_required true. This is the ingest-time snapshot; post-OCR state is a future fixture (06) to be authored once the OCR enricher exists.",
+  "created_at": "2026-06-09T15:31:00.630970Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA7j73ZnUfTGEh3jsx4eDzjvdu5EDOK5LLnhe7bnTs3ws0eDy6G8rxqPpjqOxwGfIcj+fdZJGdKTvA+6musGd9Cg=="
+}
