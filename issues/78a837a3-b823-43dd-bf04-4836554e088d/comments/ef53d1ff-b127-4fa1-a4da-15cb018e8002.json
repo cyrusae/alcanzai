@@ -1,0 +1,10 @@
+{
+  "uuid": "ef53d1ff-b127-4fa1-a4da-15cb018e8002",
+  "issue_uuid": "78a837a3-b823-43dd-bf04-4836554e088d",
+  "author": "N6rL",
+  "content": "Write ADR-011 entry to ADR.md. Covers: Option A decision (Python assembles fully-enriched RawDocument, Rust ingests once); options considered (Option B two-phase rejected); re-enrichment deferred to M3; coordinator failure policy (hard error, no partial ingest). No code changes.",
+  "created_at": "2026-06-14T01:54:19.904966Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAwYQHV6X1+soTfFVTsRo2BTbN4njidBiKC70LomBwzPcN0yTX5Ipzc1/81RrwMQDtZyBgi8LI2dsfVPSVbCSxDw=="
+}
