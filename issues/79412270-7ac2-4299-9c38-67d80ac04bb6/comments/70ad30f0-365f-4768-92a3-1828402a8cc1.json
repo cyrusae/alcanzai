@@ -1,0 +1,10 @@
+{
+  "uuid": "70ad30f0-365f-4768-92a3-1828402a8cc1",
+  "issue_uuid": "79412270-7ac2-4299-9c38-67d80ac04bb6",
+  "author": "N6rL",
+  "content": "GrobidStructureEnricher implemented and tested.\n\nFiles:\n- alcanzai-understanding/src/alcanzai_understanding/grobid_enricher.py (new, ~260 lines)\n- alcanzai-understanding/pyproject.toml (added httpx>=0.27)\n- tests/test_grobid_enricher.py (new, 39 unit tests)\n\nKey decisions baked in:\n- XPaths scoped to .//tei:teiHeader// for authors and year to prevent citation analytic blocks from contaminating paper metadata\n- stdlib xml.etree.ElementTree (consistent with ArxivSource, no lxml dep)\n- data keys: grobid_blocks, grobid_metadata, grobid_tei_xml (raw XML for CitationEnricher #27)\n- All GROBID failures → EnrichmentResult.error; never raised\n- ContentTypeMismatchError raised on wrong content type (programming error path)\n\nTest count: 89 passed (was 50 before this issue). Rust: clean. ruff: clean. pyright: 0 errors.\nMutation testing: manual gate, M2 milestone-gated (ADR-006). Estimated mutants ~18.",
+  "created_at": "2026-06-14T16:08:34.356822Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABASTUlZi08TZAylIU1P59e0P/Hg15cOW42DFxIr2sQoOTzh2e6LB25W0jX3Qa/JDkIOxXqRKP7AuyKSD79AzvyBw=="
+}
