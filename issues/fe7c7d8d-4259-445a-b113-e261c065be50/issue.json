@@ -3,12 +3,13 @@
   "display_id": 27,
   "title": "Implement CitationEnricher in alcanzai-understanding",
   "description": "Salvage references (READ ONLY — reimplement to contract, never copy):\n- prototype/paper_library/citation_context.py (320 lines)\n- prototype/unintegrated_code/context/citation-context.py\n\nImplement CitationEnricher against the Enricher protocol.\n\n- enricher_id: 'citation-extractor'\n- priority: 50 (runs after grobid-structure)\n- applies_to: ContentType.ACADEMIC_PDF\n- enrich(document): reads grobid_sections blocks from the in-progress enriched document (NOTE: coordinator passes the GROBID-enriched view); extracts bibliographic references from TEI references section; for each citation, finds context sentence(s) in body text where the reference marker appears; applies humanities-tuned garbage scoring.\n\nCRITICAL behavioral requirement (carry forward from v0.1.x): garbage scoring must allow 50-100+ year old references to survive. The scoring is NOT a recency filter. Preserve the exact scoring logic and thresholds from prototype/paper_library/citation_context.py — this is one of the project's explicit design carry-forwards (DESIGN.md §3.2).\n\nReturns EnrichmentResult(data={'citations': list[CitationRecord]}) where CitationRecord captures: title, authors, year, venue, volume, pages, raw_ref_string, context_sentences: list[str], garbage_score: float.\n\nAcceptance:\n- Unit test: given a known TEI XML block for 1706.03762, citation list is extracted; no valid reference is flagged as garbage.\n- Humanities test: a reference to a work from 1850 (or 1920 or 1960) is NOT garbage-scored out.",
-  "status": "open",
+  "status": "closed",
   "priority": "high",
   "parent_uuid": "5c903d5a-c247-4d0e-876f-324d4dfc1885",
   "created_by": "N6rL",
   "created_at": "2026-06-14T01:42:40.403823Z",
-  "updated_at": "2026-06-14T01:47:16.995993Z",
+  "updated_at": "2026-06-14T16:47:33.455851Z",
+  "closed_at": "2026-06-14T16:47:33.455851Z",
   "labels": [
     "python",
     "understanding"
