@@ -1,0 +1,12 @@
+{
+  "uuid": "79412270-7ac2-4299-9c38-67d80ac04bb6",
+  "display_id": 26,
+  "title": "Implement GrobidStructureEnricher in alcanzai-understanding",
+  "description": "Salvage reference (READ ONLY — reimplement to contract, never copy): prototype/paper_library/grobid_processor.py (939 lines).\n\nImplement GrobidStructureEnricher against the Enricher protocol in alcanzai_understanding/enricher.py.\n\n- enricher_id: 'grobid-structure'\n- priority: 10 (runs before citation enricher)\n- applies_to: ContentType.ACADEMIC_PDF only\n- enrich(document): reads artifact_path from document.provenance.source_metadata['artifact_path']; POSTs PDF to ALCANZAI_GROBID_URL (default http://localhost:8070) /api/processFulltextDocument; parses TEI XML response into list[Block] (heading, paragraph, running_header, footnote with sequence, page, bbox where available); returns EnrichmentResult(data={'grobid_sections': [...blocks...], 'grobid_abstract': str | None, 'tei_metadata': dict}).\n\nDesign question resolved here: enricher accesses raw PDF via artifact_path in source_metadata (written by ArxivSource.fetch to job dir) — not via Enricher protocol extension. This keeps enrich(RawDocument) signature unchanged.\n\nGROBID failure: set EnrichmentResult.error; do NOT raise. Coordinator decides whether to fail the job.\n\nAcceptance:\n- Unit test: mock GROBID HTTP response with saved TEI XML from 1706.03762; assert correct Block list returned.\n- Integration test (@pytest.mark.integration): real GROBID call on 1706.03762 returns >= 10 heading blocks.",
+  "status": "open",
+  "priority": "high",
+  "parent_uuid": "5c903d5a-c247-4d0e-876f-324d4dfc1885",
+  "created_by": "N6rL",
+  "created_at": "2026-06-14T01:41:54.671013Z",
+  "updated_at": "2026-06-14T01:41:54.671013Z"
+}
