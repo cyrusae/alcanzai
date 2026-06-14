@@ -1,0 +1,12 @@
+{
+  "uuid": "6bb4707d-fb58-4a08-990e-27660512fd06",
+  "display_id": 32,
+  "title": "M2 mutation testing gate (ADR-006 milestone requirement)",
+  "description": "Run mutation testing before closing M2 epic. Required by ADR-006.\n\nPython (new modules): uv run mutmut run on alcanzai_ingestion/arxiv_source.py, alcanzai_understanding/grobid_enricher.py, alcanzai_understanding/citation_enricher.py, alcanzai_understanding/coordinator.py.\n\nRust (new code): cargo mutants --in-place on ingest-job subcommand logic in alcanzai-core/src/bin/alcanzai.rs.\n\nPass criteria (per ADR-006):\n- Core modules: zero surviving mutants without documented skip annotation.\n- Surviving mutants in thin CLI glue (argparse wiring, subprocess call) are advisory; annotate with reason if skipped.\n\nRecord in closing comment: attempted / killed / survived / skipped counts for both Python and Rust.",
+  "status": "open",
+  "priority": "medium",
+  "parent_uuid": "5c903d5a-c247-4d0e-876f-324d4dfc1885",
+  "created_by": "N6rL",
+  "created_at": "2026-06-14T01:46:27.474521Z",
+  "updated_at": "2026-06-14T01:46:27.474521Z"
+}
