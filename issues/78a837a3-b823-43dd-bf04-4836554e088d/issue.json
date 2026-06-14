@@ -8,8 +8,9 @@
   "parent_uuid": "5c903d5a-c247-4d0e-876f-324d4dfc1885",
   "created_by": "N6rL",
   "created_at": "2026-06-14T01:40:16.289902Z",
-  "updated_at": "2026-06-14T01:40:32.060135Z",
+  "updated_at": "2026-06-14T01:40:44.237318Z",
   "labels": [
-    "adr"
+    "adr",
+    "design"
   ]
 }
