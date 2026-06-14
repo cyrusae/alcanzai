@@ -1,0 +1,10 @@
+{
+  "uuid": "2dc6bae5-72d3-4269-8b2a-668e6c6be04e",
+  "issue_uuid": "79412270-7ac2-4299-9c38-67d80ac04bb6",
+  "author": "N6rL",
+  "content": "Implemented GrobidStructureEnricher (#26): stdlib ET parsing, teiHeader-scoped XPaths, 3 data keys (grobid_blocks/metadata/tei_xml), 39 tests. 89 total Python passing.",
+  "created_at": "2026-06-14T16:24:41.654625Z",
+  "kind": "handoff",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABASnQpJh6uj8tDiIpWIBpqO4vGl4xbF7Vv7zNNFf8rEt+VIUvhPQ2I9ApZFbrY6PW92L9PJMs88jlMDTFfXLTHDw=="
+}
