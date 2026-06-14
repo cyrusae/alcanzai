@@ -1,0 +1,10 @@
+{
+  "uuid": "3adc1771-ab2b-4785-a7de-bf36647e307f",
+  "issue_uuid": "fe7c7d8d-4259-445a-b113-e261c065be50",
+  "author": "N6rL",
+  "content": "CitationEnricher implemented and tested.\n\nFiles:\n- alcanzai-understanding/src/alcanzai_understanding/citation_enricher.py (new, ~430 lines)\n- tests/test_citation_enricher.py (new, 37 unit tests)\n\nKey decisions:\n- CitationRecord dataclass (frozen): title, authors, year, venue, volume, pages, doi, raw_ref_string, context_sentences, garbage_score\n- _RawCitation intermediate dataclass (pre-scoring, mutable)\n- _parse_tei_citations: scans <back><listBibl><biblStruct>; authors 'Surname, Forename' format\n- _garbage_score: faithfully carried from prototype grobid_processor.py; humanities invariant verified (year 1781/1920/1959 all survive in tests)\n- _blocks_to_body_text: joins ABSTRACT/HEADING/PARAGRAPH blocks (bibliography already excluded)\n- _build_citation_patterns + _extract_char_context + _extract_contexts: numeric [N], narrative, parenthetical; 50-char bucket dedup\n- Input: document.provenance.source_metadata['grobid_tei_xml'] (placed by coordinator #28)\n- Output: EnrichmentResult(data={'citations': list[CitationRecord]})\n\nTest count: 126 passed (was 89 before this issue). Rust: clean. ruff: clean. pyright: 0 errors.\nMutation testing: manual gate, M2 milestone-gated (ADR-006). Estimated mutants ~22.",
+  "created_at": "2026-06-14T16:47:21.520518Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABA6H0tF8pWyXIMrH0u3na7cTQ/pqcL5f6uDDJXKUpG3XV+7yVNFDN7BCgRpSCD/8Dx9yUwrOKFclGswuP8TRE1DQ=="
+}
