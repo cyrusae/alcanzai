@@ -1,0 +1,10 @@
+{
+  "uuid": "4b05308c-dda3-4921-ac86-1167e8100b6e",
+  "issue_uuid": "0979ad6d-6bdc-4c8c-bf24-ce683c5e983b",
+  "author": "N6rL",
+  "content": "ingest-job subcommand implemented in alcanzai-core/src/bin/alcanzai.rs. Reads raw_document.json → resolve_identity (ExactMatch short-circuit) → ingest → writes result.json + status.json atomically. 4 new integration tests in tests/ingest_job_integration.rs: writes result+status, stdout is UUID, reingest is exact_match, edge-case fixture succeeds. 49 Rust tests total, 0 failures.",
+  "created_at": "2026-06-14T01:58:53.929465Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABACN7w4HCmfuobdvSn1KYMh1d/4tNlJEWul9D8vj0+cqKvK8n4n/MuAdydmHc/WKeCuvCDBlADoFh5OwBiEwnwCg=="
+}
