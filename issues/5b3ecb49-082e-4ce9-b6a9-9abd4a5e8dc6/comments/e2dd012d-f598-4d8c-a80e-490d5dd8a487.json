@@ -1,0 +1,10 @@
+{
+  "uuid": "e2dd012d-f598-4d8c-a80e-490d5dd8a487",
+  "issue_uuid": "5b3ecb49-082e-4ce9-b6a9-9abd4a5e8dc6",
+  "author": "N6rL",
+  "content": "Implement ArxivSource in alcanzai_ingestion/arxiv_source.py. Deps: add httpx to alcanzai-ingestion/pyproject.toml (no lxml, use stdlib xml.etree.ElementTree; no OTel). normalize() generates job_id UUID; CLI (#30) injects artifact_path via FetchResult.source_metadata. Unit tests mock HTTP with httpx. Reference: prototype/paper_library/arxiv_fetcher.py (read only).",
+  "created_at": "2026-06-14T02:01:53.485242Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAwb7oXrzGIGs642TSksaQd4E2adhrHLVvLnDD0byjNUYoZYbouzCRzJ67RFO3mtWv43uGKkSU4gTIme2jk+nWAw=="
+}
