@@ -1,0 +1,10 @@
+{
+  "uuid": "8024843b-4c43-43eb-98bb-005c194f9388",
+  "issue_uuid": "0979ad6d-6bdc-4c8c-bf24-ce683c5e983b",
+  "author": "N6rL",
+  "content": "Add IngestJob subcommand to alcanzai binary. Reads <job-dir>/raw_document.json → calls SqliteLibrary.ingest() → writes result.json + status.json atomically (.tmp then rename). ExactMatch returns status='exact_match' (not an error). Unit test with fixture 01_academic_pdf_clean.json in a temp job dir.",
+  "created_at": "2026-06-14T01:56:09.363061Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAEkqbFG+zJFg8mBz+M4fDk5fj920NDgb9an24JRkHn8hHuwiXNOOB9ynH2rtHeWumeNRivEGbhEHZrUbgwq+QBQ=="
+}
