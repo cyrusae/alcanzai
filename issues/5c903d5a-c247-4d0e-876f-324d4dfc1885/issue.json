@@ -7,8 +7,9 @@
   "priority": "high",
   "created_by": "N6rL",
   "created_at": "2026-06-14T01:39:30.756937Z",
-  "updated_at": "2026-06-14T01:39:43.323850Z",
+  "updated_at": "2026-06-14T01:39:55.440045Z",
   "labels": [
-    "epic"
+    "epic",
+    "milestone"
   ]
 }
