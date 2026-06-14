@@ -1,0 +1,12 @@
+{
+  "uuid": "8c3075e8-39a4-4ee3-80e8-6c7c2a627d3d",
+  "display_id": 31,
+  "title": "Integration test: end-to-end ingest of arXiv 1706.03762",
+  "description": "All integration tests marked @pytest.mark.integration. Requires: GROBID running at ALCANZAI_GROBID_URL; ALCANZAI_LIBRARY set to temp DB; alcanzai binary on PATH.\n\nTests (in tests/test_m2_integration.py):\n\n1. test_ingest_arxiv_produces_ko: alcanzai ingest 1706.03762 → KO in Library with content_type=academic_pdf, title='Attention Is All You Need', len(ko.blocks) > 10, at least one citation in relationships table.\n\n2. test_reingest_is_noop: ingest 1706.03762 twice → Library has exactly 1 KO; second result.json shows exact_match.\n\n3. test_vault_reflects_ingested_ko: after ingest + alcanzai vault render, vault note for 1706.03762 exists with ## Abstract and ## Content sections populated.\n\n4. test_no_edits_to_library_projection_synthesis: git diff HEAD -- alcanzai-core/src/library.rs alcanzai-core/src/vault_projection.rs shows no changes from M1 baseline. (This is the §6 test #3 partial check — only ingestion/understanding modules changed.)\n\nAcceptance: all 4 tests pass with GROBID running. Tests are skipped gracefully (pytest.skip) if ALCANZAI_GROBID_URL is unreachable.",
+  "status": "open",
+  "priority": "high",
+  "parent_uuid": "5c903d5a-c247-4d0e-876f-324d4dfc1885",
+  "created_by": "N6rL",
+  "created_at": "2026-06-14T01:45:41.197191Z",
+  "updated_at": "2026-06-14T01:45:41.197191Z"
+}
