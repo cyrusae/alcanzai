@@ -1,0 +1,10 @@
+{
+  "uuid": "2764eb6c-b3bc-4063-a28f-fe8af98f6894",
+  "issue_uuid": "5b3ecb49-082e-4ce9-b6a9-9abd4a5e8dc6",
+  "author": "N6rL",
+  "content": "ArxivSource implemented in alcanzai-ingestion/src/alcanzai_ingestion/arxiv_source.py. can_handle/resolve/fetch/normalize all working. PDF validation (%PDF magic + min size). DOI false-positive fix via (?<!\\d) lookbehind. extract_base_id/title_hint made public for testability. 37 unit tests in tests/test_arxiv_source.py (all mocked via pytest-httpx). 2 integration tests marked @pytest.mark.integration. 50 Python tests total, 0 failures. ruff + pyright clean.",
+  "created_at": "2026-06-14T02:08:08.732541Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAmdOzRiyrfnoZEG9Y7zyT7mv0WHMIXu+QUEDTui86ULlQOyBxWqNnVVK1qhzPiOeuloAHm+84H495k1lvpcltCA=="
+}
