@@ -1,0 +1,12 @@
+{
+  "uuid": "5b3ecb49-082e-4ce9-b6a9-9abd4a5e8dc6",
+  "display_id": 25,
+  "title": "Implement ArxivSource in alcanzai-ingestion",
+  "description": "Salvage reference (READ ONLY — reimplement to contract, never copy): prototype/paper_library/arxiv_fetcher.py (448 lines).\n\nImplement ArxivSource against the Source protocol in alcanzai_ingestion/source.py.\n\nSteps:\n- can_handle: accept bare arXiv IDs (1706.03762), versioned IDs (1706.03762v2), and arxiv.org URLs.\n- resolve: normalize to versioned canonical ID via arXiv API; return CanonicalId(source_plugin='arxiv', value='<id>v<n>').\n- fetch: download PDF bytes (validate: >= 1024 bytes, starts with %PDF magic) + Atom XML feed metadata. Write PDF to job artifact dir; store path in FetchResult.source_metadata['artifact_path'].\n- normalize: parse Atom metadata → title, authors, year, abstract, doi (if present), arxiv_id. content_type=academic_pdf. blocks=[]. Return RawDocument<Validated>.\n\nAcceptance:\n- ArxivSource().can_handle('1706.03762') is True\n- resolve('1706.03762') returns CanonicalId(source_plugin='arxiv', value='1706.03762v2')\n- normalize(fetch_result) for 1706.03762 returns RawDocument with title='Attention Is All You Need', authors includes 'Vaswani', year=2017, blocks=[]\n- uv run pytest -m 'not integration' passes (unit tests mock HTTP; integration tests marked @pytest.mark.integration)",
+  "status": "open",
+  "priority": "high",
+  "parent_uuid": "5c903d5a-c247-4d0e-876f-324d4dfc1885",
+  "created_by": "N6rL",
+  "created_at": "2026-06-14T01:41:07.278153Z",
+  "updated_at": "2026-06-14T01:41:07.278153Z"
+}
