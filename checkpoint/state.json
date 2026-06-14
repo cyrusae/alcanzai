@@ -244,11 +244,16 @@
       "agent_id": "N6rL",
       "agent_seq": 47,
       "timestamp": "2026-06-14T16:24:14.278981Z"
+    },
+    {
+      "agent_id": "N6rL",
+      "agent_seq": 48,
+      "timestamp": "2026-06-14T16:24:44.357588Z"
     }
   ],
   "watermark": {
-    "timestamp": "2026-06-14T16:24:14.278981Z",
+    "timestamp": "2026-06-14T16:24:44.357588Z",
     "agent_id": "N6rL",
-    "agent_seq": 47
+    "agent_seq": 48
   }
 }
