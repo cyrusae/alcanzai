@@ -1,0 +1,12 @@
+{
+  "uuid": "0979ad6d-6bdc-4c8c-bf24-ce683c5e983b",
+  "display_id": 29,
+  "title": "Add alcanzai ingest-job subcommand to Rust binary",
+  "description": "Extend alcanzai-core/src/bin/alcanzai.rs with an ingest-job subcommand.\n\nUsage: alcanzai ingest-job --library <path> --job-dir <path>\n\nReads <job-dir>/raw_document.json → calls SqliteLibrary.ingest() → writes:\n- <job-dir>/result.json: { 'status': 'ok', 'ko_id': '<uuid>' } or { 'status': 'error', 'message': '...' }\n- <job-dir>/status.json: { 'phase': 'complete', 'completed_at': '<iso8601>' } or { 'phase': 'failed', ... }\n\nWrites are atomic (write to .tmp, rename) per ADR-004.\n\nExactMatch case: writes result.json with status='exact_match', ko_id='<existing-uuid>'. Not an error — the job succeeded (idempotent ingest).\n\nAcceptance:\n- cargo test: unit test with a temp job dir containing fixture 01_academic_pdf_clean.json ingests and writes correct result.json.\n- Re-running ingest-job with same job dir (or a new job dir with identical content_hash): result.json shows exact_match, Library has one KO not two.\n- cargo clippy -- -D warnings passes; cargo fmt passes.",
+  "status": "open",
+  "priority": "high",
+  "parent_uuid": "5c903d5a-c247-4d0e-876f-324d4dfc1885",
+  "created_by": "N6rL",
+  "created_at": "2026-06-14T01:44:17.421184Z",
+  "updated_at": "2026-06-14T01:44:17.421184Z"
+}
