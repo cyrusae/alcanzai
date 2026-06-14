@@ -1,0 +1,11 @@
+{
+  "uuid": "5c903d5a-c247-4d0e-876f-324d4dfc1885",
+  "display_id": 23,
+  "title": "M2 epic: arXiv Source + enrichers, end-to-end into Library",
+  "description": "Milestone M2 from ROADMAP.md. Goal: prove the ingestion contract by reimplementing arXiv all the way into the Library with structure and citation enrichments attached.\n\nDischarges: §6 test #3 (partial — proves ingest→library for one source; full mixing proven at M3).\n\nArchitecture decisions in effect:\n- ADR-011 (to be written): Option A enrichment model — Python assembles fully-enriched RawDocument; Rust ingests once. Re-enrichment path deferred to M3.\n- Job coordination: synchronous subprocess (Python writes job file → calls alcanzai ingest-job → reads result.json).\n- OTel: not in scope for M2 (deferred to v0.3.0).\n- GROBID endpoint: ALCANZAI_GROBID_URL env var, default http://localhost:8070.\n\nDone-conditions (self-checkable):\n1. alcanzai ingest 1706.03762 → KO in Library with structure + citation enrichments → vault note exists after render.\n2. Re-ingesting same ID is a no-op (ExactMatch dedup).\n3. Diff of Library/projection/synthesis modules shows zero edits (only ingestion + understanding modules changed).\n\nSalvage files (read-only reference):\n- prototype/paper_library/arxiv_fetcher.py\n- prototype/paper_library/grobid_processor.py\n- prototype/paper_library/citation_context.py",
+  "status": "open",
+  "priority": "high",
+  "created_by": "N6rL",
+  "created_at": "2026-06-14T01:39:30.756937Z",
+  "updated_at": "2026-06-14T01:39:30.756937Z"
+}
