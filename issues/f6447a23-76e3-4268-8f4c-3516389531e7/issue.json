@@ -1,0 +1,12 @@
+{
+  "uuid": "f6447a23-76e3-4268-8f4c-3516389531e7",
+  "display_id": 30,
+  "title": "Implement alcanzai ingest CLI command in alcanzai-interaction",
+  "description": "First real code in alcanzai-interaction. Implement the alcanzai ingest <identifier> command.\n\nEntry point: python -m alcanzai_interaction ingest <identifier>\n\nFlow (synchronous subprocess, ADR-011):\n1. Detect source: iterate registered Sources, call can_handle(identifier), claim first match (ArxivSource for M2).\n2. Source.resolve(identifier) → CanonicalId.\n3. Create job dir: .alcanzai/jobs/<uuid>/ (UUID v4).\n4. Source.fetch(canonical) → FetchResult (PDF written to job dir as artifact.pdf; path recorded in source_metadata).\n5. Source.normalize(fetch_result) → base RawDocument.\n6. run_enrichment_pipeline(raw_document, enrichers=[GrobidStructureEnricher(), CitationEnricher()]) → enriched RawDocument.\n7. Write enriched RawDocument to <job-dir>/raw_document.json (atomic: .tmp then rename).\n8. Subprocess: alcanzai ingest-job --library <library-path> --job-dir <job-dir>. Wait for exit.\n9. Read result.json. Print KO id (or existing KO id on exact_match). Exit non-zero on error.\n\nLibrary path: ALCANZAI_LIBRARY env var or --library flag.\n\nAcceptance:\n- Unit test (no network, no GROBID, no Rust binary): mock Source + coordinator + subprocess call; assert job dir written correctly and subprocess invoked with correct args.\n- uv run pytest -m 'not integration' passes.",
+  "status": "open",
+  "priority": "high",
+  "parent_uuid": "5c903d5a-c247-4d0e-876f-324d4dfc1885",
+  "created_by": "N6rL",
+  "created_at": "2026-06-14T01:44:55.780540Z",
+  "updated_at": "2026-06-14T01:44:55.780540Z"
+}
