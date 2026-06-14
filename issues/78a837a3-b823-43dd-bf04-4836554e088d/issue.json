@@ -1,0 +1,12 @@
+{
+  "uuid": "78a837a3-b823-43dd-bf04-4836554e088d",
+  "display_id": 24,
+  "title": "ADR-011: Option A enrichment model — Python assembles, Rust ingests once",
+  "description": "Record ADR-011 in ADR.md before any M2 code is written.\n\nDecision: Python Understanding layer runs all enrichers on the RawDocument in-memory, merges EnrichmentResults into a fully-enriched RawDocument (blocks populated), then writes to job file. Rust ingests once. No partial KOs in the Library.\n\nAlso record: re-enrichment path (add blocks to existing KO without content_hash change) is deferred to M3, when OCR async enrichment makes it a necessary design. M2 recovery story for GROBID failure: fail the job cleanly; user re-runs alcanzai ingest when GROBID is available.\n\nAcceptance: ADR-011 entry committed to ADR.md covering the above + options considered (Option B two-phase rejected: requires new Library API, architecturally contradicts DESIGN.md §3.2, partial-KO observable state).",
+  "status": "open",
+  "priority": "high",
+  "parent_uuid": "5c903d5a-c247-4d0e-876f-324d4dfc1885",
+  "created_by": "N6rL",
+  "created_at": "2026-06-14T01:40:16.289902Z",
+  "updated_at": "2026-06-14T01:40:16.289902Z"
+}
