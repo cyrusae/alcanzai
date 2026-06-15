@@ -1,0 +1,10 @@
+{
+  "uuid": "c1640373-26a8-40cc-a667-5e4cc383cfc9",
+  "issue_uuid": "2bfafb73-82b2-4871-9b50-53ab4f991cf6",
+  "author": "N6rL",
+  "content": "Implemented run_enrichment_pipeline in alcanzai_understanding/coordinator.py. Merge rules: grobid_blocks → doc.blocks, grobid_tei_xml → source_metadata, grobid_metadata → backfill title/authors/year/abstract_text (prefer longer abstract), all other keys → source_metadata. EnrichmentError added to enricher.py. Fixed Python 2 'except ValueError, IndexError:' syntax in grobid_enricher.py + citation_enricher.py. 19 tests added, 145 total passing. 0 pyright errors. Mutation gate: deferred to #32 (M2 milestone gate). Mutant count: N/A this issue.",
+  "created_at": "2026-06-15T05:12:50.988790Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAnLDfQ8DGRjl/yZBFqrwuq63gqOGvK/VrHUvc116+xVGM9vqENr089BLGdiKyW7YQB3mlbdDpRcM5INZfmGnwBw=="
+}
