@@ -1,0 +1,10 @@
+{
+  "uuid": "2bb87307-f3a5-49df-8928-14b60cafc070",
+  "issue_uuid": "f6447a23-76e3-4268-8f4c-3516389531e7",
+  "author": "N6rL",
+  "content": "Implemented alcanzai ingest CLI in alcanzai-interaction. ingest.py: run_ingest() covers full pipeline (source selection → resolve → job dir → fetch → artifact write → artifact_path injection → normalize → model_copy job_id → enrichment pipeline → atomic raw_document.json write → subprocess ingest-job → result.json parse → return ko_id). __main__.py: argparse with ingest subcommand, --library flag / ALCANZAI_LIBRARY env, catches SourceError + EnrichmentError + IngestError, exits 0 with ko_id on stdout. Binary location: ALCANZAI_BIN env → shutil.which('alcanzai'). 17 new tests (happy path, file assertions, subprocess args, artifact_path injection, job_id alignment, NoSourceError, subprocess failure, result.json errors, main() CLI). 162 total passing, 0 pyright errors. Mutation gate: deferred to #32.",
+  "created_at": "2026-06-15T06:16:07.669463Z",
+  "kind": "result",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAz2TE5aGfZ6xu5e/O3wKgLg49+WwxLQhjiVTIjBLozMXbEeL7j+2dfBjlKtqPLRFXkMqTq3OYb+ytVRW6Tq+gCg=="
+}
