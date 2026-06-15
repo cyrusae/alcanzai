@@ -1,0 +1,10 @@
+{
+  "uuid": "0ec98298-214b-46c9-836e-69a0f3cef688",
+  "issue_uuid": "f6447a23-76e3-4268-8f4c-3516389531e7",
+  "author": "N6rL",
+  "content": "Plan:\n1. alcanzai-interaction/pyproject.toml: add alcanzai-ingestion + alcanzai-understanding as deps.\n2. ingest.py: run_ingest(identifier, library_path, *, sources, bin_path, job_base_dir) -> str\n   - Pick first source where can_handle(); raise IngestError/NoSourceError if none.\n   - resolve() → canonical; mkdir .alcanzai/jobs/<uuid>/\n   - fetch() → write artifact.pdf; inject artifact_path into source_metadata dict\n   - normalize() → raw_doc; model_copy to fix job_id to match job dir UUID\n   - run_enrichment_pipeline(raw_doc, [GrobidStructureEnricher(), CitationEnricher()]) → enriched\n   - Write enriched.to_json() atomically to raw_document.json (.tmp → rename)\n   - subprocess.run([bin, 'ingest-job', '--library', ..., '--job-dir', ...], capture_output=True)\n   - Non-zero exit → raise IngestError; read result.json → return ko_id\n3. __main__.py: argparse with 'ingest' subcommand; --library flag / ALCANZAI_LIBRARY env var; catch errors, exit non-zero\n4. tests/test_ingest_cli.py: mock Source + run_enrichment_pipeline + subprocess.run (side_effect writes result.json); assert artifact.pdf + raw_document.json written; assert subprocess args correct; test failure paths.",
+  "created_at": "2026-06-15T06:13:01.740691Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABABRNhuQINVLF7hWWyrcUhevetiaoOAFB+fFtAi6vrZGoQQzn9IEwRgm5So+sQrPQHFhZZs67I7YqOMrrrWOQ4Cg=="
+}
