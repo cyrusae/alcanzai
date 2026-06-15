@@ -1,0 +1,10 @@
+{
+  "uuid": "82a1555a-8ac4-469d-8c84-fe3ca7e5e5b7",
+  "issue_uuid": "2bfafb73-82b2-4871-9b50-53ab4f991cf6",
+  "author": "N6rL",
+  "content": "Plan:\n1. Add EnrichmentError to enricher.py (coordinator raises this when any enricher returns error).\n2. Create alcanzai_understanding/coordinator.py with run_enrichment_pipeline + _apply_enrichment.\n   - Sort applicable enrichers by priority, run in order, merge results between runs.\n   - _apply_enrichment: grobid_blocks → doc.blocks; grobid_tei_xml → source_metadata; grobid_metadata → backfill title/authors/year/abstract_text (prefer longer abstract); everything else → source_metadata.\n   - Fail fast: raise EnrichmentError on any result.error (ADR-011).\n3. Fix Python 2 'except ValueError, IndexError:' syntax in grobid_enricher.py and citation_enricher.py (both files have this bug — SyntaxError in Python 3).\n4. Update __init__.py to export EnrichmentError + run_enrichment_pipeline.\n5. Write tests/test_coordinator.py: happy path (mock GROBID + mock citations → enriched doc), fail-fast on GROBID error, non-applicable enrichers skipped, priority ordering verified.",
+  "created_at": "2026-06-15T05:08:58.240496Z",
+  "kind": "plan",
+  "signed_by": "SHA256:pkM3jsY5oskqvt6PuAZN6HEqXW6fZ3tamoNT0+f/E/8",
+  "signature": "U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgDiS4UbotPNLVSXs5/1f8/kdeX+1o6Qnlyqit11RJA/cAAAARY3Jvc3NsaW5rLWNvbW1lbnQAAAAAAAAABnNoYTUxMgAAAFMAAAALc3NoLWVkMjU1MTkAAABAqZTQZDwxwnlltUd0XVltvxXdwUCVByCYpak7ds+wzDuBBwN8OyajI3N/eS70i+wVg4iK5ykUG+Ofoni+0RCRDQ=="
+}
